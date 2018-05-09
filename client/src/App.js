@@ -2,15 +2,16 @@ import React, { Component } from 'react';
 import {
   BrowserRouter as Router,
   Route,
-  Link,
   Switch,
   Redirect,
   NavLink
 } from 'react-router-dom';
 
-import Search from './components/search';
+import Create from './components/create';
 import Tx from './components/tx';
 import Address from './components/address';
+import Customers from './components/customers';
+import User from './components/user';
 import Block from './components/block';
 
 import './App.css';
@@ -21,7 +22,8 @@ class App extends Component {
 
     super(props);
     this.state = {
-      activeMenu: ''
+      activeMenu: '',
+      notex2x: ''
     }
   }
 
@@ -39,31 +41,46 @@ class App extends Component {
   }
 
   render() {
-    const SearchPage = (props) => {
+    const CreatePage = (props) => {
       return (
-        <Search
-          bitbox={this.state.BITBOX}
+        <Create
+          notex2x={this.state.notex2x}
         />
       );
     };
     const TxPage = (props) => {
       return (
         <Tx
-          bitbox={this.state.BITBOX}
+          notex2x={this.state.notex2x}
         />
       );
     };
     const AddressPage = (props) => {
       return (
         <Address
-          bitbox={this.state.BITBOX}
+          notex2x={this.state.notex2x}
+        />
+      );
+    };
+    const CustomersPage = (props) => {
+      return (
+        <Customers
+          notex2x={this.state.notex2x}
+          {...props}
+        />
+      );
+    };
+    const UserPage = (props) => {
+      return (
+        <User
+          notex2x={this.state.notex2x}
         />
       );
     };
     const BlockPage = (props) => {
       return (
         <Block
-          bitbox={this.state.BITBOX}
+          notex2x={this.state.notex2x}
         />
       );
     };
@@ -90,15 +107,15 @@ class App extends Component {
                       activeClassName="pure-menu-selected"
                       className="pure-menu-heading"
                       to="/">
-                      BITBOX
+                      Notex2x
                     </NavLink>
                     <ul className="pure-menu-list">
                       <li className="pure-menu-item">
                         <NavLink
                           activeClassName="pure-menu-selected"
                           className="pure-menu-link"
-                          to="/search">
-                          Search
+                          to="/create">
+                          Create
                         </NavLink>
                       </li>
                       <li className="pure-menu-item">
@@ -121,6 +138,22 @@ class App extends Component {
                         <NavLink
                           activeClassName="pure-menu-selected"
                           className="pure-menu-link"
+                          to="/user">
+                          User
+                        </NavLink>
+                      </li>
+                      <li className="pure-menu-item">
+                        <NavLink
+                          activeClassName="pure-menu-selected"
+                          className="pure-menu-link"
+                          to="/customers">
+                          Customers
+                        </NavLink>
+                      </li>
+                      <li className="pure-menu-item">
+                        <NavLink
+                          activeClassName="pure-menu-selected"
+                          className="pure-menu-link"
                           to="/block">
                           Block
                         </NavLink>
@@ -130,9 +163,11 @@ class App extends Component {
                 </div>
 
                 <Switch>
-                  <Route path="/search" component={SearchPage}/>
+                  <Route path="/create" component={CreatePage}/>
                   <Route path="/tx" component={TxPage}/>
                   <Route path="/address" component={AddressPage}/>
+                  <Route path="/user" component={UserPage}/>
+                  <Route path={"/customers/:id"} name="customers" component={CustomersPage}/>
                   <Route path="/block" component={BlockPage}/>
                   <Redirect from='*' to='/' />
                 </Switch>

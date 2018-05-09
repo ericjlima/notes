@@ -2,15 +2,13 @@ import React, { Component } from 'react';
 import axios from 'axios';
 // var custID=0;
 
-class Address extends Component {
+class User extends Component {
   constructor(props) {
     super(props);
     this.state = {
       users: [],
       customers: [],
-      custIDs: 3,
-      cat: 2,
-      custID: 2,
+      custID: 1,
       singleCustData: 'null',
       data: 'null'
     };
@@ -20,22 +18,19 @@ class Address extends Component {
     fetch('/users')
       .then(res => res.json())
       .then(users => this.setState({ users }));
-    fetch('/customers') 
-      .then(res => res.json())
-      .then(customers => this.setState({ customers }));
+    // fetch('/customers') 
+    //   .then(res => res.json())
+    //   .then(customers => this.setState({ customers }));
 
      //axios(`/customers/${custID}`, {
       // axios(`/customers`, {
-      // axios.get('/customers/2', {
-      axios.get(`/customers/${this.state.custID}`, {    
+      axios.get('/customers', {
         params: {
             ID: 2
         }
       })
       .then(function(response){
         console.log(response);
-        //this.setState({ custID });
-        // custID => this.setState({ custID });
       })
       .catch(function(error){
         console.log(error)
@@ -44,10 +39,10 @@ class Address extends Component {
 
   render() {
     return (
-      <div className="address">
-        <h1 className="address-title">Address</h1>
+      <div className="user">
+        <h1 className="user-title">User</h1>
         <h1>CustID</h1>
-        {this.state.cat}
+        {this.state.custID}
         <h1>Users</h1>
         {this.state.users.map(user =>
           <div key={user.id}>{user.username}</div>
@@ -61,4 +56,4 @@ class Address extends Component {
   }
 }
 
-export default Address;
+export default User;

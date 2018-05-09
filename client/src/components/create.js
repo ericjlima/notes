@@ -1,18 +1,18 @@
 import React, { Component } from 'react';
 
-class Search extends Component {
+class Create extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      search: '',
+      create: '',
       data: 'null'
     };
   }
 
-  handleSearchChange(e) {
+  handleCreateChange(e) {
     let value = e.target.value;
     this.setState({
-      search: value
+      create: value
     });
   }
 
@@ -28,14 +28,14 @@ class Search extends Component {
 
   render() {
     return (
-      <div className="Search">
-        <h1 className="Search-title">Search</h1>
+      <div className="Create">
+        <h1 className="Create-title">Create</h1>
         <form method="get" className="pure-form pure-form-aligned" onSubmit={this.handleSubmit.bind(this)}>
           <fieldset>
             <div className="pure-control-group">
               <div className='pure-control-group'>
-                <label>Search</label>
-                <input onChange={this.handleSearchChange.bind(this)} id="search" type="text" placeholder="Search"/>
+                <label>Create</label>
+                <input onChange={this.handleCreateChange.bind(this)} id="create" type="text" placeholder="Create"/>
               </div>
             </div>
             <div className="pure-controls">
@@ -48,4 +48,4 @@ class Search extends Component {
   }
 }
 
-export default Search;
+export default Create;
