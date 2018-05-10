@@ -11,9 +11,13 @@ var con = mysql.createConnection({
 });
 con.connect(function(err) {
   if (err) throw err;
-  con.query("SELECT * FROM customers", function (err, result, fields) {
-    if (err) throw err;
-    console.log(result);
+
+});
+
+
+con.query("SELECT * FROM customers", function (err, result, fields) {
+	if (err) throw err;
+	console.log(result);
 
 	/* GET users listing. */
 	router.get('/customers', function(req, res, next) {
@@ -21,13 +25,34 @@ con.connect(function(err) {
 	});
 
 	router.get('/customers/:customersId', function(req, res, next) {
-	  // res.send(req.params.customersId);
-	  const customer = result.find(c => c.id === parseInt(req.params.customersId));
-	  if(!customer) res.status(404).send("Error the customer was not found.");
+	  const customer = result.find(c => c.name === req.params.customersId);
+	  console.log("customer: ");
+	  console.log(customer);
+	  
+	 // if(!customer) res.status(404).send("Error the customer was not found.");
 	  res.send(customer);
 	});
-  });
-});
 
+	router.post('/customers/:customersId', function(req, res, next) {
+		let sql = `INSERT IGNORE INTO customers (name, address) VALUES ('${req.params.customersId}', 'Lorem Ipsum')`;
+	  	let query = con.query(sql);
+	});
+
+	// router.post('/customers/:customersId/:customersMessage', function(req, res, next) {
+
+	// 	let sql = `UPDATE customers SET address='test' WHERE id=${req.params.customersId};`;
+	//   	let query = con.query(sql);
+	  	
+	// });
+
+	router.put('/customers/:customersId/:customersMessage', function(req, res, next) {
+	
+
+		let sql = `UPDATE customers SET address='${req.params.customersMessage}' WHERE name='${req.params.customersId}';`;
+	  	let query = con.query(sql);
+	  	
+	});
+
+});
 
 module.exports = router;

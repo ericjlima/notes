@@ -146,7 +146,7 @@ class App extends Component {
                         <NavLink
                           activeClassName="pure-menu-selected"
                           className="pure-menu-link"
-                          to="/customers">
+                          to="/customers/1">
                           Customers
                         </NavLink>
                       </li>
@@ -163,12 +163,12 @@ class App extends Component {
                 </div>
 
                 <Switch>
-                  <Route path="/create" component={CreatePage}/>
-                  <Route path="/tx" component={TxPage}/>
-                  <Route path="/address" component={AddressPage}/>
-                  <Route path="/user" component={UserPage}/>
-                  <Route path={"/customers/:id"} name="customers" component={CustomersPage}/>
-                  <Route path="/block" component={BlockPage}/>
+                  <Route path="/create" component={CreatePage} />
+                  <Route path="/tx" component={TxPage} />
+                  <Route path="/address" component={AddressPage} />
+                  <Route path="/user" component={UserPage} />
+                  <Route path={"/customers/:id"} component={CustomersPage} />
+                  <Route path="/block" component={BlockPage} />
                   <Redirect from='*' to='/' />
                 </Switch>
               </div>
