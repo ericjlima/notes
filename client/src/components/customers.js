@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 
+//TODO: CLEAN UP
+
+
 // var custID=0;
 
 class Customers extends Component {

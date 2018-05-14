@@ -11,6 +11,7 @@ import Create from './components/create';
 import Tx from './components/tx';
 import Address from './components/address';
 import Customers from './components/customers';
+import Notes from './components/notes';
 import User from './components/user';
 import Block from './components/block';
 
@@ -65,6 +66,14 @@ class App extends Component {
     const CustomersPage = (props) => {
       return (
         <Customers
+          notex2x={this.state.notex2x}
+          {...props}
+        />
+      );
+    };
+    const NotesPage = (props) => {
+      return (
+        <Notes
           notex2x={this.state.notex2x}
           {...props}
         />
@@ -154,6 +163,14 @@ class App extends Component {
                         <NavLink
                           activeClassName="pure-menu-selected"
                           className="pure-menu-link"
+                          to="/notes/1">
+                          Notes
+                        </NavLink>
+                      </li>
+                      <li className="pure-menu-item">
+                        <NavLink
+                          activeClassName="pure-menu-selected"
+                          className="pure-menu-link"
                           to="/block">
                           Block
                         </NavLink>
@@ -168,6 +185,7 @@ class App extends Component {
                   <Route path="/address" component={AddressPage} />
                   <Route path="/user" component={UserPage} />
                   <Route path={"/customers/:id"} component={CustomersPage} />
+                  <Route path={"/notes/:id"} component={NotesPage} />
                   <Route path="/block" component={BlockPage} />
                   <Redirect from='*' to='/' />
                 </Switch>

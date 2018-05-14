@@ -1,4 +1,7 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
+import MyEditor from './MyEditor';
+import { Editor, EditorState} from 'react-draft-wysiwyg';
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 
 class Tx extends Component {
   constructor(props) {
@@ -8,12 +11,15 @@ class Tx extends Component {
     };
   }
 
-  render() {
+
+  render () {
     return (
-      <div className="tx">
-        <h1 className="tx-title">Transaction</h1>
-        <p>Coming Soon</p>
-      </div>
+      <MyEditor
+  toolbarClassName="home-toolbar"
+  wrapperClassName="home-wrapper"
+  editorClassName="home-editor"
+  onEditorStateChange={this.onEditorStateChange}
+/>
     );
   }
 }

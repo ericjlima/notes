@@ -9,11 +9,11 @@ var con = mysql.createConnection({
   password: "water123",
   database: "mydb"
 });
+
+
 con.connect(function(err) {
   if (err) throw err;
-
 });
-
 
 con.query("SELECT * FROM customers", function (err, result, fields) {
 	if (err) throw err;
@@ -29,7 +29,6 @@ con.query("SELECT * FROM customers", function (err, result, fields) {
 	  console.log("customer: ");
 	  console.log(customer);
 	  
-	 // if(!customer) res.status(404).send("Error the customer was not found.");
 	  res.send(customer);
 	});
 
@@ -37,13 +36,6 @@ con.query("SELECT * FROM customers", function (err, result, fields) {
 		let sql = `INSERT IGNORE INTO customers (name, address) VALUES ('${req.params.customersId}', 'Lorem Ipsum')`;
 	  	let query = con.query(sql);
 	});
-
-	// router.post('/customers/:customersId/:customersMessage', function(req, res, next) {
-
-	// 	let sql = `UPDATE customers SET address='test' WHERE id=${req.params.customersId};`;
-	//   	let query = con.query(sql);
-	  	
-	// });
 
 	router.put('/customers/:customersId/:customersMessage', function(req, res, next) {
 	
