@@ -97,7 +97,6 @@ class notes extends Component {
             </div>
           </fieldset>
         </form>
-        <h1 className="notes-title">note</h1>
         <h1>NoteID</h1>
         {this.props.match.params.id}
         <h1>Message</h1>
