@@ -23,10 +23,10 @@ class Customers extends Component {
 
  componentDidMount() {
    
-    fetch('/users')
+    fetch('/api/users')
       .then(res => res.json())
       .then(users => this.setState({ users }));
-    fetch('/customers') 
+    fetch('/api/customers') 
       .then(res => res.json())
       .then(customers => this.setState({ customers }));
 
@@ -40,7 +40,7 @@ class Customers extends Component {
     //   console.log(error)
     // });
 
-    axios.get(`/customers/${this.props.match.params.id}`)
+    axios.get(`/api/customers/${this.props.match.params.id}`)
     .then((response) => {
       this.setState({apiResponse: JSON.response});
       // console.log("response: ");
@@ -51,7 +51,7 @@ class Customers extends Component {
       console.log(error)
     });
 
-    axios.post(`/customers/${this.props.match.params.id}`).then((response) => {
+    axios.post(`/api/customers/${this.props.match.params.id}`).then((response) => {
              console.log(response);
         }).catch(function (error) {
         return JSON.stringify(error);
@@ -71,7 +71,7 @@ class Customers extends Component {
 
   handleSubmit(e) {
     // alert(this.props.match.params.id);
-    axios.put(`/customers/${this.props.match.params.id}/${this.state.value}`).then((response) => {
+    axios.put(`/api/customers/${this.props.match.params.id}/${this.state.value}`).then((response) => {
              console.log(response);
         }).catch(function (error) {
         return JSON.stringify(error);

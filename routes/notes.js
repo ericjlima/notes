@@ -49,22 +49,22 @@ con.query("SELECT * FROM notes", function (err, result, fields) {
 	if (err) throw err;
 	console.log(result);
 
-	router.get('/notes', function(req, res, next) {
+	router.get('/api/notes', function(req, res, next) {
 	  res.json( result );
 	});
 
-	router.get('/notes/:notesId', function(req, res, next) {
+	router.get('/api/notes/:notesId', function(req, res, next) {
 	  const note = result.find(c => c.name === req.params.notesId);
 	  
 	  res.send(note);
 	});
 
-	router.post('/notes/:notesId', function(req, res, next) {
+	router.post('/api/notes/:notesId', function(req, res, next) {
 		let sql = `INSERT IGNORE INTO notes (name, message) VALUES ('${req.params.notesId}', 'Lorem Ipsum')`;
 	  	let query = con.query(sql);
 	});
 
-	router.put('/notes/:notesId/:notesMessage', function(req, res, next) {
+	router.put('/api/notes/:notesId/:notesMessage', function(req, res, next) {
 		let sql = `UPDATE notes SET message='${req.params.notesMessage}' WHERE name='${req.params.notesId}';`;
 	  	let query = con.query(sql);
 	  	

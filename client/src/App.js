@@ -90,6 +90,7 @@ class App extends Component {
       return (
         <Block
           notex2x={this.state.notex2x}
+          {...props}
         />
       );
     };
@@ -171,7 +172,7 @@ class App extends Component {
                         <NavLink
                           activeClassName="pure-menu-selected"
                           className="pure-menu-link"
-                          to="/block">
+                          to="/block/1">
                           Block
                         </NavLink>
                       </li>
@@ -186,7 +187,7 @@ class App extends Component {
                   <Route path="/user" component={UserPage} />
                   <Route path={"/customers/:id"} component={CustomersPage} />
                   <Route path={"/notes/:id"} component={NotesPage} />
-                  <Route path="/block" component={BlockPage} />
+                  <Route path="/block/:id" component={BlockPage} />
                   <Redirect from='*' to='/' />
                 </Switch>
               </div>

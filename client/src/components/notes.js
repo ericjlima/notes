@@ -24,11 +24,11 @@ class notes extends Component {
  componentDidMount() {
    
 
-    fetch('/notes') 
+    fetch('/api/notes') 
       .then(res => res.json())
       .then(notes => this.setState({ notes }));
 
-    axios.get(`/notes/${this.props.match.params.id}`)
+    axios.get(`/api/notes/${this.props.match.params.id}`)
     .then((response) => {
       this.setState({apiResponse: JSON.response});
       // console.log("response: ");
@@ -43,7 +43,7 @@ class notes extends Component {
       console.log(error)
     });
 
-    axios.post(`/notes/${this.props.match.params.id}`).then((response) => {
+    axios.post(`/api/notes/${this.props.match.params.id}`).then((response) => {
              console.log(response);
         }).catch(function (error) {
         return JSON.stringify(error);
@@ -59,7 +59,7 @@ class notes extends Component {
 
   handleSubmit(e) {
     // alert(this.props.match.params.id);
-    axios.put(`/notes/${this.props.match.params.id}/${this.state.value}`).then((response) => {
+    axios.put(`/api/notes/${this.props.match.params.id}/${this.state.value}`).then((response) => {
              console.log(response);
         }).catch(function (error) {
         return JSON.stringify(error);

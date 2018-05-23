@@ -1,7 +1,4 @@
 import React, {Component} from 'react';
-import MyEditor from './MyEditor';
-import { Editor, EditorState} from 'react-draft-wysiwyg';
-import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 
 class Tx extends Component {
   constructor(props) {
@@ -14,12 +11,7 @@ class Tx extends Component {
 
   render () {
     return (
-      <MyEditor
-  toolbarClassName="home-toolbar"
-  wrapperClassName="home-wrapper"
-  editorClassName="home-editor"
-  onEditorStateChange={this.onEditorStateChange}
-/>
+      <div />
     );
   }
 }
