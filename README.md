@@ -12,4 +12,4 @@ Steps to run this app.
 5.) Go to /client and run "npm install && npm start"
 
 
-If you can get the front end to display the update, I will send you $5 dollars via Bitcoin Cash or Paypal...
+If you can get the front end to display the update, I will send you $5 dollars via Bitcoin Cash or Paypal. If you have any questions let me know. Thanks!
