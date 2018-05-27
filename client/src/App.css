@@ -34,3 +34,8 @@
 .verificationMessage{
   margin: 0 0 0 1em;
 }
+
+.createNote textarea{
+  width: 75%;
+  height: 200px;
+}

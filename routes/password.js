@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
-var mysql = require('mysql2');
+var mysql = require('mysql');
 
 var con = mysql.createConnection({
   host: "localhost",
@@ -43,10 +43,8 @@ con.connect(function(err) {
 // console.log("Number of records inserted: " + result.affectedRows);
 // });
 
-
-
-	router.get('/api/notes', function(req, res, next) {
-		con.query("SELECT * FROM notes", function (err, result, fields) {
+	router.get('/api/password', function(req, res, next) {
+		con.query("SELECT * FROM password", function (err, result, fields) {
 			if (err) throw err;
 			console.log(result);
 		
@@ -54,32 +52,15 @@ con.connect(function(err) {
 	    });
 	});
 
-	router.get('/api/notes/:notesId', function(req, res, next) {
-		con.query("SELECT * FROM notes", function (err, result, fields) {
+
+
+	router.get('/api/password/:password', function(req, res, next) {
+		con.query("SELECT * FROM password", function (err, result, fields) {
 			if (err) throw err;
 			console.log(result);
-	  		const note = result.find(c => c.name === req.params.notesId);
+	  		const password_data = result.find(c => c.name === req.params.password);
 	  
-	  		res.send(note);
-		});
-	});
-
-	router.post('/api/notes/:notesId', function(req, res, next) {
-		con.query("SELECT * FROM notes", function (err, result, fields) {
-				if (err) throw err;
-				console.log(result);
-			let sql = `INSERT IGNORE INTO notes (name, message) VALUES ('${req.params.notesId}', '')`;
-		  	let query = con.query(sql);
-	  	});
-	});
-
-	router.put('/api/notes/:notesId/:notesMessage', function(req, res, next) {
-		con.query("SELECT * FROM notes", function (err, result, fields) {
-				if (err) throw err;
-				console.log(result);
-
-				let sql = `UPDATE notes SET message='${req.params.notesMessage}' WHERE name='${req.params.notesId}';`;
-			  	let query = con.query(sql);
+	  		res.send(password_data);
 		});
 	});
 

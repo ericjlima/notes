@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+var md5 = require('md5');
 
 
 //TODO: CLEAN UP
 
-class notes extends Component {
+
+class Notes extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -12,8 +14,12 @@ class notes extends Component {
       notes: [],
       nodeID: 1,
       create: 'null',
-      apiResponse: 'null',
+      checkPass: null,
+      pass: '',
+      passEntered: false,
       verificationMessage: null,
+      passwordEnteredMessage: null,
+      verificationPassMessage: null,
       singleNoteData: null,
       message: null,
       value: '',
@@ -24,7 +30,7 @@ class notes extends Component {
  componentDidMount() {
    
 
-    fetch('/api/notes') 
+    fetch('/api/notes')
       .then(res => res.json())
       .then(notes => this.setState({ notes }));
 
@@ -36,19 +42,33 @@ class notes extends Component {
       this.setState({singleNoteData: response.data.name});
       this.setState({message: response.data.message});
         this.setState({
-          value: response.data.message
+          value: unescape(response.data.message)
         });
     })
     .catch(function(error){
       console.log(error)
     });
 
+    axios.get(`/api/password/${this.state.pass}`).then((response) => {
+              console.log("pass");
+             console.log(response.data[0].password);
+
+          this.setState({checkPass: response.data[0].password});
+        }).catch(function (error) {
+        return JSON.stringify(error);
+      });
+
     axios.post(`/api/notes/${this.props.match.params.id}`).then((response) => {
+      alert(this.props.match.params.id);
              console.log(response);
         }).catch(function (error) {
         return JSON.stringify(error);
       });;
   }
+
+
+
+
 
   handleCreateChange(e) {
     // let value = e.target.value;
@@ -57,23 +77,59 @@ class notes extends Component {
     });
   }
 
-  handleSubmit(e) {
-    // alert(this.props.match.params.id);
-    axios.put(`/api/notes/${this.props.match.params.id}/${this.state.value}`).then((response) => {
-             console.log(response);
-        }).catch(function (error) {
-        return JSON.stringify(error);
-      });;
-    e.preventDefault();
+  handlePassEnter(e){
     this.setState({
-      verificationMessage: "Message was saved.",
-      message: this.state.value
+      pass: e.target.value
     });
-    setTimeout(()=>{
-      this.setState({
-         verificationMessage: ""
-      });
-    },2000)
+  }
+
+  handleSubmit(e) {
+      if(this.state.passEntered){
+
+        axios.put(`/api/notes/${this.props.match.params.id}/${encodeURIComponent(this.state.value)}`).then((response) => {
+                 console.log(response);
+            }).catch(function (error) {
+            return JSON.stringify(error);
+          });;
+        this.setState({
+          verificationMessage: "Message was saved.",
+          message: this.state.value
+        });
+        setTimeout(()=>{
+          this.setState({
+             verificationMessage: ""
+          });
+        },2000)
+    }
+    e.preventDefault(); 
+  }
+
+  handleSubmitPass(e) {
+    //alert(this.state.pass);
+      if(md5(this.state.pass)===this.state.checkPass){
+        this.setState({ passEntered: true });
+        this.setState({
+          passwordEnteredMessage: "Password was entered.",
+          message: this.state.value
+        });
+        setTimeout(()=>{
+          this.setState({
+             passwordEnteredMessage: ""
+          });
+        },2000)
+      }
+      else{
+       this.setState({
+          passwordEnteredMessage: "Password was not entered.",
+          message: this.state.value
+        });
+        setTimeout(()=>{
+          this.setState({
+             passwordEnteredMessage: ""
+          });
+        },2000)
+      }
+      e.preventDefault();
   }
 
   htmlEntities(str) {
@@ -83,8 +139,23 @@ class notes extends Component {
   render() {
     return (
       <div className="notes">
-      <h1 className="Create-title">Create</h1>
-        <form method="get" className="pure-form pure-form-aligned" onSubmit={this.handleSubmit.bind(this)}>
+      <h1 className="Create-title">
+        {this.props.match.params.id}</h1>        
+        <form method="get" className="pure-form pure-form-aligned" onSubmit={this.handleSubmitPass.bind(this)}>
+          <fieldset>
+            <div className="pure-control-group">
+              <div className='pure-control-group'>
+                <label>Password</label>
+                <input onChange={this.handlePassEnter.bind(this)} id="passenter" type="text" value={this.state.pass} placeholder="Create"/>
+              </div>
+            </div>
+            <div className="pure-controls">
+              <button type="submit" className="pure-button pure-button-primary messageSubmit-button">Submit</button> <p className="passwordEnteredMessage"> {this.state.passwordEnteredMessage} </p>
+            </div>
+          </fieldset>
+        </form>
+
+        <form method="get" className="pure-form pure-form-aligned createNote" onSubmit={this.handleSubmit.bind(this)}>
           <fieldset>
             <div className="pure-control-group">
               <div className='pure-control-group'>
@@ -97,17 +168,14 @@ class notes extends Component {
             </div>
           </fieldset>
         </form>
-        <h1>NoteID</h1>
-        {this.props.match.params.id}
+
+
         <h1>Message</h1>
-        {this.state.message}
-        <h1>All Notes</h1>
-        {this.state.notes.map(note =>
-            <div key={note.id}>{note.name} - {note.message}</div>
-        )}
+        <div dangerouslySetInnerHTML={{ __html: unescape(this.state.message) }}/> 
+        
       </div>
     );
   }
 }
 
-export default notes;
+export default Notes;

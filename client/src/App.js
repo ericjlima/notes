@@ -38,6 +38,8 @@ class App extends Component {
 
   render() {
     const NotesPage = (props) => {
+          console.log(props);
+      
       return (
         <Notes
           notex2x={this.state.notex2x}
@@ -76,7 +78,7 @@ class App extends Component {
                           activeClassName="pure-menu-selected"
                           className="pure-menu-link"
                           to="/notes/1">
-                          Click me!
+                          Notes
                         </NavLink>
                       </li>
                     </ul>
@@ -86,6 +88,7 @@ class App extends Component {
                   <Route path={"/notes/:id"} component={NotesPage} />
                   <Redirect from='*' to='/' />
                 </Switch>
+
               </div>
             </Router>
           </div>
