@@ -20,12 +20,13 @@ class App extends Component {
     this.state = {
       activeMenu: '',
       notex2x: '',
-      notes: []
+      notes: [],
+      baseURL: "http://el89.us:83",
     }
   }
 
   componentDidMount(){
-    fetch('http://el89.us:83/api/notes')
+    fetch(`${this.state.baseURL}/api/notes`)
     .then(res => res.json())
     .then(notes => this.setState({ notes }));
   }
