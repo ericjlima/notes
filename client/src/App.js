@@ -25,7 +25,7 @@ class App extends Component {
   }
 
   componentDidMount(){
-    fetch('/api/notes')
+    fetch('http://el89.us:83/api/notes')
     .then(res => res.json())
     .then(notes => this.setState({ notes }));
   }

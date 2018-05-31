@@ -5,6 +5,7 @@
   "proxy": "http://localhost:3003",
   "dependencies": {
     "axios": "^0.17.1",
+    "cors": "^2.8.4",
     "draft-js": "^0.10.5",
     "md5": "^2.2.1",
     "react": "^16.3.2",
