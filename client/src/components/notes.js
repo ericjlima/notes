@@ -50,8 +50,8 @@ class Notes extends Component {
     });
 
     axios.get(`/api/password/${this.state.pass}`).then((response) => {
-              console.log("pass");
-             console.log(response.data[0].password);
+              // console.log("pass");
+            //  console.log(response.data[0].password);
 
           this.setState({checkPass: response.data[0].password});
         }).catch(function (error) {
@@ -59,8 +59,8 @@ class Notes extends Component {
       });
 
     axios.post(`/api/notes/${this.props.match.params.id}`).then((response) => {
-      alert(this.props.match.params.id);
-             console.log(response);
+      // alert(this.props.match.params.id);
+      //        console.log(response);
         }).catch(function (error) {
         return JSON.stringify(error);
       });;
@@ -87,7 +87,7 @@ class Notes extends Component {
       if(this.state.passEntered){
 
         axios.put(`/api/notes/${this.props.match.params.id}/${encodeURIComponent(this.state.value)}`).then((response) => {
-                 console.log(response);
+                //  console.log(response);
             }).catch(function (error) {
             return JSON.stringify(error);
           });;

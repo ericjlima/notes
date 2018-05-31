@@ -43,7 +43,13 @@ con.connect(function(err) {
 // console.log("Number of records inserted: " + result.affectedRows);
 // });
 
+// var pw = "CREATE TABLE password (id INT AUTO_INCREMENT PRIMARY KEY, password VARCHAR(255))";
+// con.query(pw, [values], function (err, result) {
+// if (err) throw err;
+// console.log("Number of records inserted: " + result.affectedRows);
+// });
 
+//INSERT INTO password (password) VALUE(md5(""));
 
 	router.get('/api/notes', function(req, res, next) {
 		con.query("SELECT * FROM notes", function (err, result, fields) {

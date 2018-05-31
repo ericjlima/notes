@@ -19,8 +19,15 @@ class App extends Component {
     super(props);
     this.state = {
       activeMenu: '',
-      notex2x: ''
+      notex2x: '',
+      notes: []
     }
+  }
+
+  componentDidMount(){
+    fetch('/api/notes')
+    .then(res => res.json())
+    .then(notes => this.setState({ notes }));
   }
 
 
@@ -38,7 +45,7 @@ class App extends Component {
 
   render() {
     const NotesPage = (props) => {
-          console.log(props);
+          // console.log(props);
       
       return (
         <Notes
@@ -77,18 +84,24 @@ class App extends Component {
                         <NavLink
                           activeClassName="pure-menu-selected"
                           className="pure-menu-link"
-                          to="/notes/1">
+                          to="/v/1">
                           Notes
                         </NavLink>
                       </li>
+                  {this.state.notes.map(note =>
+                       <li className="pure-menu-item">
+                         <a
+                          className="pure-menu-link" href={`/v/${note.name}`}>{note.name}</a>
+                        
+                       </li>
+                  )}
                     </ul>
                   </div>
                 </div>
                 <Switch>
-                  <Route path={"/notes/:id"} component={NotesPage} />
+                  <Route path={"/v/:id"} component={NotesPage} />
                   <Redirect from='*' to='/' />
                 </Switch>
-
               </div>
             </Router>
           </div>
