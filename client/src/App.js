@@ -51,6 +51,7 @@ class App extends Component {
       return (
         <Notes
           notex2x={this.state.notex2x}
+          baseURL={this.state.baseURL}
           {...props}
         />
       );

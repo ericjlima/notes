@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 var md5 = require('md5');
-var baseURL = 'http://el89.us:83';
 
 //TODO: CLEAN UP
 
@@ -24,17 +23,16 @@ class Notes extends Component {
       message: null,
       value: '',
       data: 'null',
+      timer: null,
     };
   }
 
  componentDidMount() {
-   
-
-    fetch(`${baseURL}/api/notes`)
+    fetch(`${this.props.baseURL}/api/notes`)
       .then(res => res.json())
       .then(notes => this.setState({ notes }));
 
-    axios.get(`${baseURL}/api/notes/${this.props.match.params.id}`)
+    axios.get(`${this.props.baseURL}/api/notes/${this.props.match.params.id}`)
     .then((response) => {
       this.setState({apiResponse: JSON.response});
       // console.log("response: ");
@@ -49,7 +47,7 @@ class Notes extends Component {
       console.log(error)
     });
 
-    axios.get(`${baseURL}/api/password/${this.state.pass}`).then((response) => {
+    axios.get(`${this.props.baseURL}/api/password/${this.state.pass}`).then((response) => {
               // console.log("pass");
             //  console.log(response.data[0].password);
 
@@ -58,7 +56,7 @@ class Notes extends Component {
         return JSON.stringify(error);
       });
 
-    axios.post(`${baseURL}/api/notes/${this.props.match.params.id}`).then((response) => {
+    axios.post(`${this.props.baseURL}/api/notes/${this.props.match.params.id}`).then((response) => {
       // alert(this.props.match.params.id);
       //        console.log(response);
         }).catch(function (error) {
@@ -71,10 +69,16 @@ class Notes extends Component {
 
 
   handleCreateChange(e) {
-    // let value = e.target.value;
+    clearTimeout(this.state.timer);
     this.setState({
       value: e.target.value
     });
+    
+    this.state.timer = setTimeout(()=>{
+      this.handleSubmit(e);
+    },2000);
+    
+    
   }
 
   handlePassEnter(e){
@@ -84,9 +88,12 @@ class Notes extends Component {
   }
 
   handleSubmit(e) {
+    let passedUpdateData= this.state.value;
+    passedUpdateData = passedUpdateData.replace(/'/g, "\\'");
       if(this.state.passEntered){
 
-        axios.put(`${baseURL}/api/notes/${this.props.match.params.id}/${encodeURIComponent(this.state.value)}`).then((response) => {
+        console.log("really made it");
+        axios.put(`${this.props.baseURL}/api/notes/${this.props.match.params.id}/${encodeURIComponent(passedUpdateData)}`).then((response) => {
                 //  console.log(response);
             }).catch(function (error) {
             return JSON.stringify(error);
