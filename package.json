@@ -6,7 +6,7 @@
     "testx": "nyc mocha --require babel-core/register",
     "test": "nyc mocha",
     "build": "babel src/ -d lib/",
-    "start": "node ./bin/www"
+    "start": "nodemon ./bin/www"
   },
   "dependencies": {
     "babel-cli": "^6.26.0",
