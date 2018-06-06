@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 var md5 = require('md5');
-
+// var cookieParser = require('cookie-parser');
 //TODO: CLEAN UP
 
-
+// resp.cookie("MyFirstCookie", 'looks good');
+// console.log(document.cookie);
 class Notes extends Component {
   constructor(props) {
     super(props);
@@ -14,6 +15,7 @@ class Notes extends Component {
       nodeID: 1,
       create: 'null',
       checkPass: null,
+      checkSessionID: null,
       pass: '',
       passEntered: false,
       verificationMessage: null,
@@ -49,9 +51,12 @@ class Notes extends Component {
 
     axios.get(`${this.props.baseURL}/api/password/${this.state.pass}`).then((response) => {
               // console.log("pass");
-            //  console.log(response.data[0].password);
-
-          this.setState({checkPass: response.data[0].password});
+             // console.log(response.data.sessionID);
+             // console.log(response.data.password);
+console.log("logged");
+      console.log(response);
+      if(response.data.logged)alert("you're logged in");
+          this.setState({checkPass: response.data.password, checkSessionID: response.data.sessionID});
         }).catch(function (error) {
         return JSON.stringify(error);
       });
@@ -69,15 +74,17 @@ class Notes extends Component {
 
 
   handleCreateChange(e) {
+    e.persist();
     clearTimeout(this.state.timer);
     this.setState({
       value: e.target.value
     });
     
-    this.state.timer = setTimeout(()=>{
-      this.handleSubmit(e);
-    },2000);
-    
+    this.setState({
+      timer: setTimeout(()=>{
+        this.handleSubmit(e);
+      },2000)
+    });
     
   }
 
@@ -90,11 +97,10 @@ class Notes extends Component {
   handleSubmit(e) {
     let passedUpdateData= this.state.value;
     passedUpdateData = passedUpdateData.replace(/'/g, "\\'");
-      if(this.state.passEntered){
 
-        console.log("really made it");
+      if(this.state.passEntered){
         axios.put(`${this.props.baseURL}/api/notes/${this.props.match.params.id}/${encodeURIComponent(passedUpdateData)}`).then((response) => {
-                //  console.log(response);
+
             }).catch(function (error) {
             return JSON.stringify(error);
           });;
@@ -108,34 +114,45 @@ class Notes extends Component {
           });
         },2000)
     }
-    e.preventDefault(); 
+    e.preventDefault();
   }
 
   handleSubmitPass(e) {
-    //alert(this.state.pass);
-      if(md5(this.state.pass)===this.state.checkPass){
-        this.setState({ passEntered: true });
-        this.setState({
-          passwordEnteredMessage: "Password was entered.",
-          message: this.state.value
-        });
-        setTimeout(()=>{
-          this.setState({
-             passwordEnteredMessage: ""
-          });
-        },2000)
-      }
-      else{
-       this.setState({
-          passwordEnteredMessage: "Password was not entered.",
-          message: this.state.value
-        });
-        setTimeout(()=>{
-          this.setState({
-             passwordEnteredMessage: ""
-          });
-        },2000)
-      }
+    axios.post(`${this.props.baseURL}/api/password`, {password: md5(this.state.pass)}).then((response) => {
+
+             if(response.data==="logged"){
+                  this.setState({ passEntered: true });
+                  this.setState({
+                    passwordEnteredMessage: "Password was entered.",
+                    message: this.state.value
+                  });
+                  setTimeout(()=>{
+                    this.setState({
+                       passwordEnteredMessage: ""
+                    });
+                  },2000)
+             } else {
+                  this.setState({
+                  passwordEnteredMessage: "Password was not entered.",
+                  message: this.state.value
+                });
+                setTimeout(()=>{
+                  this.setState({
+                     passwordEnteredMessage: ""
+                  });
+                },2000)
+             }
+        }).catch(function (error) {
+        return JSON.stringify(error);
+    });;
+
+
+      // if(md5(this.state.pass)===this.state.checkPass){
+   
+      // }
+      // else{
+   
+      // }
       e.preventDefault();
   }
 

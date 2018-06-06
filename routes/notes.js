@@ -1,8 +1,12 @@
 var express = require('express');
 var router = express.Router();
 var cors = require('cors');
-
+var cookieParser = require('cookie-parser');
+var session = require('express-session');
 router.use(cors());
+
+var app = express();
+router.use(cookieParser());
 
 var mysql = require('mysql2');
 
@@ -57,7 +61,7 @@ con.connect(function(err) {
 	router.get('/api/notes', function(req, res, next) {
 		con.query("SELECT * FROM notes", function (err, result, fields) {
 			if (err) throw err;
-			console.log(result);
+			// console.log(result);
 		
 	   		res.json( result );
 	    });
@@ -66,7 +70,7 @@ con.connect(function(err) {
 	router.get('/api/notes/:notesId', function(req, res, next) {
 		con.query("SELECT * FROM notes", function (err, result, fields) {
 			if (err) throw err;
-			console.log(result);
+			// console.log(result);
 	  		const note = result.find(c => c.name === req.params.notesId);
 	  
 	  		res.send(note);
@@ -76,7 +80,7 @@ con.connect(function(err) {
 	router.post('/api/notes/:notesId', function(req, res, next) {
 		con.query("SELECT * FROM notes", function (err, result, fields) {
 				if (err) throw err;
-				console.log(result);
+				// console.log(result);
 			let sql = `INSERT IGNORE INTO notes (name, message) VALUES ('${req.params.notesId}', '')`;
 		  	let query = con.query(sql);
 	  	});
@@ -85,7 +89,7 @@ con.connect(function(err) {
 	router.put('/api/notes/:notesId/:notesMessage', function(req, res, next) {
 		con.query("SELECT * FROM notes", function (err, result, fields) {
 				if (err) throw err;
-				console.log(result);
+				// console.log(result);
 
 				let sql = `UPDATE notes SET message='${req.params.notesMessage}' WHERE name='${req.params.notesId}';`;
 			  	let query = con.query(sql);

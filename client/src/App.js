@@ -21,7 +21,7 @@ class App extends Component {
       activeMenu: '',
       notex2x: '',
       notes: [],
-      baseURL: "http://el89.us:83",
+      baseURL: "",
     }
   }
 
@@ -63,8 +63,8 @@ class App extends Component {
         <div id="main">
           <div className="header">
             <h1>Notes</h1>
-            <h2>A web based interface to write notes! :-)</h2>
-            <p>Welcome to my notes app! Click on the left to create notes.</p>
+            <h2>A web based tool that I use to write notes! :-)</h2>
+            <p>Welcome to my notes app! Type www.el89.us/v/[something] to visit a notes page.</p>
           </div>
           <div className="content">
             <Router>
@@ -91,7 +91,7 @@ class App extends Component {
                         </NavLink>
                       </li>
                   {this.state.notes.map(note =>
-                       <li className="pure-menu-item">
+                       <li className="pure-menu-item" key={note.id}>
                          <a
                           className="pure-menu-link" href={`/v/${note.name}`}>{note.name}</a>
                         
