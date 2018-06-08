@@ -13,13 +13,21 @@ class Login extends Component {
     };
   }
 
+  componentDidMount(){
+    axios.get(`${this.props.baseURL}/api/password/${this.state.pass}`).then((response) => {
+      if(response.data.logged){
+          this.setState({ passEntered: true, passwordShown: false, checkPass: response.data.password, checkSessionID: response.data.sessionID});
+        }
+        }).catch(function (error) {
+        return JSON.stringify(error);
+      });
+  }
+  
   handlePassEnter(e){
     this.setState({
       pass: e.target.value
     });
   }
-
- 
 
   handleSubmitPass(e) {
     axios.post(`${this.props.baseURL}/api/password`, {password: md5(this.state.pass)}).then((response) => {
@@ -61,14 +69,6 @@ handleLogout(){
   render() {
 
 
-    axios.get(`${this.props.baseURL}/api/password/${this.state.pass}`).then((response) => {
-      if(response.data.logged){
-          this.setState({ passEntered: true, passwordShown: false, checkPass: response.data.password, checkSessionID: response.data.sessionID});
-        }
-        }).catch(function (error) {
-        return JSON.stringify(error);
-      });
-
     var passwordShown = {
       display: this.state.passwordShown ? "block" : "none"
     };
@@ -83,7 +83,7 @@ handleLogout(){
             <div className="pure-control-group">
               <div className='pure-control-group'>
                 <label>Password</label>
-                <input autofocus="autofocus" onChange={this.handlePassEnter.bind(this)} id="passenter" type="password" value={this.state.pass} placeholder="Eric's use only"/>
+                <input autoFocus="autofocus" onChange={this.handlePassEnter.bind(this)} id="passenter" type="password" value={this.state.pass} placeholder="Eric's use only"/>
                   <p className="verificationMessage"> {this.state.incorrectPassword} </p>
               </div>
             </div>
