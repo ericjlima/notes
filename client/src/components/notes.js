@@ -1,11 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-var md5 = require('md5');
-// var cookieParser = require('cookie-parser');
-//TODO: CLEAN UP
 
-// resp.cookie("MyFirstCookie", 'looks good');
-// console.log(document.cookie);
+
 class Notes extends Component {
   constructor(props) {
     super(props);
@@ -14,14 +10,17 @@ class Notes extends Component {
       notes: [],
       nodeID: 1,
       create: 'null',
-      checkPass: null,
       checkSessionID: null,
       pass: '',
+      checkPass: null,
       passEntered: false,
+      privateMode: null,
+      privateText: "none",
+      hiddenTextarea: true,
       verificationMessage: null,
-      passwordEnteredMessage: null,
-      verificationPassMessage: null,
-      singleNoteData: null,
+      dateModified: null,
+      dateCreated: null,
+      // singleNoteData: null, //need this?
       message: null,
       value: '',
       data: 'null',
@@ -34,41 +33,50 @@ class Notes extends Component {
       .then(res => res.json())
       .then(notes => this.setState({ notes }));
 
-    axios.get(`${this.props.baseURL}/api/notes/${this.props.match.params.id}`)
+    axios.get(`${this.props.baseURL}/api/notes/${this.props.match.params.id.toLowerCase()}`)
     .then((response) => {
-      this.setState({apiResponse: JSON.response});
-      // console.log("response: ");
-      // console.log(response.data.name);
-      this.setState({singleNoteData: response.data.name});
-      this.setState({message: response.data.message});
-        this.setState({
-          value: unescape(response.data.message)
-        });
+
+      let strippedDateCreated = response.data.date_created.replace(/T/g,' ').replace(/Z/g,'');
+      strippedDateCreated = strippedDateCreated.substring(0, strippedDateCreated.indexOf('.'));
+      let strippedDateModified = response.data.date_modified.replace(/T/g,' ').replace(/Z/g,'');
+      strippedDateModified = strippedDateModified.substring(0, strippedDateModified.indexOf('.'));
+
+      this.setState({
+        // apiResponse: JSON.response, //need this?
+        // singleNoteData: response.data.name, //need this?
+        dateModified: strippedDateModified, 
+        dateCreated: strippedDateCreated,
+        value: unescape(response.data.message),
+        privateMode: response.data.private,
+        //message: response.data.message
+      }
+      , function(){
+        if(response.data.private){
+          this.setState({message: "", privateText: "Private On"});
+        } else if(!response.data.private){
+          this.setState({message: response.data.message, privateText: "Private Off"});
+        }
+        console.log("privserver: "+response.data.private);
+        console.log("priv: "+this.state.privateMode);
+      }
+      );
+      
     })
     .catch(function(error){
       console.log(error)
     });
 
     axios.get(`${this.props.baseURL}/api/password/${this.state.pass}`).then((response) => {
-              // console.log("pass");
-             // console.log(response.data.sessionID);
-             // console.log(response.data.password);
-console.log("logged");
-      console.log(response);
-      if(response.data.logged)alert("you're logged in");
-          this.setState({checkPass: response.data.password, checkSessionID: response.data.sessionID});
+      if(response.data.logged){
+          this.setState({ passEntered: true, hiddenTextarea: false, checkPass: response.data.password, checkSessionID: response.data.sessionID});
+            axios.post(`${this.props.baseURL}/api/notes/${this.props.match.params.id}`).then((response) => {}).catch(function (error) {
+                  return JSON.stringify(error);
+              });
+        }
         }).catch(function (error) {
-        return JSON.stringify(error);
+          return JSON.stringify(error);
       });
-
-    axios.post(`${this.props.baseURL}/api/notes/${this.props.match.params.id}`).then((response) => {
-      // alert(this.props.match.params.id);
-      //        console.log(response);
-        }).catch(function (error) {
-        return JSON.stringify(error);
-      });;
   }
-
 
 
 
@@ -87,20 +95,16 @@ console.log("logged");
     });
     
   }
-
-  handlePassEnter(e){
-    this.setState({
-      pass: e.target.value
-    });
-  }
-
+ 
   handleSubmit(e) {
     let passedUpdateData= this.state.value;
-    passedUpdateData = passedUpdateData.replace(/'/g, "\\'");
+    passedUpdateData = encodeURIComponent(passedUpdateData);
+    passedUpdateData = passedUpdateData.replace(/;/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/&#10;/g, '<br />');
 
+    console.log(passedUpdateData);
       if(this.state.passEntered){
-        axios.put(`${this.props.baseURL}/api/notes/${this.props.match.params.id}/${encodeURIComponent(passedUpdateData)}`).then((response) => {
-
+        console.log(this.state.passEntered);
+        axios.post(`${this.props.baseURL}/api/notes/update/${this.props.match.params.id}`, {messageData: passedUpdateData}).then((response) => {
             }).catch(function (error) {
             return JSON.stringify(error);
           });;
@@ -117,86 +121,84 @@ console.log("logged");
     e.preventDefault();
   }
 
-  handleSubmitPass(e) {
-    axios.post(`${this.props.baseURL}/api/password`, {password: md5(this.state.pass)}).then((response) => {
 
-             if(response.data==="logged"){
-                  this.setState({ passEntered: true });
-                  this.setState({
-                    passwordEnteredMessage: "Password was entered.",
-                    message: this.state.value
-                  });
-                  setTimeout(()=>{
-                    this.setState({
-                       passwordEnteredMessage: ""
-                    });
-                  },2000)
-             } else {
-                  this.setState({
-                  passwordEnteredMessage: "Password was not entered.",
-                  message: this.state.value
-                });
-                setTimeout(()=>{
-                  this.setState({
-                     passwordEnteredMessage: ""
-                  });
-                },2000)
-             }
+  handleDelete(){
+    if (window.confirm('Are you sure you want to delete this record from the database?')) {
+      if (window.confirm('Really delete?')) {
+        axios.delete(`${this.props.baseURL}/api/notes/${this.props.match.params.id}`).then((response) => {}).catch(function (error) {
+            return JSON.stringify(error);
+        });
+        window.location.replace("/");
+      }
+    }
+  }
+
+  handlePrivate(e){
+
+    if(this.state.passEntered){
+      if(this.state.privateMode){
+        this.setState({privateMode:0, privateText: "Private Off"}, ()=>{
+          axios.post(`${this.props.baseURL}/api/notes/private/${this.props.match.params.id}`, {privateMode: this.state.privateMode}).then((response) => {}).catch(function (error) {
+
+              return JSON.stringify(error);
+            });
+        });
+      } else if(!this.state.privateMode) {
+        this.setState({privateMode:1, privateText: "Private On", message: ""}, ()=>{
+          axios.post(`${this.props.baseURL}/api/notes/private/${this.props.match.params.id}`, {privateMode: this.state.privateMode}).then((response) => {}).catch(function (error) {
+              return JSON.stringify(error);
+            });
+          });
+      }
+    }
+  }
+
+  handleLogout(){
+        axios.post(`${this.props.baseURL}/api/logout`).then((response) => {
+            window.location.reload();
+
         }).catch(function (error) {
         return JSON.stringify(error);
-    });;
-
-
-      // if(md5(this.state.pass)===this.state.checkPass){
-   
-      // }
-      // else{
-   
-      // }
-      e.preventDefault();
+    });
+  }
+  
+  toTitleCase(str) {
+    return str.replace(
+        /\w\S*/g,
+        function(txt) {
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        }
+    );
   }
 
-  htmlEntities(str) {
-      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
 
   render() {
+
+
+      
+    var hidden = {
+      display: this.state.hiddenTextarea ? "none" : "block"
+    }
     return (
       <div className="notes">
       <h1 className="Create-title">
-        {this.props.match.params.id}</h1>        
-        <form method="get" className="pure-form pure-form-aligned" onSubmit={this.handleSubmitPass.bind(this)}>
+        {this.toTitleCase(this.props.match.params.id)}</h1>   
+        <div dangerouslySetInnerHTML={{ __html: unescape(this.state.message) }}/>
+        <br />
+        
+        <button style={ hidden } className="pure-button pure-button-primary private-button" onClick={this.handlePrivate.bind(this)}>{this.state.privateText}</button>
+        <form style={ hidden } method="get" className="pure-form pure-form-aligned createNote" onSubmit={this.handleSubmit.bind(this)}>
           <fieldset>
             <div className="pure-control-group">
               <div className='pure-control-group'>
-                <label>Password</label>
-                <input onChange={this.handlePassEnter.bind(this)} id="passenter" type="text" value={this.state.pass} placeholder="Create"/>
-              </div>
-            </div>
-            <div className="pure-controls">
-              <button type="submit" className="pure-button pure-button-primary messageSubmit-button">Submit</button> <p className="passwordEnteredMessage"> {this.state.passwordEnteredMessage} </p>
-            </div>
-          </fieldset>
-        </form>
-
-        <form method="get" className="pure-form pure-form-aligned createNote" onSubmit={this.handleSubmit.bind(this)}>
-          <fieldset>
-            <div className="pure-control-group">
-              <div className='pure-control-group'>
-                <label>Create</label>
                 <textarea onChange={this.handleCreateChange.bind(this)} id="create" type="text" value={this.state.value} placeholder="Create"/>
               </div>
             </div>
-            <div className="pure-controls">
-              <button type="submit" className="pure-button pure-button-primary messageSubmit-button">Submit</button> <p className="verificationMessage"> {this.state.verificationMessage} </p>
-            </div>
+              <button type="submit" className="pure-button pure-button-primary messageSubmit-button">Submit</button><button className="pure-button pure-button-primary logout-button" onClick={this.handleLogout.bind(this)}>Logout</button><button className="pure-button pure-button-primary deleteNote-button" onClick={this.handleDelete.bind(this)}>Delete</button><p className="verificationMessage"> {this.state.verificationMessage} </p>
           </fieldset>
-        </form>
-
-
-        <h1>Message</h1>
-        <div dangerouslySetInnerHTML={{ __html: unescape(this.state.message) }}/> 
-        
+        </form>        
+        <p>Date Created: {this.state.dateCreated}</p>
+        <p>Date Modified: {this.state.dateModified}</p>
       </div>
     );
   }

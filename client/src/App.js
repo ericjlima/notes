@@ -9,6 +9,7 @@ import {
 
 
 import Notes from './components/notes';
+import Login from './components/login';
 
 import './App.css';
 
@@ -44,10 +45,17 @@ class App extends Component {
     }
   }
 
+  toTitleCase(str) {
+    return str.replace(
+        /\w\S*/g,
+        function(txt) {
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        }
+    );
+  }
+
   render() {
     const NotesPage = (props) => {
-          // console.log(props);
-      
       return (
         <Notes
           notex2x={this.state.notex2x}
@@ -57,6 +65,15 @@ class App extends Component {
       );
     };
 
+    const LoginPage = (props) => {
+      return (
+        <Login
+          notex2x={this.state.notex2x}
+          baseURL={this.state.baseURL}
+          {...props}
+        />
+      );
+    };
 
     return (
       <div id="layout" className={`${this.state.activeMenu}`}>
@@ -79,22 +96,13 @@ class App extends Component {
                       activeClassName="pure-menu-selected"
                       className="pure-menu-heading"
                       to="/">
-                      Notex2x
+                      Eric's Notes
                     </NavLink>
                     <ul className="pure-menu-list">
-                      <li className="pure-menu-item">
-                        <NavLink
-                          activeClassName="pure-menu-selected"
-                          className="pure-menu-link"
-                          to="/v/1">
-                          Notes
-                        </NavLink>
-                      </li>
-                  {this.state.notes.map(note =>
+                      {this.state.notes.map(note =>
                        <li className="pure-menu-item" key={note.id}>
                          <a
-                          className="pure-menu-link" href={`/v/${note.name}`}>{note.name}</a>
-                        
+                          className="pure-menu-link" href={`/v/${note.name}`}>{this.toTitleCase(note.name)}</a>
                        </li>
                   )}
                     </ul>
@@ -102,6 +110,7 @@ class App extends Component {
                 </div>
                 <Switch>
                   <Route path={"/v/:id"} component={NotesPage} />
+                  <Route path={"/login"} component={LoginPage} />
                   <Redirect from='*' to='/' />
                 </Switch>
               </div>

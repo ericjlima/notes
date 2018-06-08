@@ -1,12 +1,10 @@
 var express = require('express');
 var router = express.Router();
 var cors = require('cors');
-var cookieParser = require('cookie-parser');
 var session = require('express-session');
 router.use(cors());
 
 var app = express();
-router.use(cookieParser());
 
 var mysql = require('mysql2');
 
@@ -27,6 +25,9 @@ con.connect(function(err) {
 //     if (err) throw err;
 //     console.log("Table created");
 // });
+//alter table notes add column `date_created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+//alter table notes add column `date_modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+//ALTER TABLE notes CHANGE COLUMN private private boolean;
 
 // var sql = "INSERT IGNORE INTO notes (name, message) VALUES ?";
 // var values = [
@@ -59,42 +60,54 @@ con.connect(function(err) {
 //INSERT INTO password (password) VALUE(md5(""));
 
 	router.get('/api/notes', function(req, res, next) {
-		con.query("SELECT * FROM notes", function (err, result, fields) {
+		con.query("SELECT name FROM notes", function (err, result, fields) {
 			if (err) throw err;
 			// console.log(result);
-		
 	   		res.json( result );
 	    });
 	});
 
 	router.get('/api/notes/:notesId', function(req, res, next) {
-		con.query("SELECT * FROM notes", function (err, result, fields) {
+		con.query(`SELECT * FROM notes WHERE name='${req.params.notesId.toLowerCase()}';`, function (err, result, fields) {
 			if (err) throw err;
-			// console.log(result);
+			//console.log(result);
 	  		const note = result.find(c => c.name === req.params.notesId);
+	  		//Is the above line necessary? Can reduce this?
 	  
 	  		res.send(note);
 		});
 	});
 
+//TODO: finish thinking about date_created addition.
 	router.post('/api/notes/:notesId', function(req, res, next) {
-		con.query("SELECT * FROM notes", function (err, result, fields) {
+		con.query(`INSERT IGNORE INTO notes (name, message) VALUES ('${req.params.notesId.toLowerCase()}', '')`, function (err, result, fields) {
 				if (err) throw err;
 				// console.log(result);
-			let sql = `INSERT IGNORE INTO notes (name, message) VALUES ('${req.params.notesId}', '')`;
-		  	let query = con.query(sql);
+			// let sql = `INSERT IGNORE INTO notes (name, message) VALUES ('${req.params.notesId}', '')`;
+		  	// let query = con.query(sql);
 	  	});
 	});
 
-	router.put('/api/notes/:notesId/:notesMessage', function(req, res, next) {
-		con.query("SELECT * FROM notes", function (err, result, fields) {
+	router.post('/api/notes/update/:notesId', function(req, res, next) {
+		con.query(`UPDATE notes SET message='${req.body.messageData}' WHERE name='${req.params.notesId.toLowerCase()}';`, function (err, result, fields) {
 				if (err) throw err;
-				// console.log(result);
-
-				let sql = `UPDATE notes SET message='${req.params.notesMessage}' WHERE name='${req.params.notesId}';`;
-			  	let query = con.query(sql);
 		});
 	});
 
+	router.post('/api/notes/private/:notesId', function(req, res, next) {
+		con.query(`UPDATE notes SET private='${req.body.privateMode}' WHERE name='${req.params.notesId.toLowerCase()}';`, function (err, result, fields) {
+				if (err) throw err;
+			console.log(req.body.privateMode);
+		});
+	});
+
+	router.delete('/api/notes/:notesId', function(req, res, next) {
+		con.query(`DELETE FROM notes WHERE name='${req.params.notesId}'`, function (err, result, fields) {
+				if (err) throw err;
+			// 	console.log(req.params.notesID);
+			// let sql = `DELETE FROM notes WHERE name='${req.params.notesId}'`;
+		 //  	let query = con.query(sql);
+	  	});
+	});
 
 module.exports = router;
