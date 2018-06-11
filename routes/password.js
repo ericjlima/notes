@@ -1,9 +1,28 @@
 var express = require('express');
 var router = express.Router();
-var session = require('express-session');
+var cors = require('cors');
 var md5 = require('md5');
-
-var mysql = require('mysql2');
+var mysql = require('mysql');
+var session = require('express-session');
+var MySQLStore = require('express-mysql-session')(session);
+ 
+var options = {
+    host: 'localhost',
+    // port: 3306,
+    user: 'ericx2x',
+    password: 'water123',
+    database: 'mydb',
+    schema: {
+        tableName: 'sessions',
+        columnNames: {
+            session_id: 'session_id',
+            expires: 'expires',
+            data: 'data'
+        }
+    }
+};
+ 
+var sessionStore = new MySQLStore(options);
 
 var con = mysql.createConnection({
   host: "localhost",
@@ -12,7 +31,8 @@ var con = mysql.createConnection({
   database: "mydb"
 });
 
-router.use(session({secret: 'iloveel89', resave: true, saveUninitialized: true, logged: false, cookie: { maxAge: 7200000 }}));
+router.use(session({secret: 'iloveel89', store: sessionStore, resave: true, saveUninitialized: true, logged: false, cookie: { maxAge: 7200000 }}));
+router.use(cors());
 
 con.connect(function(err) {
   if (err) throw err;

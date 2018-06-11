@@ -1,12 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var cors = require('cors');
-var session = require('express-session');
-router.use(cors());
-
 var app = express();
-
-var mysql = require('mysql2');
+var mysql = require('mysql');
 
 var con = mysql.createConnection({
   host: "localhost",
@@ -15,6 +11,7 @@ var con = mysql.createConnection({
   database: "mydb"
 });
 
+router.use(cors());
 
 con.connect(function(err) {
   if (err) throw err;
@@ -27,7 +24,8 @@ con.connect(function(err) {
 // });
 //alter table notes add column `date_created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
 //alter table notes add column `date_modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
-//ALTER TABLE notes CHANGE COLUMN private private boolean;
+//ALTER TABLE notes ADD COLUMN private boolean;
+//create table sessions (session_id INT AUTO_INCREMENT PRIMARY KEY, expires TIMESTAMP, data VARCHAR(255))
 
 // var sql = "INSERT IGNORE INTO notes (name, message) VALUES ?";
 // var values = [
