@@ -2,10 +2,10 @@ var express = require('express');
 var router = express.Router();
 var cors = require('cors');
 var md5 = require('md5');
-var mysql = require('mysql');
 var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
- 
+var mysql = require('mysql');
+
 var options = {
     host: 'localhost',
     // port: 3306,
@@ -31,7 +31,7 @@ var con = mysql.createConnection({
   database: "mydb"
 });
 
-router.use(session({secret: 'iloveel89', store: sessionStore, resave: true, saveUninitialized: true, logged: false, cookie: { maxAge: 7200000 }}));
+router.use(session({secret: 'iloveel89', logged: false, store: sessionStore, resave: true, saveUninitialized: true, cookie: { maxAge: 7200000 }}));
 router.use(cors());
 
 con.connect(function(err) {
@@ -39,7 +39,7 @@ con.connect(function(err) {
 });
 
 
-router.post('/api/password', function(req, res, next) {
+router.post('/', function(req, res, next) {
   con.query("SELECT * FROM password", function (err, result, fields) {
     if (err) throw err;
 
@@ -54,7 +54,7 @@ router.post('/api/password', function(req, res, next) {
   });
 });
 
-router.post('/api/password/:passwordEntered', function(req, res, next) {
+/*router.post('/api/password/:passwordEntered', function(req, res, next) {
   con.query("SELECT * FROM password", function (err, result, fields) {
     if (err) throw err;
 
@@ -66,15 +66,14 @@ router.post('/api/password/:passwordEntered', function(req, res, next) {
         res.send("error")
       }
   });
-});
+});*/
 
-router.post('/api/logout', function(req, res, next) {
+router.post('/logout', function(req, res, next) {
         req.session.logged=false;
-        res.send("logged out");
-      
+        res.send("logged out"); 
 });
 
-router.get('/api/password', function(req, res, next) {
+router.get('/', function(req, res, next) {
 	con.query("SELECT * FROM password", function (err, result, fields) {
 		if (err) throw err;
 

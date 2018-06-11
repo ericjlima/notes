@@ -57,7 +57,7 @@ con.connect(function(err) {
 
 //INSERT INTO password (password) VALUE(md5(""));
 
-	router.get('/api/notes', function(req, res, next) {
+	router.get('/', function(req, res, next) {
 		con.query("SELECT name FROM notes", function (err, result, fields) {
 			if (err) throw err;
 			// console.log(result);
@@ -65,7 +65,7 @@ con.connect(function(err) {
 	    });
 	});
 
-	router.get('/api/notes/:notesId', function(req, res, next) {
+	router.get('/:notesId', function(req, res, next) {
 		con.query(`SELECT * FROM notes WHERE name='${req.params.notesId.toLowerCase()}';`, function (err, result, fields) {
 			if (err) throw err;
 			//console.log(result);
@@ -77,7 +77,7 @@ con.connect(function(err) {
 	});
 
 //TODO: finish thinking about date_created addition.
-	router.post('/api/notes/:notesId', function(req, res, next) {
+	router.post('/:notesId', function(req, res, next) {
 		con.query(`INSERT IGNORE INTO notes (name, message) VALUES ('${req.params.notesId.toLowerCase()}', '')`, function (err, result, fields) {
 				if (err) throw err;
 				// console.log(result);
@@ -86,20 +86,20 @@ con.connect(function(err) {
 	  	});
 	});
 
-	router.post('/api/notes/update/:notesId', function(req, res, next) {
+	router.post('/update/:notesId', function(req, res, next) {
 		con.query(`UPDATE notes SET message='${req.body.messageData}' WHERE name='${req.params.notesId.toLowerCase()}';`, function (err, result, fields) {
 				if (err) throw err;
 		});
 	});
 
-	router.post('/api/notes/private/:notesId', function(req, res, next) {
+	router.post('/private/:notesId', function(req, res, next) {
 		con.query(`UPDATE notes SET private='${req.body.privateMode}' WHERE name='${req.params.notesId.toLowerCase()}';`, function (err, result, fields) {
 				if (err) throw err;
 			console.log(req.body.privateMode);
 		});
 	});
 
-	router.delete('/api/notes/:notesId', function(req, res, next) {
+	router.delete('/:notesId', function(req, res, next) {
 		con.query(`DELETE FROM notes WHERE name='${req.params.notesId}'`, function (err, result, fields) {
 				if (err) throw err;
 			// 	console.log(req.params.notesID);

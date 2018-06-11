@@ -154,7 +154,7 @@ class Notes extends Component {
   }
 
   handleLogout(){
-        axios.post(`${this.props.baseURL}/api/logout`).then((response) => {
+        axios.post(`${this.props.baseURL}/api/password/logout`).then((response) => {
             window.location.reload();
 
         }).catch(function (error) {
