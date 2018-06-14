@@ -22,7 +22,7 @@ class App extends Component {
       activeMenu: '',
       notex2x: '',
       notes: [],
-      baseURL: "",
+      baseURL: "http://el89.us:3009",
     }
   }
 
