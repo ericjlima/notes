@@ -10,7 +10,9 @@ var con = mysql.createConnection({
   password: "water123",
   database: "mydb"
 });
-router.use(cors({origin: "http://el89.us", credentials: true}));
+
+
+router.use(cors({origin: ['http://el89.us', 'http://www.el89.us'], credentials: true}));
 
 con.connect(function(err) {
   if (err) throw err;
