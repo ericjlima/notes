@@ -10,8 +10,9 @@ var con = mysql.createConnection({
   password: "water123",
   database: "mydb"
 });
-router.use(cors({origin: "http://el89.us", credentials: true}));
 
+router.use(cors({origin: "http://el89.us", credentials: true}));
+router.use(cors({origin: ["http://el89.us", "http://www.el89.us"], credentials: true}));
 con.connect(function(err) {
   if (err) throw err;
 });
@@ -75,13 +76,13 @@ con.connect(function(err) {
 		});
 	});
 
-//TODO: finish thinking about date_created addition.
+	//TODO: finish thinking about date_created addition.
 	router.post('/:notesId', function(req, res, next) {
 		con.query(`INSERT IGNORE INTO notes (name, message) VALUES ('${req.params.notesId.toLowerCase()}', '')`, function (err, result, fields) {
 				if (err) throw err;
 				// console.log(result);
-			// let sql = `INSERT IGNORE INTO notes (name, message) VALUES ('${req.params.notesId}', '')`;
-		  	// let query = con.query(sql);
+				// let sql = `INSERT IGNORE INTO notes (name, message) VALUES ('${req.params.notesId}', '')`;
+		  		// let query = con.query(sql);
 	  	});
 	});
 
@@ -99,11 +100,13 @@ con.connect(function(err) {
 	});
 
 	router.delete('/:notesId', function(req, res, next) {
+		console.log("deleted");
+		console.log(req.params.notesId);
 		con.query(`DELETE FROM notes WHERE name='${req.params.notesId}'`, function (err, result, fields) {
 				if (err) throw err;
 			// 	console.log(req.params.notesID);
 			// let sql = `DELETE FROM notes WHERE name='${req.params.notesId}'`;
-		 //  	let query = con.query(sql);
+		 	//  let query = con.query(sql);
 	  	});
 	});
 

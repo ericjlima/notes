@@ -57,8 +57,8 @@ class Notes extends Component {
         } else if(!response.data.private){
           this.setState({message: response.data.message, privateText: "Private Off"});
         }
-        console.log("privserver: "+response.data.private);
-        console.log("priv: "+this.state.privateMode);
+        // console.log("privserver: "+response.data.private);
+        // console.log("priv: "+this.state.privateMode);
       }
       );
       
@@ -102,9 +102,9 @@ class Notes extends Component {
     passedUpdateData = encodeURIComponent(passedUpdateData);
     passedUpdateData = passedUpdateData.replace(/;/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/&#10;/g, '<br />');
 
-    console.log(passedUpdateData);
+    // console.log(passedUpdateData);
       if(this.state.passEntered){
-        console.log(this.state.passEntered);
+        // console.log(this.state.passEntered);
         axios.post(`${this.props.baseURL}/api/notes/update/${this.props.match.params.id}`, {messageData: passedUpdateData}).then((response) => {
             }).catch(function (error) {
             return JSON.stringify(error);
@@ -126,7 +126,7 @@ class Notes extends Component {
   handleDelete(){
     if (window.confirm('Are you sure you want to delete this record from the database?')) {
       if (window.confirm('Really delete?')) {
-        axios.delete(`${this.props.baseURL}/api/notes/${this.props.match.params.id}`).then((response) => {}).catch(function (error) {
+        axios.delete(`${this.props.baseURL}/api/notes/${this.props.match.params.id}`).catch(function (error) {
             return JSON.stringify(error);
         });
         window.location.replace("/");

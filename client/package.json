@@ -2,6 +2,7 @@
   "name": "client",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:3009",
   "dependencies": {
     "axios": "^0.17.1",
     "cors": "^2.8.4",

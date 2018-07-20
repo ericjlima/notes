@@ -32,17 +32,16 @@ var con = mysql.createConnection({
 });
 
 router.use(session({
-secret: 'iloveel89', 
-store: sessionStore, 
-resave: false, 
-saveUninitialized: true, 
-//logged: false, 
-cookie: { maxAge: 1000 * 60 * 60 * 5 }  //1000 * 60 * 60 * 24 * 7  //7days 10000 //10 seconds   1000000 //16~ minutes
+  secret: 'iloveel89', 
+  store: sessionStore, 
+  resave: false, 
+  saveUninitialized: true, 
+  cookie: { maxAge: 1000 * 60 * 60 * 24 }  //1000 * 60 * 60 * 24 * 7  //7days 10000 //10 seconds   1000000 //16~ minutes
 })); //7200000;
+
 router.use(cors({origin: "http://el89.us", credentials: true}));
+
 router.use(function(req, res, next) {
-//   req.session.logged = false;
-   console.log("logged");
    next();
 });
 
@@ -67,28 +66,12 @@ router.post('/', function(req, res, next) {
   });
 });
 
-/*router.post('/api/password/:passwordEntered', function(req, res, next) {
-  con.query("SELECT * FROM password", function (err, result, fields) {
-    if (err) throw err;
-
-      const password_data = result.find(c => c.name === req.params.password);
-      if (md5(req.params.passwordEntered) === password_data.password){
-        req.session.logged=true;
-        res.send("logged");
-      } else {
-        res.send("error")
-      }
-  });
-});*/
-
 router.post('/logout', function(req, res, next) {
         req.session.logged=false;
         res.send("logged out"); 
 });
 
 router.get('/', function(req, res, next) {
-console.log("cat");
-console.log(req.session.logged);
 	con.query("SELECT * FROM password", function (err, result, fields) {
 		if (err) throw err;
 
