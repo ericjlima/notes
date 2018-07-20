@@ -32,20 +32,11 @@ var con = mysql.createConnection({
 });
 
 router.use(session({
-<<<<<<< HEAD
   secret: 'iloveel89', 
   store: sessionStore, 
   resave: false, 
   saveUninitialized: true, 
   cookie: { maxAge: 1000 * 60 * 60 * 24 }  //1000 * 60 * 60 * 24 * 7  //7days 10000 //10 seconds   1000000 //16~ minutes
-=======
-secret: 'iloveel89', 
-store: sessionStore, 
-resave: false, 
-saveUninitialized: true, 
-//logged: false, 
-cookie: { maxAge: 1000 * 60 * 60 * 24 }  //1000 * 60 * 60 * 24 * 7  //7days 10000 //10 seconds   1000000 //16~ minutes
->>>>>>> b4d7f723f63e077abc6c8a0b616e0b7d5ce0a4ae
 })); //7200000;
 
 router.use(cors({origin: "http://el89.us", credentials: true}));
