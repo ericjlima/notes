@@ -10,6 +10,12 @@ var con = mysql.createConnection({
   password: "water123",
   database: "mydb"
 });
+<<<<<<< HEAD
+=======
+
+
+router.use(cors({origin: ['http://el89.us', 'http://www.el89.us'], credentials: true}));
+>>>>>>> b4d7f723f63e077abc6c8a0b616e0b7d5ce0a4ae
 
 router.use(cors({origin: "http://el89.us", credentials: true}));
 router.use(cors({origin: ["http://el89.us", "http://www.el89.us"], credentials: true}));
