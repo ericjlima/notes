@@ -79,6 +79,9 @@ handleLogout(){
     }
     return (
       <div className="login">
+          <div className="header">
+            <h1>Login</h1><br/>
+          </div>
           <form style={ passwordShown } method="get" className="pure-form pure-form-aligned" onSubmit={this.handleSubmitPass.bind(this)}>
           <fieldset>
             <div className="pure-control-group">

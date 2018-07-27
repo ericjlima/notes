@@ -182,8 +182,9 @@ class Notes extends Component {
     }
     return (
       <div className="notes">
-      <h1 className="Create-title">
-        {this.toTitleCase(this.props.match.params.id)}</h1>   
+      <div className="header">
+            <h1>{this.toTitleCase(this.props.match.params.id)}</h1><br />
+      </div>
         <div dangerouslySetInnerHTML={{ __html: unescape(this.state.message) }}/>
         <br />
         

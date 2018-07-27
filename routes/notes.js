@@ -4,6 +4,7 @@ var cors = require('cors');
 var app = express();
 var mysql = require('mysql');
 
+
 var con = mysql.createConnection({
   host: "localhost",
   user: "ericx2x",
@@ -67,10 +68,10 @@ con.connect(function(err) {
 	router.get('/:notesId', function(req, res, next) {
 		con.query(`SELECT * FROM notes WHERE name='${req.params.notesId.toLowerCase()}';`, function (err, result, fields) {
 			if (err) throw err;
-			//console.log(result);
+			console.log(result);
 	  		const note = result.find(c => c.name === req.params.notesId);
 	  		//Is the above line necessary? Can reduce this?
-	  
+			
 	  		res.send(note);
 		});
 	});
