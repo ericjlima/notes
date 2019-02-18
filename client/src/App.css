@@ -36,8 +36,8 @@
 }
 
 .createNote textarea{
-  width: 75%;
-  height: 200px;
+  width: 100%;
+  height: 800px;
 }
 
 .pure-button-primary.logout-button, .pure-button-primary.deleteNote-button{

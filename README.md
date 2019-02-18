@@ -4,7 +4,7 @@ Steps to run this app. Apologies if this README is not up to date but this proje
 
 Steps to take:
 
-1.) Have mysql installed and create an empty DB. I called my database "mydb"
+1.) Have mysql installed and create an empty DB. I called my database "mydb".
 
 2.) Look at routes/notes and replace the credentials with your own. My user is ericx2x. Make your own mysql user that created your 'mydb' database.
 

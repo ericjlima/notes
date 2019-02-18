@@ -24,7 +24,7 @@ class App extends Component {
       notex2x: '',
       notes: [],
       dates: [], //need to implelment still
-      baseURL: "", //http://el89.us:3009
+      baseURL: "http://el89.us:3009", //http://el89.us:3009
     }
   }
 
