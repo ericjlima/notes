@@ -15,3 +15,20 @@ Steps to take:
 5.) Go to /client and run "npm install && npm start"
 
 6.) Enjoy your own note taking app. This uses my code so if you have any questions feel free to ask. I'm sure you can code your own note taking system as they I find them incredibly helpful and easy to write. It's a great way to learn.
+
+
+
+
+
+
+Common Errors and Solutions for me:
+
+
+After npm start on express path:
+"Error: ER_NOT_SUPPORTED_AUTH_MODE: Client does not support authentication protocol requested by server; consider upgrading MySQL client"
+https://stackoverflow.com/questions/11403980/how-do-i-login-as-root-on-mysql-on-os-x
+
+
+after going to "mysql -u root" to fix above
+"ERROR 2059 (HY000): Authentication plugin 'caching_sha2_password' cannot be loaded: dlopen(/usr/local/Cellar/mysql/5.7.22/lib/plugin/caching_sha2_password.so, 2): image not found"
+https://stackoverflow.com/questions/49945649/mysql-error-authentication-plugin-caching-sha2-password-cannot-be-loaded
