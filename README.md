@@ -32,3 +32,5 @@ https://stackoverflow.com/questions/11403980/how-do-i-login-as-root-on-mysql-on-
 after going to "mysql -u root" to fix above
 "ERROR 2059 (HY000): Authentication plugin 'caching_sha2_password' cannot be loaded: dlopen(/usr/local/Cellar/mysql/5.7.22/lib/plugin/caching_sha2_password.so, 2): image not found"
 https://stackoverflow.com/questions/49945649/mysql-error-authentication-plugin-caching-sha2-password-cannot-be-loaded
+
+Ended up reinstalling mysql for the above arrors 27-35 https://stackoverflow.com/questions/10610875/mysql-pid-ended-cannot-start-mysql
