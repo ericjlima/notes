@@ -59,7 +59,7 @@ class Login extends Component {
 
 
 handleLogout(){
-        axios.post(`${this.props.baseURL}/api/logout`).then((response) => {
+        axios.post(`${this.props.baseURL}/api/password/logout`).then((response) => {
             window.location.reload();
              
         }).catch(function (error) {
@@ -87,7 +87,7 @@ handleLogout(){
             <div className="pure-control-group">
               <div className='pure-control-group'>
                 <label>Password</label>
-                <input autoFocus="autofocus" onChange={this.handlePassEnter.bind(this)} id="passenter" type="password" value={this.state.pass} placeholder="Eric's use only"/>
+                <input onChange={this.handlePassEnter.bind(this)} id="passenter" type="password" value={this.state.pass} placeholder="Eric's use only"/>
                   <p className="verificationMessage"> {this.state.incorrectPassword} </p>
               </div>
             </div>

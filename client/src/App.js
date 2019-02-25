@@ -12,6 +12,7 @@ import Notes from './components/notes';
 import Login from './components/login';
 import axios from 'axios';
 import './App.css';
+var md5 = require('md5');
 
 axios.defaults.withCredentials = true;
 
@@ -24,7 +25,10 @@ class App extends Component {
       notex2x: '',
       notes: [],
       dates: [], //need to implelment still
-      baseURL: "http://el89.us:3009", //http://el89.us:3009
+      baseURL: "http://el89.us:3009", //http://el89.us:3009  //or empty quote
+      passwordShown: true,
+      passEntered: false,
+      pass: "",
     }
   }
 
@@ -33,44 +37,98 @@ class App extends Component {
     .then(res => res.json())
     .then(notes => this.setState({ notes }));
 
-    //TODO: get the below code to function more as a list. Think about doing a fetch instead of a get.
-    axios.get(`${this.state.baseURL}/api/notes/a`)
-    .then((response) => {
-      console.log(response.data.date_modified);
-      let strippedDateCreated = response.data.date_created.replace(/T/g,' ').replace(/Z/g,'');
-      strippedDateCreated = strippedDateCreated.substring(0, strippedDateCreated.indexOf('.'));
-      let strippedDateModified = response.data.date_modified.replace(/T/g,' ').replace(/Z/g,'');
-      strippedDateModified = strippedDateModified.substring(0, strippedDateModified.indexOf('.'));
 
-      this.setState({
-        // apiResponse: JSON.response, //need this?
-        // singleNoteData: response.data.name, //need this?
-        dateModified: strippedDateModified, 
-        dateCreated: strippedDateCreated,
-        value: unescape(response.data.message),
-        privateMode: response.data.private,
-        //message: response.data.message
-      }
-      , function(){
-        if(response.data.private){
-          this.setState({message: "", privateText: "Private On"});
-        } else if(!response.data.private){
-          this.setState({message: response.data.message, privateText: "Private Off"});
+      axios.get(`${this.state.baseURL}/api/password/${this.state.pass}`).then((response) => {
+      if(response.data.logged){
+          this.setState({ passEntered: true, passwordShown: false, checkPass: response.data.password, checkSessionID: response.data.sessionID});
         }
-        // console.log("privserver: "+response.data.private);
-        // console.log("priv: "+this.state.privateMode);
-      }
-      );
+        }).catch(function (error) {
+        return JSON.stringify(error);
+      });
       
-    })
-    .catch(function(error){
-      console.log(error)
-    });
+      //I guess the below code doesn't even do anything? I was using it for testing purposes or placing in the side bar to make it more organized but it's kind of useless... no?
+    //TODO: get the below code to function more as a list. Think about doing a fetch instead of a get.
+//    axios.get(`${this.state.baseURL}/api/notes/a`)
+//    .then((response) => {
+//      console.log(response.data.date_modified);
+//        
+//      let strippedDateCreated = response.data.date_created.replace(/T/g,' ').replace(/Z/g,'');
+//      strippedDateCreated = strippedDateCreated.substring(0, strippedDateCreated.indexOf('.'));
+//      let strippedDateModified = response.data.date_modified.replace(/T/g,' ').replace(/Z/g,'');
+//      strippedDateModified = strippedDateModified.substring(0, strippedDateModified.indexOf('.'));
+//
+//      this.setState({
+//        // apiResponse: JSON.response, //need this?
+//        // singleNoteData: response.data.name, //need this?
+//        dateModified: strippedDateModified, 
+//        dateCreated: strippedDateCreated,
+//        value: unescape(response.data.message),
+//        privateMode: response.data.private,
+//        //message: response.data.message
+//      }
+//      , function(){
+//        if(response.data.private){
+//          this.setState({message: "", privateText: "Private On"});
+//        } else if(!response.data.private){
+//          this.setState({message: response.data.message, privateText: "Private Off"});
+//        }
+//        // console.log("privserver: "+response.data.private);
+//        // console.log("priv: "+this.state.privateMode);
+//      }
+//      );
+//      
+//    })
+//    .catch(function(error){
+//      console.log(error)
+//    });
 
 
   }
+    
+    
+  handlePassEnter(e){
+    this.setState({
+      pass: e.target.value
+    });
+  }
 
+  handleSubmitPass(e) {
+    axios.post(`${this.state.baseURL}/api/password`, {password: md5(this.state.pass)}).then((response) => {
+             if(response.data==="logged"){
+                  this.setState({ passEntered: true });
+                  this.setState({
+                    message: this.state.value,
+                    passwordShown: false,
+                  });
+             } else {
+                  this.setState({
+                     incorrectPassword: "You've entered an incorrect password.",
+                     message: this.state.value
+                });
+                setTimeout(()=>{
+                  this.setState({
+                    incorrectPassword: "",
+                    verificationMessage: ""
+                  });
+                },2000)
 
+             }
+        }).catch(function (error) {
+        return JSON.stringify(error);
+    });
+      e.preventDefault();
+  }
+    
+    handleLogout(){
+        axios.post(`${this.state.baseURL}/api/password/logout`).then((response) => {
+            window.location.reload();
+             
+        }).catch(function (error) {
+        return JSON.stringify(error);
+    });
+  }
+    
+    
   handleClick() {
     if(this.state.activeMenu === 'active') {
       this.setState({
@@ -93,6 +151,15 @@ class App extends Component {
   }
 
   render() {
+      
+    var passwordShown = {
+      display: this.state.passwordShown ? "block" : "none"
+    };
+      
+    var hidden = {
+      display: this.state.passwordShown ? "none" : "block"
+    }
+      
     const NotesPage = (props) => {
       return (
         <Notes
@@ -133,6 +200,21 @@ class App extends Component {
                       Eric's Notes
                     </NavLink>
                     <ul className="pure-menu-list">
+                        
+                        
+                        <form style={ passwordShown } method="get" className="pure-form pure-form-aligned" onSubmit={this.handleSubmitPass.bind(this)}>
+          <fieldset className="quickLog">
+            <div className="pure-control-group">
+              <div className='pure-control-group'>
+                <input onChange={this.handlePassEnter.bind(this)} id="quickpassenter" type="password" value={this.state.pass} placeholder="Quick Login"/>
+                  <p className="verificationMessage"> {this.state.incorrectPassword} </p>
+              </div>
+            </div>
+          </fieldset>
+        </form><button style={ hidden } className="pure-button quickLog pure-button-primary logout-button" onClick={this.handleLogout.bind(this)}>Logout</button>
+                        
+                        
+                        
                       <li className="pure-menu-item" key="0">
                          <a
                           className="pure-menu-link" href={`/login`}>Login</a>

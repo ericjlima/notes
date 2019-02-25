@@ -22,10 +22,10 @@ con.connect(function(err) {
 //     if (err) throw err;
 //     console.log("Table created");
 // });
-//alter table notes add column `date_created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
-//alter table notes add column `date_modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+//ALTER TABLE notes ADD COLUMN `date_created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+//ALTER TABLE notes ADD COLUMN `date_modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 //ALTER TABLE notes ADD COLUMN private boolean;
-//create table sessions (session_id INT AUTO_INCREMENT PRIMARY KEY, expires TIMESTAMP, data VARCHAR(255))
+//CREATE TABLE sessions (session_id INT AUTO_INCREMENT PRIMARY KEY, expires TIMESTAMP, data VARCHAR(255));
 
 // var sql = "INSERT IGNORE INTO notes (name, message) VALUES ?";
 // var values = [
@@ -56,6 +56,7 @@ con.connect(function(err) {
 // });
 
 //INSERT INTO password (password) VALUE(md5(""));
+//TRUNCATE TABLE password; // this lets you delete your password. A new one can be added after.
 
 	router.get('/', function(req, res, next) {
 		con.query("SELECT name FROM notes", function (err, result, fields) {
@@ -68,7 +69,7 @@ con.connect(function(err) {
 	router.get('/:notesId', function(req, res, next) {
 		con.query(`SELECT * FROM notes WHERE name='${req.params.notesId.toLowerCase()}';`, function (err, result, fields) {
 			if (err) throw err;
-			console.log(result);
+			//console.log(result);
 	  		const note = result.find(c => c.name === req.params.notesId);
 	  		//Is the above line necessary? Can reduce this?
 			
@@ -76,7 +77,6 @@ con.connect(function(err) {
 		});
 	});
 
-	//TODO: finish thinking about date_created addition.
 	router.post('/:notesId', function(req, res, next) {
 		con.query(`INSERT IGNORE INTO notes (name, message) VALUES ('${req.params.notesId.toLowerCase()}', '')`, function (err, result, fields) {
 				if (err) throw err;
@@ -100,8 +100,8 @@ con.connect(function(err) {
 	});
 
 	router.delete('/:notesId', function(req, res, next) {
-		console.log("deleted");
-		console.log(req.params.notesId);
+		//console.log("deleted");
+		//console.log(req.params.notesId);
 		con.query(`DELETE FROM notes WHERE name='${req.params.notesId}'`, function (err, result, fields) {
 				if (err) throw err;
 			// 	console.log(req.params.notesID);

@@ -36,32 +36,32 @@ class Notes extends Component {
 
     axios.get(`${this.props.baseURL}/api/notes/${this.props.match.params.id.toLowerCase()}`)
     .then((response) => {
+      if(response.data.date_created){
+          let strippedDateCreated = response.data.date_created.replace(/T/g,' ').replace(/Z/g,'');
+          strippedDateCreated = strippedDateCreated.substring(0, strippedDateCreated.indexOf('.'));
+          let strippedDateModified = response.data.date_modified.replace(/T/g,' ').replace(/Z/g,'');
+          strippedDateModified = strippedDateModified.substring(0, strippedDateModified.indexOf('.'));
 
-      let strippedDateCreated = response.data.date_created.replace(/T/g,' ').replace(/Z/g,'');
-      strippedDateCreated = strippedDateCreated.substring(0, strippedDateCreated.indexOf('.'));
-      let strippedDateModified = response.data.date_modified.replace(/T/g,' ').replace(/Z/g,'');
-      strippedDateModified = strippedDateModified.substring(0, strippedDateModified.indexOf('.'));
-
-      this.setState({
-        // apiResponse: JSON.response, //need this?
-        // singleNoteData: response.data.name, //need this?
-        dateModified: strippedDateModified, 
-        dateCreated: strippedDateCreated,
-        value: unescape(response.data.message),
-        privateMode: response.data.private,
-        //message: response.data.message
+          this.setState({
+            // apiResponse: JSON.response, //need this?
+            // singleNoteData: response.data.name, //need this?
+            dateModified: strippedDateModified, 
+            dateCreated: strippedDateCreated,
+            value: unescape(response.data.message),
+            privateMode: response.data.private,
+            //message: response.data.message
+          }
+          , function(){
+            if(response.data.private){
+              this.setState({message: "", privateText: "Private On"});
+            } else if(!response.data.private){
+              this.setState({message: response.data.message, privateText: "Private Off"});
+            }
+            // console.log("privserver: "+response.data.private);
+            // console.log("priv: "+this.state.privateMode);
+          }
+          );
       }
-      , function(){
-        if(response.data.private){
-          this.setState({message: "", privateText: "Private On"});
-        } else if(!response.data.private){
-          this.setState({message: response.data.message, privateText: "Private Off"});
-        }
-        // console.log("privserver: "+response.data.private);
-        // console.log("priv: "+this.state.privateMode);
-      }
-      );
-      
     })
     .catch(function(error){
       console.log(error)
@@ -99,26 +99,28 @@ class Notes extends Component {
  
   handleSubmit(e) {
     let passedUpdateData= this.state.value;
-    passedUpdateData = encodeURIComponent(passedUpdateData);
-    passedUpdateData = passedUpdateData.replace(/;/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/&#10;/g, '<br />');
+      if(passedUpdateData){
+        passedUpdateData = encodeURIComponent(passedUpdateData);
+        passedUpdateData = passedUpdateData.replace(/;/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/&#10;/g, '<br />');
 
-    // console.log(passedUpdateData);
-      if(this.state.passEntered){
-        // console.log(this.state.passEntered);
-        axios.post(`${this.props.baseURL}/api/notes/update/${this.props.match.params.id}`, {messageData: passedUpdateData}).then((response) => {
-            }).catch(function (error) {
-            return JSON.stringify(error);
-          });;
-        this.setState({
-          verificationMessage: "Message was saved.",
-          message: this.state.value
-        });
-        setTimeout(()=>{
-          this.setState({
-             verificationMessage: ""
-          });
-        },2000)
-    }
+        // console.log(passedUpdateData);
+          if(this.state.passEntered){
+            // console.log(this.state.passEntered);
+            axios.post(`${this.props.baseURL}/api/notes/update/${this.props.match.params.id}`, {messageData: passedUpdateData}).then((response) => {
+                }).catch(function (error) {
+                return JSON.stringify(error);
+              });;
+            this.setState({
+              verificationMessage: "Message was saved.",
+              message: this.state.value
+            });
+            setTimeout(()=>{
+              this.setState({
+                 verificationMessage: ""
+              });
+            },2000)
+        }
+      }
     e.preventDefault();
   }
 
