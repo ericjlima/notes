@@ -26,11 +26,11 @@ Common Errors and Solutions for me:
 
 After npm start on express path:
 "Error: ER_NOT_SUPPORTED_AUTH_MODE: Client does not support authentication protocol requested by server; consider upgrading MySQL client"
-https://stackoverflow.com/questions/11403980/how-do-i-login-as-root-on-mysql-on-os-x
+https://stackoverflow.com/questions/50093144/mysql-8-0-client-does-not-support-authentication-protocol-requested-by-server
 
 
 after going to "mysql -u root" to fix above
 "ERROR 2059 (HY000): Authentication plugin 'caching_sha2_password' cannot be loaded: dlopen(/usr/local/Cellar/mysql/5.7.22/lib/plugin/caching_sha2_password.so, 2): image not found"
 https://stackoverflow.com/questions/49945649/mysql-error-authentication-plugin-caching-sha2-password-cannot-be-loaded
 
-Ended up reinstalling mysql for the above arrors 27-35 https://stackoverflow.com/questions/10610875/mysql-pid-ended-cannot-start-mysql
+Ended up reinstalling mysql for the above arrors 27-35 https://stackoverflow.com/questions/10610875/mysql-pid-ended-cannot-start-mysql to manage to get into mysql but still having trouble with the node server not serving after npm start...
