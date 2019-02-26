@@ -1,16 +1,9 @@
 var express = require('express');
 var router = express.Router();
 var cors = require('cors');
-var bodyParser = require('body-parser');
 var app = express();
 var mysql = require('mysql');
 
-
-//router.use(bodyParser());
-//app.use(bodyParser.json({limit: '50mb'}));
-//app.use(bodyParser.urlencoded({limit: '50mb', extended: true, parameterLimit:50000}));
-router.use(bodyParser.json({limit: "50mb"}));
-router.use(bodyParser.urlencoded({limit: "50mb", extended: true, parameterLimit:50000}));
 
 var con = mysql.createConnection({
   host: "localhost",
@@ -94,7 +87,6 @@ con.connect(function(err) {
 	});
 
 	router.post('/update/:notesId', function(req, res, next) {
-//        console.log(req.body.messageData);
 		con.query(`UPDATE notes SET message='${req.body.messageData}' WHERE name='${req.params.notesId.toLowerCase()}';`, function (err, result, fields) {
 				if (err) throw err;
 		});
