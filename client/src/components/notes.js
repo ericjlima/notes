@@ -109,7 +109,7 @@ class Notes extends Component {
             axios.post(`${this.props.baseURL}/api/notes/update/${this.props.match.params.id}`, {messageData: passedUpdateData}).then((response) => {
                 }).catch(function (error) {
                 return JSON.stringify(error);
-              });;
+              });
             this.setState({
               verificationMessage: "Message was saved.",
               message: this.state.value

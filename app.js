@@ -6,6 +6,7 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var notesRouter = require('./routes/notes');
 var passwordRouter = require('./routes/password');
+var bodyParser = require('body-parser');
 
 var app = express();
 
@@ -21,6 +22,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/api/notes', notesRouter);
 app.use('/api/password', passwordRouter);
+
+
+app.use(bodyParser.json({limit: "50mb"}));
+app.use(bodyParser.urlencoded({limit: "50mb", extended: true, parameterLimit:50000}));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
