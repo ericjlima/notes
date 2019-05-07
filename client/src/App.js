@@ -12,7 +12,7 @@ import Notes from './components/notes';
 import Login from './components/login';
 import axios from 'axios';
 import './App.css';
-var md5 = require('md5');
+var sha256 = require('sha256');
 
 axios.defaults.withCredentials = true;
 
@@ -45,43 +45,6 @@ class App extends Component {
         }).catch(function (error) {
         return JSON.stringify(error);
       });
-      
-      //I guess the below code doesn't even do anything? I was using it for testing purposes or placing in the side bar to make it more organized but it's kind of useless... no?
-    //TODO: get the below code to function more as a list. Think about doing a fetch instead of a get.
-//    axios.get(`${this.state.baseURL}/api/notes/a`)
-//    .then((response) => {
-//      console.log(response.data.date_modified);
-//        
-//      let strippedDateCreated = response.data.date_created.replace(/T/g,' ').replace(/Z/g,'');
-//      strippedDateCreated = strippedDateCreated.substring(0, strippedDateCreated.indexOf('.'));
-//      let strippedDateModified = response.data.date_modified.replace(/T/g,' ').replace(/Z/g,'');
-//      strippedDateModified = strippedDateModified.substring(0, strippedDateModified.indexOf('.'));
-//
-//      this.setState({
-//        // apiResponse: JSON.response, //need this?
-//        // singleNoteData: response.data.name, //need this?
-//        dateModified: strippedDateModified, 
-//        dateCreated: strippedDateCreated,
-//        value: unescape(response.data.message),
-//        privateMode: response.data.private,
-//        //message: response.data.message
-//      }
-//      , function(){
-//        if(response.data.private){
-//          this.setState({message: "", privateText: "Private On"});
-//        } else if(!response.data.private){
-//          this.setState({message: response.data.message, privateText: "Private Off"});
-//        }
-//        // console.log("privserver: "+response.data.private);
-//        // console.log("priv: "+this.state.privateMode);
-//      }
-//      );
-//      
-//    })
-//    .catch(function(error){
-//      console.log(error)
-//    });
-
 
   }
     
@@ -93,7 +56,7 @@ class App extends Component {
   }
 
   handleSubmitPass(e) {
-    axios.post(`${this.state.baseURL}/api/password`, {password: md5(this.state.pass)}).then((response) => {
+    axios.post(`${this.state.baseURL}/api/password`, {password: sha256(this.state.pass)}).then((response) => {
              if(response.data==="logged"){
                   this.setState({ passEntered: true });
                   this.setState({

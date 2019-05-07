@@ -55,9 +55,9 @@ con.connect(function(err) {
 // console.log("Number of records inserted: " + result.affectedRows);
 // });
 
-//INSERT INTO password (password) VALUE(md5(""));
+//INSERT INTO password (password) VALUE(sha256(""));
 //TRUNCATE TABLE password; // this lets you delete your password. A new one can be added after.
-
+//INSERT INTO password(password) VALUE("fkajshdlkasd81173871273askljdhasdjh");
 	router.get('/', function(req, res, next) {
 		con.query("SELECT name FROM notes", function (err, result, fields) {
 			if (err) throw err;
@@ -94,7 +94,7 @@ con.connect(function(err) {
 
 	router.post('/private/:notesId', function(req, res, next) {
 		con.query(`UPDATE notes SET private='${req.body.privateMode}' WHERE name='${req.params.notesId.toLowerCase()}';`, function (err, result, fields) {
-				if (err) throw err;
+            if (err) throw err;
 			console.log(req.body.privateMode);
 		});
 	});
