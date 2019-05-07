@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 var cors = require('cors');
-var md5 = require('md5');
 var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
 var mysql = require('mysql');
