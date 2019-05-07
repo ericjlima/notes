@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-var md5 = require('md5');
+var sha256 = require('sha256');
 
 axios.defaults.withCredentials = true;
 
@@ -31,7 +31,7 @@ class Login extends Component {
   }
 
   handleSubmitPass(e) {
-    axios.post(`${this.props.baseURL}/api/password`, {password: md5(this.state.pass)}).then((response) => {
+    axios.post(`${this.props.baseURL}/api/password`, {password: sha256(this.state.pass)}).then((response) => {
              if(response.data==="logged"){
                   this.setState({ passEntered: true });
                   this.setState({

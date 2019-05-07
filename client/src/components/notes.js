@@ -90,7 +90,7 @@ class Notes extends Component {
     });
     
     this.setState({
-      timer: setTimeout(()=>{
+      timer: setTimeout( () => {
         this.handleSubmit(e);
       },2000)
     });
