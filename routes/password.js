@@ -38,7 +38,7 @@ router.use(session({
   cookie: { maxAge: 1000 * 60 * 60 * 24 }  //1000 * 60 * 60 * 24 * 7  //7days 10000 //10 seconds   1000000 //16~ minutes
 })); //7200000;
 
-router.use(cors({origin: "http://el89.us", credentials: true}));
+router.use(cors({ origin: "http://ericnote.us", credentials: true}));
 
 router.use(function(req, res, next) {
    next();

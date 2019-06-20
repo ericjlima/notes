@@ -25,7 +25,7 @@ class App extends Component {
       notex2x: '',
       notes: [],
       dates: [], //need to implelment still
-      baseURL: "", //http://el89.us:3009  //or empty quote
+      baseURL: "", //http://ericnote.us:3009  //or empty quote
       passwordShown: true,
       passEntered: false,
       pass: "",
