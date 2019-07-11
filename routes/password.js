@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var cors = require('cors');
+//var sha256  = require('sha256');
 var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
 var mysql = require('mysql');
@@ -38,7 +39,7 @@ router.use(session({
   cookie: { maxAge: 1000 * 60 * 60 * 24 }  //1000 * 60 * 60 * 24 * 7  //7days 10000 //10 seconds   1000000 //16~ minutes
 })); //7200000;
 
-router.use(cors({origin: "http://el89.us", credentials: true}));
+router.use(cors({origin: ["http://ericnote.us","http://www.ericnote.us"], credentials: true}));
 
 router.use(function(req, res, next) {
    next();
