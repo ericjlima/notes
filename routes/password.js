@@ -45,11 +45,9 @@ router.use(function(req, res, next) {
    next();
 });
 
-
 con.connect(function(err) {
   if (err) throw err;
 });
-
 
 router.post('/', function(req, res, next) {
   con.query("SELECT * FROM password", function (err, result, fields) {
