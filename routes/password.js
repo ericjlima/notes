@@ -65,8 +65,8 @@ router.post('/', function(req, res, next) {
 });
 
 router.post('/logout', function(req, res, next) {
-        req.session.logged=false;
-        res.send("logged out"); 
+    req.session.logged=false;
+    res.send("logged out");
 });
 
 router.get('/', function(req, res, next) {

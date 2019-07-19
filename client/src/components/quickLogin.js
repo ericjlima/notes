@@ -30,31 +30,6 @@ class QuickLogin extends Component {
         });
     }
 
-  handleSubmitPass(e) {
-    axios.post(`${this.props.baseURL}/api/password`, {password: sha256(this.state.pass)}).then((response) => {
-             if(response.data==="logged"){
-                  this.setState({ passEntered: true });
-                  this.setState({
-                    message: this.state.value,
-                    passwordShown: false,
-                  });
-             } else {
-                  this.setState({
-                     incorrectPassword: "You've entered an incorrect password.",
-                     message: this.state.value
-                });
-                setTimeout(()=>{
-                  this.setState({
-                    incorrectPassword: "",
-                    verificationMessage: ""
-                  });
-                },2000)
-             }
-        }).catch(function (error) {
-        return JSON.stringify(error);
-    });
-      e.preventDefault();
-    }
     handleSubmitPass(e) {
         axios.post(`${this.props.baseURL}/api/password`, { password: sha256(this.state.pass) }).then((response) => {
             if (response.data === "logged") {
@@ -64,7 +39,7 @@ class QuickLogin extends Component {
                     passwordShown: false,
                 });
                 // this.forceUpdate();
-                // window.location.reload();
+                window.location.reload(); //should only need to force the page element to reload to get input box.
             } else {
                 this.setState({
                     incorrectPassword: "You've entered an incorrect password.",

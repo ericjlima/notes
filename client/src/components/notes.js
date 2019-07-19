@@ -30,9 +30,9 @@ class Notes extends Component {
   }
 
  componentDidMount() {
-    fetch(`${this.props.baseURL}/api/notes`)
-      .then(res => res.json())
-      .then(notes => this.setState({ notes }));
+    // fetch(`${this.props.baseURL}/api/notes`)
+    //   .then(res => res.json())
+    //   .then(notes => this.setState({ notes }));
 
     axios.get(`${this.props.baseURL}/api/notes/${this.props.match.params.id.toLowerCase()}`)
     .then((response) => {
@@ -176,8 +176,6 @@ class Notes extends Component {
 
 
   render() {
-
-
       
     var hidden = {
       display: this.state.hiddenTextarea ? "none" : "block"

@@ -10,9 +10,9 @@ import {
 import Notes from './components/notes';
 import Login from './components/login';
 import QuickLogin from './components/quickLogin';
+import SearchBar from './components/searchBar';
 import axios from 'axios';
 import './App.css';
-var sha256 = require('sha256');
 
 axios.defaults.withCredentials = true;
 
@@ -59,7 +59,7 @@ class App extends Component {
   }
 
   render() {
-      
+
     const NotesPage = (props) => {
       return (
         <Notes
@@ -102,6 +102,7 @@ class App extends Component {
                     <ul className="pure-menu-list">
                         
                       <QuickLogin baseURL={this.state.baseURL} />
+                      <SearchBar />
                                           
                       <li className="pure-menu-item" key="0">
                          <a
