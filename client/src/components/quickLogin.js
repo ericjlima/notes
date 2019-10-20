@@ -86,7 +86,6 @@ class QuickLogin extends Component {
     handleLogout() {
         axios.post(`${this.props.baseURL}/api/password/logout`).then((response) => {
             window.location.reload();
-
         }).catch(function (error) {
             return JSON.stringify(error);
         });
