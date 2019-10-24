@@ -12,7 +12,6 @@ import Login from './components/login';
 import QuickLogin from './components/quickLogin';
 import axios from 'axios';
 import './App.css';
-var sha256 = require('sha256');
 
 axios.defaults.withCredentials = true;
 
