@@ -1,6 +1,8 @@
 Steps to run this app. Apologies if this README is not up to date but this project should be easy to get running if you have a basic understanding of mysql, node, react, express. Contact me on discord if you have issues EricL
 #3392
 
+Changelog:
+10-24-2019 - syncing with local because of bugs on default master git branch
 
 Steps to take:
 
