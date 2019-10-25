@@ -3,6 +3,8 @@ var router = express.Router();
 var cors = require('cors');
 var app = express();
 var mysql = require('mysql');
+var sha256 = require('sha256');
+
 
 
 var con = mysql.createConnection({
@@ -18,14 +20,11 @@ con.connect(function(err) {
   if (err) throw err;
 });
 
-// var sql = "CREATE TABLE notes (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), message VARCHAR(255), UNIQUE (name))";
+// var sql = "CREATE TABLE notes (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), message VARCHAR(255), UNIQUE (name), date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, date_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, private BOOLEAN)";
 //   con.query(sql, function (err, result) {
 //     if (err) throw err;
 //     console.log("Table created");
 // });
-//ALTER TABLE notes ADD COLUMN `date_created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
-//ALTER TABLE notes ADD COLUMN `date_modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
-//ALTER TABLE notes ADD COLUMN private boolean;
 //CREATE TABLE sessions (session_id INT AUTO_INCREMENT PRIMARY KEY, expires TIMESTAMP, data VARCHAR(255));
 
 // var sql = "INSERT IGNORE INTO notes (name, message) VALUES ?";
@@ -55,8 +54,12 @@ con.connect(function(err) {
 // if (err) throw err;
 // console.log("Number of records inserted: " + result.affectedRows);
 // });
+// var p = `${"INSERT INTO password (password) VALUE('" + sha256('') + "')"}`;//REMEMBER TO REMOVE WHEN DONE
+// con.query(p, function(err, result){
+// 	if(err) throw err;
+// 	console.log('password errored');
+// });
 
-//INSERT INTO password (password) VALUE(sha256(""));
 //TRUNCATE TABLE password; // this lets you delete your password. A new one can be added after.
 //INSERT INTO password(password) VALUE("fkajshdlkasd81173871273askljdhasdjh");
 	router.get('/', function(req, res, next) {
@@ -70,7 +73,7 @@ con.connect(function(err) {
 	router.get('/:notesId', function(req, res, next) {
 		con.query(`SELECT * FROM notes WHERE name='${req.params.notesId.toLowerCase()}';`, function (err, result, fields) {
 			if (err) throw err;
-			//console.log(result);
+			console.log(result);
 	  		const note = result.find(c => c.name === req.params.notesId);
 	  		//Is the above line necessary? Can reduce this?
 			

@@ -33,9 +33,9 @@ class Notes extends Component {
     fetch(`${this.props.baseURL}/api/notes`)
       .then(res => res.json())
       .then(notes => this.setState({ notes }));
-
-    axios.get(`${this.props.baseURL}/api/notes/${this.props.match.params.id.toLowerCase()}`)
+    axios.get(`${this.props.baseURL}/api/notes/${this.props.match.params.id}`)
     .then((response) => {
+      console.log('fk', response.data)
       if(response.data.date_created){
           let strippedDateCreated = response.data.date_created.replace(/T/g,' ').replace(/Z/g,'');
           strippedDateCreated = strippedDateCreated.substring(0, strippedDateCreated.indexOf('.'));
@@ -78,9 +78,6 @@ class Notes extends Component {
           return JSON.stringify(error);
       });
   }
-
-
-
 
   handleCreateChange(e) {
     e.persist();
@@ -177,8 +174,6 @@ class Notes extends Component {
 
   render() {
 
-
-      
     var hidden = {
       display: this.state.hiddenTextarea ? "none" : "block"
     }
