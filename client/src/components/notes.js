@@ -35,7 +35,6 @@ class Notes extends Component {
       .then(notes => this.setState({ notes }));
     axios.get(`${this.props.baseURL}/api/notes/${this.props.match.params.id}`)
     .then((response) => {
-      console.log('fk', response.data)
       if(response.data.date_created){
           let strippedDateCreated = response.data.date_created.replace(/T/g,' ').replace(/Z/g,'');
           strippedDateCreated = strippedDateCreated.substring(0, strippedDateCreated.indexOf('.'));
