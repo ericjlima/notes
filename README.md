@@ -36,3 +36,7 @@ after going to "mysql -u root" to fix above
 https://stackoverflow.com/questions/49945649/mysql-error-authentication-plugin-caching-sha2-password-cannot-be-loaded
 
 Ended up reinstalling mysql for the above arrors 27-35 https://stackoverflow.com/questions/10610875/mysql-pid-ended-cannot-start-mysql to manage to get into mysql but still having trouble with the node server not serving after npm start...
+
+ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/tmp/mysql.sock' (2)
+Solution to above:
+mysql.server start
