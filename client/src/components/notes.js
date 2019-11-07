@@ -30,6 +30,7 @@ class Notes extends Component {
   }
 
  componentDidMount() {
+     console.log(this.props);
     fetch(`${this.props.baseURL}/api/notes`)
       .then(res => res.json())
       .then(notes => this.setState({ notes }));
@@ -44,7 +45,7 @@ class Notes extends Component {
           this.setState({
             // apiResponse: JSON.response, //need this?
             // singleNoteData: response.data.name, //need this?
-            dateModified: strippedDateModified, 
+            dateModified: strippedDateModified,
             dateCreated: strippedDateCreated,
             value: unescape(response.data.message),
             privateMode: response.data.private,
@@ -84,15 +85,15 @@ class Notes extends Component {
     this.setState({
       value: e.target.value
     });
-    
+
     this.setState({
       timer: setTimeout( () => {
         this.handleSubmit(e);
       },2000)
     });
-    
+
   }
- 
+
   handleSubmit(e) {
     let passedUpdateData= this.state.value;
       if(passedUpdateData){
@@ -160,7 +161,7 @@ class Notes extends Component {
         return JSON.stringify(error);
     });
   }
-  
+
   toTitleCase(str) {
     return str.replace(
         /\w\S*/g,
@@ -173,6 +174,7 @@ class Notes extends Component {
 
   render() {
 
+
     var hidden = {
       display: this.state.hiddenTextarea ? "none" : "block"
     }
@@ -180,10 +182,10 @@ class Notes extends Component {
       <div className="notes">
       <div className="header">
             <h1>{this.toTitleCase(this.props.match.params.id)}</h1><br />
-      </div>
+        </div>
         <div dangerouslySetInnerHTML={{ __html: unescape(this.state.message) }}/>
         <br />
-        
+
         <button style={ hidden } className="pure-button pure-button-primary private-button" onClick={this.handlePrivate.bind(this)}>{this.state.privateText}</button>
         <form style={ hidden } method="get" className="pure-form pure-form-aligned createNote" onSubmit={this.handleSubmit.bind(this)}>
           <fieldset>
@@ -194,7 +196,7 @@ class Notes extends Component {
             </div>
               <button type="submit" className="pure-button pure-button-primary messageSubmit-button">Submit</button><button className="pure-button pure-button-primary logout-button" onClick={this.handleLogout.bind(this)}>Logout</button><button className="pure-button pure-button-primary deleteNote-button" onClick={this.handleDelete.bind(this)}>Delete</button><p className="verificationMessage"> {this.state.verificationMessage} </p>
           </fieldset>
-        </form>        
+        </form>
         <p>Date Created: {this.state.dateCreated}</p>
         <p>Date Modified: {this.state.dateModified}</p>
       </div>

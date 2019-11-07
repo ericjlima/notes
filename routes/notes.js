@@ -4,14 +4,13 @@ var cors = require('cors');
 var app = express();
 var mysql = require('mysql');
 var sha256 = require('sha256');
-
-
+var config = require('../config/secret.json');
 
 var con = mysql.createConnection({
-  host: "localhost",
-  user: "ericx2x",
-  password: "water123",
-  database: "mydb"
+  host: config.host,
+  user: config.user,
+  password: config.password,
+  database: config.database
 });
 
 //router.use(cors({origin: "http://www.ericnote.us", credentials: true}));
@@ -49,6 +48,23 @@ con.connect(function(err) {
 // console.log("Number of records inserted: " + result.affectedRows);
 // });
 
+ //var sql = "CREATE TABLE subnotes (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), message VARCHAR(255), UNIQUE (name), date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, date_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, note_id INT REFERENCES notes (id))";
+   //con.query(sql, function (err, result) {
+     //if (err) throw err;
+     //console.log("Table created");
+ //});
+
+ //var sql = "INSERT IGNORE INTO subnotes (name, message, note_id) VALUES ?";
+ //var values = [
+ //['subnotes1', 'thing1', 1],
+ //['Day2', 'thing2', 2],
+ //['Day3', 'thing3', 3]
+ //];
+ //con.query(sql, [values], function (err, result) {
+ //if (err) throw err;
+ //console.log("Number of records inserted: " + result.affectedRows);
+ //});
+
 // var pw = "CREATE TABLE password (id INT AUTO_INCREMENT PRIMARY KEY, password VARCHAR(255))";
 // con.query(pw, [values], function (err, result) {
 // if (err) throw err;
@@ -73,11 +89,17 @@ con.connect(function(err) {
 	router.get('/:notesId', function(req, res, next) {
 		con.query(`SELECT * FROM notes WHERE name='${req.params.notesId.toLowerCase()}';`, function (err, result, fields) {
 			if (err) throw err;
-			console.log(result);
-	  		const note = result.find(c => c.name === req.params.notesId);
-	  		//Is the above line necessary? Can reduce this?
-			
-	  		res.send(note);
+	  		res.send(result[0]);
+		});
+	});
+
+	router.get('/:notesId/:subnotesId', function(req, res, next) { //TODO: continue from here
+		con.query(`SELECT sn.name AS subnote_title, sn.message, sn.date_created, sn.date_modified, n.name FROM notes n
+                           JOIN subnotes sn ON n.id = sn.note_id
+                           LIMIT 1;
+                           `, function (err, result, fields) {
+			if (err) throw err;
+	  		res.send(result[0]);
 		});
 	});
 

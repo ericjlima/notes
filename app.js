@@ -4,6 +4,7 @@ var path = require('path');
 var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
+var subnotesRouter = require('./routes/subnotes');
 var notesRouter = require('./routes/notes');
 var passwordRouter = require('./routes/password');
 var bodyParser = require('body-parser');
@@ -26,6 +27,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/api/notes', notesRouter);
+app.use('/api/subnotes', subnotesRouter);
 app.use('/api/password', passwordRouter);
 
 

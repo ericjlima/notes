@@ -8,6 +8,7 @@ import {
 } from 'react-router-dom';
 
 import Notes from './components/notes';
+import SubNotes from './components/subnotes';
 import Login from './components/login';
 import QuickLogin from './components/quickLogin';
 import axios from 'axios';
@@ -20,10 +21,9 @@ class App extends Component {
     super(props);
     this.state = {
       activeMenu: '',
-      notex2x: '',
+      baseURL: "", //http://ericnote.us:3009  //or empty quote
       notes: [],
       dates: [], //need to implelment still
-      baseURL: "", //http://ericnote.us:3009  //or empty quote
       passwordShown: true,
       passEntered: false,
       pass: "",
@@ -35,7 +35,7 @@ class App extends Component {
     .then(res => res.json())
     .then(notes => this.setState({ notes }));
   }
-    
+
   handleClick() {
     if(this.state.activeMenu === 'active') {
       this.setState({
@@ -57,32 +57,13 @@ class App extends Component {
     );
   }
 
-  render() {
-      
-    const NotesPage = (props) => {
-      return (
-        <Notes
-          notex2x={this.state.notex2x}
-          baseURL={this.state.baseURL}
-          {...props}
-        />
-      );
-    };
 
-    const LoginPage = (props) => {
-      return (
-        <Login
-          notex2x={this.state.notex2x}
-          baseURL={this.state.baseURL}
-          {...props}
-        />
-      );
-    };
+  render() {
 
     return (
       <div id="layout" className={`${this.state.activeMenu}`}>
         <div id="main">
-          
+
           <div className="content">
             <Router>
               <div>
@@ -99,14 +80,13 @@ class App extends Component {
                       Eric's Notes
                     </NavLink>
                     <ul className="pure-menu-list">
-                        
+
                       <QuickLogin baseURL={this.state.baseURL} />
-                                          
+
                       <li className="pure-menu-item" key="0">
                          <a
                           className="pure-menu-link" href={`/login`}>Login</a>
                        </li>
-                       {/* {console.log(this.state.notes)} */}
                       {this.state.notes.map((note,index) =>
                        <li className="pure-menu-item" key={index}>
                          <a
@@ -117,8 +97,9 @@ class App extends Component {
                   </div>
                 </div>
                 <Switch>
-                  <Route path={"/v/:id"} component={NotesPage} />
-                  <Route path={"/login"} component={LoginPage} />
+                  <Route path={"/v/:id/:sid"} render={(routeProps) => <SubNotes {...routeProps} baseURL={this.state.baseURL} />} />
+                  <Route path={"/v/:id"}  render={(routeProps) => <Notes {...routeProps} baseURL={this.state.baseURL} />} />
+                  <Route path={"/login"} render={(routeProps) => <Login {...routeProps} />} baseURL={this.state.baseURL} />
                   <Redirect from='*' to='/' />
                 </Switch>
               </div>
