@@ -47,3 +47,10 @@
 .pure-button-primary.deleteNote-button{
   background: red;
 }
+.subnotes-list{
+  padding: 0;
+}
+.subnotes-list li{
+    display: inline-block;
+    margin-right: 10px;
+}

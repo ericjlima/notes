@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 axios.defaults.withCredentials = true;
 
@@ -21,6 +22,7 @@ class Notes extends Component {
       verificationMessage: null,
       dateModified: null,
       dateCreated: null,
+      subnotes: [],
       // singleNoteData: null, //need this?
       message: null,
       value: '',
@@ -30,34 +32,33 @@ class Notes extends Component {
   }
 
  componentDidMount() {
-     console.log(this.props);
     fetch(`${this.props.baseURL}/api/notes`)
       .then(res => res.json())
       .then(notes => this.setState({ notes }));
     axios.get(`${this.props.baseURL}/api/notes/${this.props.match.params.id}`)
     .then((response) => {
-      if(response.data.date_created){
-          let strippedDateCreated = response.data.date_created.replace(/T/g,' ').replace(/Z/g,'');
+        response.data.forEach((e)=>{
+            this.state.subnotes.push(e.subnote_title);
+        });
+      if(response.data[0].date_created){
+          let strippedDateCreated = response.data[0].date_created.replace(/T/g,' ').replace(/Z/g,'');
           strippedDateCreated = strippedDateCreated.substring(0, strippedDateCreated.indexOf('.'));
-          let strippedDateModified = response.data.date_modified.replace(/T/g,' ').replace(/Z/g,'');
+          let strippedDateModified = response.data[0].date_modified.replace(/T/g,' ').replace(/Z/g,'');
           strippedDateModified = strippedDateModified.substring(0, strippedDateModified.indexOf('.'));
 
           this.setState({
-            // apiResponse: JSON.response, //need this?
-            // singleNoteData: response.data.name, //need this?
             dateModified: strippedDateModified,
             dateCreated: strippedDateCreated,
-            value: unescape(response.data.message),
-            privateMode: response.data.private,
-            //message: response.data.message
+            value: unescape(response.data[0].message),
+            privateMode: response.data[0].private,
           }
           , function(){
-            if(response.data.private){
+            if(response.data[0].private){
               this.setState({message: "", privateText: "Private On"});
-            } else if(!response.data.private){
-              this.setState({message: response.data.message, privateText: "Private Off"});
+            } else if(!response.data[0].private){
+              this.setState({message: response.data[0].message, privateText: "Private Off"});
             }
-            // console.log("privserver: "+response.data.private);
+            // console.log("privserver: "+response.data[0].private);
             // console.log("priv: "+this.state.privateMode);
           }
           );
@@ -100,9 +101,7 @@ class Notes extends Component {
         passedUpdateData = encodeURIComponent(passedUpdateData);
         passedUpdateData = passedUpdateData.replace(/;/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/&#10;/g, '<br />');
 
-        // console.log(passedUpdateData);
           if(this.state.passEntered){
-            // console.log(this.state.passEntered);
             axios.post(`${this.props.baseURL}/api/notes/update/${this.props.match.params.id}`, {messageData: passedUpdateData}).then((response) => {
                 }).catch(function (error) {
                 return JSON.stringify(error);
@@ -137,14 +136,14 @@ class Notes extends Component {
 
     if(this.state.passEntered){
       if(this.state.privateMode){
-        this.setState({privateMode:0, privateText: "Private Off"}, ()=>{
+        this.setState({privateMode:0, privateText: "Private mode is off"}, ()=>{
           axios.post(`${this.props.baseURL}/api/notes/private/${this.props.match.params.id}`, {privateMode: this.state.privateMode}).then((response) => {}).catch(function (error) {
 
               return JSON.stringify(error);
             });
         });
       } else if(!this.state.privateMode) {
-        this.setState({privateMode:1, privateText: "Private On", message: ""}, ()=>{
+        this.setState({privateMode:1, privateText: "Private mode is on", message: ""}, ()=>{
           axios.post(`${this.props.baseURL}/api/notes/private/${this.props.match.params.id}`, {privateMode: this.state.privateMode}).then((response) => {}).catch(function (error) {
               return JSON.stringify(error);
             });
@@ -178,14 +177,20 @@ class Notes extends Component {
     var hidden = {
       display: this.state.hiddenTextarea ? "none" : "block"
     }
+
     return (
       <div className="notes">
       <div className="header">
             <h1>{this.toTitleCase(this.props.match.params.id)}</h1><br />
+          <ul className="subnotes-list">
+              {this.state.subnotes.map((e)=>{
+                 return <li><Link to={this.props.match.params.id + '/' + e}>{e}</Link></li>;
+              })}
+          </ul>
         </div>
+
         <div dangerouslySetInnerHTML={{ __html: unescape(this.state.message) }}/>
         <br />
-
         <button style={ hidden } className="pure-button pure-button-primary private-button" onClick={this.handlePrivate.bind(this)}>{this.state.privateText}</button>
         <form style={ hidden } method="get" className="pure-form pure-form-aligned createNote" onSubmit={this.handleSubmit.bind(this)}>
           <fieldset>
