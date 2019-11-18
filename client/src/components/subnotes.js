@@ -53,7 +53,7 @@ class SubNotes extends React.Component {
         console.log('passresponse', response);
       if(response.data.logged){
           this.setState({ passEntered: true, hiddenTextarea: false, checkPass: response.data.password, checkSessionID: response.data.sessionID});
-            axios.post(`${this.props.baseURL}/api/notes/${this.props.match.params.id}`).then((response) => {}).catch(function (error) {
+            axios.post(`${this.props.baseURL}/api/subnotes/${this.props.match.params.sid}`).then((response) => {}).catch(function (error) {
                   return JSON.stringify(error);
               });
         }
@@ -63,7 +63,6 @@ class SubNotes extends React.Component {
     }
 
       handlePrivate(e){
-
         if(this.state.passEntered){
           if(this.state.privateMode){
             this.setState({privateMode:0, privateText: "Private mode is off"}, ()=>{
@@ -104,7 +103,7 @@ class SubNotes extends React.Component {
         passedUpdateData = passedUpdateData.replace(/;/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/&#10;/g, '<br />');
 
           if(this.state.passEntered){
-            axios.post(`${this.props.baseURL}/api/notes/update/${this.props.match.params.id}`, {messageData: passedUpdateData}).then((response) => {
+         axios.post(`${this.props.baseURL}/api/subnotes/update/${this.props.match.params.sid}`, {messageData: passedUpdateData}).then((response) => {
                 }).catch(function (error) {
                 return JSON.stringify(error);
               });

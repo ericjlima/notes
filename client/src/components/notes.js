@@ -37,6 +37,7 @@ class Notes extends Component {
       .then(notes => this.setState({ notes }));
     axios.get(`${this.props.baseURL}/api/notes/${this.props.match.params.id}`)
     .then((response) => {
+        console.log('respon', response);
         response.data.forEach((e)=>{
             this.state.subnotes.push(e.subnote_title);
         });
