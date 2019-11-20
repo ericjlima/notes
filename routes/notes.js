@@ -86,30 +86,25 @@ con.connect(function(err) {
 	    });
 	});
 
-	//router.get('/:notesId', function(req, res, next) {
-		//con.query(`SELECT * FROM notes WHERE name='${req.params.notesId.toLowerCase()}';`, function (err, result, fields) {
-			//if (err) throw err;
-			  //res.send(result[0]);
-		//});
-	//});
+        //router.get('/:notesId', function(req, res, next) {
+                //con.query(`SELECT * FROM notes WHERE name='${req.params.notesId.toLowerCase()}';`, function (err, result, fields) {
+                        //if (err) throw err;
+                          //res.send(result[0]);
+                //});
+        //});
 
-	router.get('/:notesId', function(req, res, next) {
-		con.query(`SELECT n.name, n.message, n.date_created, n.date_modified, n.private, sn.name AS subnote_title FROM notes n
-            JOIN subnotes sn ON n.id = sn.note_id
+        router.get('/:notesId', function(req, res, next) {
+                con.query(`SELECT n.id, n.name, n.message, n.date_created, n.date_modified, n.private, sn.name AS subnote_title FROM notes n
+            LEFT JOIN subnotes sn ON n.id = sn.note_id
             WHERE n.name='${req.params.notesId.toLowerCase()}';`, function (err, result, fields) {
-			if (err) throw err;
-	  		res.send(result);
-		});
-	});
+                        //console.log('baseUrl', req.baseUrl);
+                        //console.log('path', req.path);
+                        //console.log('originalUrl', req.originalUrl);
+                        if (err) throw err;
+                          res.send(result);
+                });
+        });
 
-	router.get('/:notesId/:subnotesId', function(req, res, next) {
-		con.query(`SELECT sn.name AS subnote_title, sn.message, sn.date_created, sn.date_modified, n.name FROM notes n
-                           JOIN subnotes sn ON n.id = sn.note_id;
-                           `, function (err, result, fields) {
-			if (err) throw err;
-	  		res.send(result[0]);
-		});
-	});
 
 	router.post('/:notesId', function(req, res, next) {
 		con.query(`INSERT IGNORE INTO notes (name, message) VALUES ('${req.params.notesId.toLowerCase()}', '')`, function (err, result, fields) {
@@ -120,12 +115,6 @@ con.connect(function(err) {
 	  	});
 	});
 
-	router.post('/:notesId/:subnotesId', function(req, res, next) {
-		con.query(`INSERT IGNORE INTO subnotes (name, message) VALUES ('${req.params.subnotesId.toLowerCase()}', '')`, function (err, result, fields) {
-				if (err) throw err;
-
-	  	});
-	});
 
 	router.post('/update/:notesId', function(req, res, next) {
 		con.query(`UPDATE notes SET message='${req.body.messageData}' WHERE name='${req.params.notesId.toLowerCase()}';`, function (err, result, fields) {
@@ -133,14 +122,6 @@ con.connect(function(err) {
 		});
 	});
 
-
-        //TODO: get this part to work..
-	router.post('/update/:subnotesId', function(req, res, next) {
-		con.query(`UPDATE subnotes SET message='${req.body.messageData}' WHERE name='${req.params.subnotesId.toLowerCase()}';`, function (err, result, fields) {
-                    console.log(result);
-				if (err) throw err;
-		});
-	});
 
 	router.post('/private/:notesId', function(req, res, next) {
 		con.query(`UPDATE notes SET private='${req.body.privateMode}' WHERE name='${req.params.notesId.toLowerCase()}';`, function (err, result, fields) {

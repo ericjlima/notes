@@ -13,14 +13,13 @@ class SubNotes extends React.Component {
       dateCreated: null,
       hiddenTextarea: true,
       value: '',
-        pass: '',
+      pass: '',
     };
   }
 
     componentDidMount(){
-        axios.get(`${this.props.baseURL}/api/notes/${this.props.match.params.id}/${this.props.match.params.sid}`)
+        axios.get(`${this.props.baseURL}/api/subnotes/${this.props.match.params.id}/${this.props.match.params.sid}`)
         .then((response) => {
-            //console.log('response: ', response.data);
             this.setState({ subnote: response.data });
 
               if(response.data.date_created){
@@ -48,12 +47,14 @@ class SubNotes extends React.Component {
         .catch(function(error){
           console.log(error)
         });
-
+let parId = 0;
+    axios.get(`${this.props.baseURL}/api/notes/${this.props.match.params.id}`).then((response) => {
+        parId = response.data[0].id;
+    });
     axios.get(`${this.props.baseURL}/api/password/${this.state.pass}`).then((response) => {
-        console.log('passresponse', response);
       if(response.data.logged){
           this.setState({ passEntered: true, hiddenTextarea: false, checkPass: response.data.password, checkSessionID: response.data.sessionID});
-            axios.post(`${this.props.baseURL}/api/subnotes/${this.props.match.params.sid}`).then((response) => {}).catch(function (error) {
+            axios.post(`${this.props.baseURL}/api/subnotes/${this.props.match.params.sid}/${parId}`).then((response) => {}).catch(function (error) {
                   return JSON.stringify(error);
               });
         }

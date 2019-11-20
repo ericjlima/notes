@@ -4,8 +4,8 @@ var path = require('path');
 var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
-var subnotesRouter = require('./routes/subnotes');
 var notesRouter = require('./routes/notes');
+var subnotesRouter = require('./routes/subnotes');
 var passwordRouter = require('./routes/password');
 var bodyParser = require('body-parser');
 

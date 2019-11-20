@@ -97,9 +97,9 @@ class App extends Component {
                   </div>
                 </div>
                 <Switch>
-                  <Route path={"/v/:id/:sid"} render={(routeProps) => <SubNotes {...routeProps} baseURL={this.state.baseURL} />} />
-                  <Route path={"/v/:id"}  render={(routeProps) => <Notes {...routeProps} baseURL={this.state.baseURL} />} />
                   <Route path={"/login"} render={(routeProps) => <Login {...routeProps} />} baseURL={this.state.baseURL} />
+                  <Route path={"/:id/:sid"} render={(routeProps) => <SubNotes {...routeProps} baseURL={this.state.baseURL} />} />
+                  <Route path={"/:id"}  render={(routeProps) => <Notes {...routeProps} baseURL={this.state.baseURL} />} />
                   <Redirect from='*' to='/' />
                 </Switch>
               </div>
