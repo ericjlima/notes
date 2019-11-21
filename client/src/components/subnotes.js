@@ -47,7 +47,14 @@ class SubNotes extends React.Component {
         .catch(function(error){
           console.log(error)
         });
-let parId = 0;
+
+
+            axios.post(`${this.props.baseURL}/api/notes/${this.props.match.params.id}`).then((response) => {}).catch(function (error) {
+                  return JSON.stringify(error);
+              });
+
+
+    let parId = 0;
     axios.get(`${this.props.baseURL}/api/notes/${this.props.match.params.id}`).then((response) => {
         parId = response.data[0].id;
     });

@@ -90,7 +90,7 @@ class App extends Component {
                       {this.state.notes.map((note,index) =>
                        <li className="pure-menu-item" key={index}>
                          <a
-                          className="pure-menu-link" href={`/v/${note.name}`}>{this.toTitleCase(note.name)}</a>
+                          className="pure-menu-link" href={`/${note.name}`}>{this.toTitleCase(note.name)}</a>
                        </li>
                   )}
                     </ul>
@@ -98,6 +98,7 @@ class App extends Component {
                 </div>
                 <Switch>
                   <Route path={"/login"} render={(routeProps) => <Login {...routeProps} />} baseURL={this.state.baseURL} />
+
                   <Route path={"/:id/:sid"} render={(routeProps) => <SubNotes {...routeProps} baseURL={this.state.baseURL} />} />
                   <Route path={"/:id"}  render={(routeProps) => <Notes {...routeProps} baseURL={this.state.baseURL} />} />
                   <Redirect from='*' to='/' />

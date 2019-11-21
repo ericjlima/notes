@@ -32,12 +32,9 @@ class Notes extends Component {
   }
 
  componentDidMount() {
-    fetch(`${this.props.baseURL}/api/notes`)
-      .then(res => res.json())
-      .then(notes => this.setState({ notes }));
     axios.get(`${this.props.baseURL}/api/notes/${this.props.match.params.id}`)
     .then((response) => {
-        console.log('respon', response);
+        //console.log('respon', response);
         response.data.forEach((e)=>{
             this.state.subnotes.push(e.subnote_title);
         });
@@ -69,6 +66,7 @@ class Notes extends Component {
       console.log(error)
     });
 
+//if i ever get to adding redux this will be handled quite easily and can remove the call below do same on subnotes page too?
     axios.get(`${this.props.baseURL}/api/password/${this.state.pass}`).then((response) => {
       if(response.data.logged){
           this.setState({ passEntered: true, hiddenTextarea: false, checkPass: response.data.password, checkSessionID: response.data.sessionID});
@@ -184,8 +182,8 @@ class Notes extends Component {
       <div className="header">
             <h1>{this.toTitleCase(this.props.match.params.id)}</h1><br />
           <ul className="subnotes-list">
-              {this.state.subnotes.map((e)=>{
-                 return <li><Link to={this.props.match.params.id + '/' + e}>{e}</Link></li>;
+              {this.state.subnotes.map((e, i)=>{
+                 return <li key={i}><Link to={this.props.match.params.id + '/' + e}>{e}</Link></li>;
               })}
           </ul>
         </div>
