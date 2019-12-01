@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var cors = require('cors');
+//var cors = require('cors');
 var app = express();
 var mysql = require('mysql');
 var sha256 = require('sha256');
@@ -14,7 +14,7 @@ var con = mysql.createConnection({
 });
 
 //router.use(cors({origin: "http://www.ericnote.us", credentials: true}));
-router.use(cors({origin: ["http://ericnote.us", "http://www.ericnote.us"], credentials: true}));
+//router.use(cors({origin: ["http://ericnote.us", "http://www.ericnote.us"], credentials: true}));
 con.connect(function(err) {
   if (err) throw err;
 });
