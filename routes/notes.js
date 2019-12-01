@@ -118,7 +118,8 @@ con.connect(function(err) {
 
 	router.post('/update/:notesId', function(req, res, next) {
 		con.query(`UPDATE notes SET message='${req.body.messageData}' WHERE name='${req.params.notesId.toLowerCase()}';`, function (err, result, fields) {
-				if (err) throw err;
+                    if (err) throw err;
+                    res.send(result)
 		});
 	});
 
