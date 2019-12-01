@@ -95,9 +95,9 @@ class Notes extends Component {
             checkSessionID: response.data.sessionID,
           });
 
-        //const responsepost = await axios.post(
-        //`${this.props.baseURL}/api/notes/${this.props.match.params.id}`,
-        //);
+        await axios.post(
+        `${this.props.baseURL}/api/notes/${this.props.match.params.id}`,
+        );
 
         //console.log(response);
       } catch (error) {
@@ -185,14 +185,23 @@ class Notes extends Component {
       )
     ) {
       if (window.confirm('Really delete?')) {
-        axios
-          .delete(
-            `${this.props.baseURL}/api/notes/${this.props.match.params.id}`,
-          )
-          .catch(function(error) {
-            return JSON.stringify(error);
-          });
-        window.location.replace('/');
+        const deleteNote = async () => {
+          try{
+		await axios.delete(
+		  `${this.props.baseURL}/api/notes/${this.props.match.params.id}`,
+		);
+		this.setState({
+	           verificationMessage: 'Deleting...',
+		});
+		setTimeout( () => {
+	          window.location.replace('/');
+		}, 2000);
+	  }  catch (error) {
+	     console.log(error);
+	  }
+        };
+
+        deleteNote();
       }
     }
   }
