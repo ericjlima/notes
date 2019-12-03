@@ -9,8 +9,11 @@ var subnotesRouter = require('./routes/subnotes');
 var passwordRouter = require('./routes/password');
 var bodyParser = require('body-parser');
 
+var cors = require('cors');
+
 var app = express();
 
+app.use(cors({origin: ["http://ericnote.us", "http://www.ericnote.us"], credentials: true}));
 
 app.use(bodyParser.json({limit: "50mb"}));
 app.use(bodyParser.urlencoded({limit: "50mb", extended: true, parameterLimit:50000}));
