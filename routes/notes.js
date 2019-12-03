@@ -109,6 +109,7 @@ con.connect(function(err) {
 	router.post('/:notesId', function(req, res, next) {
 		con.query(`INSERT IGNORE INTO notes (name, message) VALUES ('${req.params.notesId.toLowerCase()}', '')`, function (err, result, fields) {
 				if (err) throw err;
+                    res.send(result)
 				// console.log(result);
 				// let sql = `INSERT IGNORE INTO notes (name, message) VALUES ('${req.params.notesId}', '')`;
 		  		// let query = con.query(sql);
@@ -128,6 +129,7 @@ con.connect(function(err) {
 		con.query(`UPDATE notes SET private='${req.body.privateMode}' WHERE name='${req.params.notesId.toLowerCase()}';`, function (err, result, fields) {
             if (err) throw err;
 			console.log(req.body.privateMode);
+                    res.send(result)
 		});
 	});
 
