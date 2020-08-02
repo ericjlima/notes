@@ -44,6 +44,17 @@
   margin: 0 0 0 1em;
 }
 
+.pure-button-primary.privateMode-button{
+  background: red;
+}
+
 .pure-button-primary.deleteNote-button{
   background: red;
+}
+.subnotes-list{
+  padding: 0;
+}
+.subnotes-list li{
+    display: inline-block;
+    margin-right: 10px;
 }

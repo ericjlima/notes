@@ -5,13 +5,13 @@ var cors = require('cors');
 var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
 var mysql = require('mysql');
+var config = require('../config/secret.json');
 
 var options = {
-    host: 'localhost',
-    // port: 3306,
-    user: 'ericx2x',
-    password: 'water123',
-    database: 'mydb',
+    host: config.host,
+    user: config.user,
+    password: config.password,
+    database: config.database,
     schema: {
         tableName: 'sessions',
         columnNames: {
@@ -21,7 +21,7 @@ var options = {
         }
     }
 };
- 
+
 var sessionStore = new MySQLStore(options);
 
 var con = mysql.createConnection({
@@ -32,10 +32,10 @@ var con = mysql.createConnection({
 });
 
 router.use(session({
-  secret: 'iloveel89', 
-  store: sessionStore, 
-  resave: false, 
-  saveUninitialized: true, 
+  secret: 'iloveel89',
+  store: sessionStore,
+  resave: false,
+  saveUninitialized: true,
   cookie: { maxAge: 1000 * 60 * 60 * 24 }  //1000 * 60 * 60 * 24 * 7  //7days 10000 //10 seconds   1000000 //16~ minutes
 })); //7200000;
 
@@ -66,7 +66,7 @@ router.post('/', function(req, res, next) {
 
 router.post('/logout', function(req, res, next) {
         req.session.logged=false;
-        res.send("logged out"); 
+        res.send("logged out");
 });
 
 router.get('/', function(req, res, next) {
