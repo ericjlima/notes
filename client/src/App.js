@@ -21,7 +21,7 @@ class App extends Component {
     super(props);
     this.state = {
       activeMenu: '',
-      baseURL: "http://ericnote.us:3009", //http://ericnote.us:3009  //or empty quote
+      baseURL: "", //http://ericnote.us:3009  //or empty quote
       notes: [],
       dates: [], //need to implelment still
       passwordShown: true,

@@ -19,39 +19,45 @@ con.connect(function(err) {
   if (err) throw err;
 });
 
-// var sql = "CREATE TABLE notes (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), message VARCHAR(255), UNIQUE (name), date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, date_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, private BOOLEAN)";
-//   con.query(sql, function (err, result) {
-//     if (err) throw err;
-//     console.log("Table created");
-// });
-//CREATE TABLE sessions (session_id INT AUTO_INCREMENT PRIMARY KEY, expires TIMESTAMP, data VARCHAR(255));
+//START OF AUTOSETUP
 
-// var sql = "INSERT IGNORE INTO notes (name, message) VALUES ?";
-// var values = [
-// ['Day1', 'Writing1'],
-// ['Day2', 'Writing2'],
-// ['Day3', 'Writing3'],
-// ['Day4', 'Writing4'],
-// ['Day5', 'Writing5'],
-// ['Day6', 'Writing6'],
-// ['Day7', 'Writing7'],
-// ['Day8', 'Writing8'],
-// ['Day9', 'Writing9'],
-// ['Day10', 'Writing10'],
-// ['Day11', 'Writing11'],
-// ['Day12', 'Writing12'],
-// ['Day13', 'Writing13'],
-// ['Day14', 'Writing14']
-// ];
-// con.query(sql, [values], function (err, result) {
-// if (err) throw err;
-// console.log("Number of records inserted: " + result.affectedRows);
-// });
+ //var sql = "CREATE TABLE notes (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), message VARCHAR(255), UNIQUE (name), date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, date_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, private BOOLEAN)";
+   //con.query(sql, function (err, result) {
+     //if (err) throw err;
+     //console.log("Notes Table created");
+ //}); 
+ //var sql = "CREATE TABLE sessions (session_id INT AUTO_INCREMENT PRIMARY KEY, expires TIMESTAMP, data VARCHAR(255))";
+   //con.query(sql, function (err, result) {
+     //if (err) throw err;
+     //console.log("Sessions Table created");
+ //});
 
-// var sql = "CREATE TABLE subnotes (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), message VARCHAR(255), UNIQUE (name), date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, date_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, note_id INT REFERENCES notes (id))";
-//   con.query(sql, function (err, result) {
- //    if (err) throw err;
- //    console.log("Table created");
+ //var sql = "INSERT IGNORE INTO notes (name, message) VALUES ?";
+ //var values = [
+ //['Day1', 'Writing1'],
+ //['Day2', 'Writing2'],
+ //['Day3', 'Writing3'],
+ //['Day4', 'Writing4'],
+ //['Day5', 'Writing5'],
+ //['Day6', 'Writing6'],
+ //['Day7', 'Writing7'],
+ //['Day8', 'Writing8'],
+ //['Day9', 'Writing9'],
+ //['Day10', 'Writing10'],
+ //['Day11', 'Writing11'],
+ //['Day12', 'Writing12'],
+ //['Day13', 'Writing13'],
+ //['Day14', 'Writing14']
+ //];
+ //con.query(sql, [values], function (err, result) {
+ //if (err) throw err;
+ //console.log("Number of records inserted: " + result.affectedRows);
+ //});
+
+ //var sql = "CREATE TABLE subnotes (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), message VARCHAR(255), UNIQUE (name), date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, date_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, note_id INT REFERENCES notes (id))";
+   //con.query(sql, function (err, result) {
+     //if (err) throw err;
+     //console.log("Table created");
  //});
 
  //var sql = "INSERT IGNORE INTO subnotes (name, message, note_id) VALUES ?";
@@ -65,16 +71,18 @@ con.connect(function(err) {
  //console.log("Number of records inserted: " + result.affectedRows);
  //});
 
-// var pw = "CREATE TABLE password (id INT AUTO_INCREMENT PRIMARY KEY, password VARCHAR(255))";
-// con.query(pw, [values], function (err, result) {
-// if (err) throw err;
-// console.log("Number of records inserted: " + result.affectedRows);
-// });
-// var p = `${"INSERT INTO password (password) VALUE('" + sha256('') + "')"}`;//REMEMBER TO REMOVE WHEN DONE
-// con.query(p, function(err, result){
-// 	if(err) throw err;
-// 	console.log('password errored');
-// });
+ //var pw = "CREATE TABLE password (id INT AUTO_INCREMENT PRIMARY KEY, password VARCHAR(255))";
+ //con.query(pw, [values], function (err, result) {
+ //if (err) throw err;
+ //console.log("Number of records inserted: " + result.affectedRows);
+ //});
+ //var p = `${"INSERT INTO password (password) VALUE('" + sha256('lkjhasdf') + "')"}`;//REMEMBER TO REMOVE WHEN DONE
+ //con.query(p, function(err, result){
+         //if(err) throw err;
+         //console.log('password errored');
+ //});
+
+//END OF AUTO SETUP
 
 //TRUNCATE TABLE password; // this lets you delete your password. A new one can be added after.
 //INSERT INTO password(password) VALUE("fkajshdlkasd81173871273askljdhasdjh");

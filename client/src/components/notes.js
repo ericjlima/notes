@@ -29,9 +29,11 @@ class Notes extends Component {
       data: 'null',
       timer: null,
     };
+    this.textAreaRef = React.createRef();
   }
 
   componentDidMount() {
+
     axios
       .get(`${this.props.baseURL}/api/notes/${this.props.match.params.id}`)
       .then(response => {
@@ -64,11 +66,11 @@ class Notes extends Component {
             },
             function() {
               if (response.data[0].private) {
-                this.setState({message: '', privateText: 'Private On'});
+                this.setState({message: '', privateText: 'Private Mode is On'});
               } else if (!response.data[0].private) {
                 this.setState({
                   message: response.data[0].message,
-                  privateText: 'Private Off',
+                  privateText: 'Private Mode Is Off',
                 });
               }
               // console.log("privserver: "+response.data[0].private);
@@ -95,9 +97,6 @@ class Notes extends Component {
             checkSessionID: response.data.sessionID,
           });
 
-        await axios.post(
-        `${this.props.baseURL}/api/notes/${this.props.match.params.id}`,
-        );
 
         //console.log(response);
       } catch (error) {
@@ -150,6 +149,11 @@ class Notes extends Component {
       const updateNote = async () => {
         try {
           if (this.state.passEntered) {
+            if(!!this.state.value){
+                await axios.post(
+                `${this.props.baseURL}/api/notes/${this.props.match.params.id}`,
+                );
+            }
             await axios.post(
               `${this.props.baseURL}/api/notes/update/${this.props.match.params.id}`,
               {messageData: passedUpdateData},
@@ -284,7 +288,7 @@ class Notes extends Component {
         <br />
         <button
           style={hidden}
-          className="pure-button pure-button-primary private-button"
+          className={`pure-button pure-button-primary private-button ${!!this.state.privateMode && 'privateMode-button'}`}
           onClick={this.handlePrivate.bind(this)}>
           {this.state.privateText}
         </button>
@@ -302,6 +306,7 @@ class Notes extends Component {
                   type="text"
                   value={this.decodeHtml(this.state.value)}
                   placeholder="Create"
+                  ref={this.textAreaRef}
                 />
               </div>
             </div>
