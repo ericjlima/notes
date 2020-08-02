@@ -10,6 +10,7 @@ class SubNotes extends React.Component {
       dateModified: null,
       dateCreated: null,
       hiddenTextarea: true,
+      privateMode: null,
       value: '',
       pass: '',
     };
@@ -48,15 +49,17 @@ class SubNotes extends React.Component {
             },
             function() {
               if (response.data.private) {
-                this.setState({message: '', privateText: 'Private On'});
+                this.setState({message: '', privateText: 'Private Is On'});
               } else if (!response.data.private) {
                 this.setState({
                   message: response.data.message,
-                  privateText: 'Private Off',
+                  privateText: 'Private Is Off',
                 });
               }
             },
           );
+          console.log('resposne, ', response)
+          console.log('privateMode: ', this.state.privateMode)
         }
       })
       .catch(function(error) {
@@ -70,12 +73,6 @@ class SubNotes extends React.Component {
         return JSON.stringify(error);
       });
 
-    let parId = 0;
-    axios
-      .get(`${this.props.baseURL}/api/notes/${this.props.match.params.id}`)
-      .then(response => {
-        parId = response.data[0].id;
-      });
     axios
       .get(`${this.props.baseURL}/api/password/${this.state.pass}`)
       .then(response => {
@@ -86,14 +83,6 @@ class SubNotes extends React.Component {
             checkPass: response.data.password,
             checkSessionID: response.data.sessionID,
           });
-          axios
-            .post(
-              `${this.props.baseURL}/api/subnotes/${this.props.match.params.sid}/${parId}`,
-            )
-            .then(response => {})
-            .catch(function(error) {
-              return JSON.stringify(error);
-            });
         }
       })
       .catch(function(error) {
@@ -109,7 +98,7 @@ class SubNotes extends React.Component {
           () => {
             axios
               .post(
-                `${this.props.baseURL}/api/notes/private/${this.props.match.params.id}`,
+                `${this.props.baseURL}/api/subnotes/private/${this.props.match.params.sid}`,
                 {privateMode: this.state.privateMode},
               )
               .then(response => {})
@@ -122,15 +111,19 @@ class SubNotes extends React.Component {
         this.setState(
           {privateMode: 1, privateText: 'Private mode is on', message: ''},
           () => {
-            axios
-              .post(
-                `${this.props.baseURL}/api/notes/private/${this.props.match.params.id}`,
+            console.log('hitx3')
+            axios.post(
+                `${this.props.baseURL}/api/subnotes/private/${this.props.match.params.sid}`,
                 {privateMode: this.state.privateMode},
               )
-              .then(response => {})
+              .then(response => {
+console.log('iam the response', response);
+              })
               .catch(function(error) {
+                console.log(JSON.stringify(error));
                 return JSON.stringify(error);
               });
+            console.log('hit1x')
           },
         );
       }
@@ -169,26 +162,41 @@ class SubNotes extends React.Component {
         .replace(/'/g, '&#39;')
         .replace(/&#10;/g, '<br />');
 
-      if (this.state.passEntered) {
-        axios
-          .post(
-            `${this.props.baseURL}/api/subnotes/update/${this.props.match.params.sid}`,
-            {messageData: passedUpdateData},
-          )
-          .then(response => {})
-          .catch(function(error) {
-            return JSON.stringify(error);
-          });
-        this.setState({
-          verificationMessage: 'Message was saved.',
-          message: this.state.value,
-        });
-        setTimeout(() => {
+      const updateSubNote = async () => {
+        try {
+              if (this.state.passEntered) {
+                if(this.state.value){
+                  let parId = 0;
+                  const response = await axios.get(`${this.props.baseURL}/api/notes/${this.props.match.params.id}`);
+                      parId = response.data[0].id;
+                   axios.post(
+                `${this.props.baseURL}/api/subnotes/${this.props.match.params.sid}/${parId}`,
+                    );
+                  }
+                  axios.post(
+                    `${this.props.baseURL}/api/subnotes/update/${this.props.match.params.sid}`,
+                    {messageData: passedUpdateData},
+                  );
+                  this.setState({
+                    verificationMessage: 'Message was saved.',
+                    message: this.state.value,
+                  });
+                  setTimeout(() => {
+                    this.setState({
+                      verificationMessage: '',
+                    });
+                  }, 2000);
+            }
+        } catch (error) {
           this.setState({
-            verificationMessage: '',
+            verificationMessage: 'Some kind of error occured:' + error,
+            message: this.state.value,
           });
-        }, 2000);
-      }
+          console.error(error);
+        }
+      };
+
+      updateSubNote();
     }
     e.preventDefault();
   }
@@ -202,7 +210,7 @@ class SubNotes extends React.Component {
       if (window.confirm('Really delete?')) {
         axios
           .delete(
-            `${this.props.baseURL}/api/notes/${this.props.match.params.id}`,
+            `${this.props.baseURL}/api/subnotes/${this.props.match.params.sid}`,
           )
           .catch(function(error) {
             return JSON.stringify(error);
@@ -252,7 +260,7 @@ class SubNotes extends React.Component {
         <br />
         <button
           style={hidden}
-          className="pure-button pure-button-primary private-button"
+          className={`pure-button pure-button-primary private-button ${!!this.state.privateMode && 'privateMode-button'}`}
           onClick={this.handlePrivate.bind(this)}>
           {this.state.privateText}
         </button>

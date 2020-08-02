@@ -66,7 +66,7 @@ class Notes extends Component {
             },
             function() {
               if (response.data[0].private) {
-                this.setState({message: '', privateText: 'Private Mode is On'});
+                this.setState({message: '', privateText: 'Private Mode Is On'});
               } else if (!response.data[0].private) {
                 this.setState({
                   message: response.data[0].message,
@@ -214,7 +214,7 @@ class Notes extends Component {
     if (this.state.passEntered) {
       if (this.state.privateMode) {
         this.setState(
-          {privateMode: 0, privateText: 'Private mode is off'},
+          {privateMode: 0, privateText: 'Private mode Is off'},
           () => {
             axios
               .post(
@@ -229,7 +229,7 @@ class Notes extends Component {
         );
       } else if (!this.state.privateMode) {
         this.setState(
-          {privateMode: 1, privateText: 'Private mode is on', message: ''},
+          {privateMode: 1, privateText: 'Private mode Is on', message: ''},
           () => {
             axios
               .post(

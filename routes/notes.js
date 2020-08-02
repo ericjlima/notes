@@ -54,7 +54,7 @@ con.connect(function(err) {
  //console.log("Number of records inserted: " + result.affectedRows);
  //});
 
- //var sql = "CREATE TABLE subnotes (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), message VARCHAR(255), UNIQUE (name), date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, date_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, note_id INT REFERENCES notes (id))";
+ //var sql = "CREATE TABLE subnotes (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), message VARCHAR(255), UNIQUE (name), date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, date_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, private BOOLEAN, note_id INT REFERENCES notes (id))";
    //con.query(sql, function (err, result) {
      //if (err) throw err;
      //console.log("Table created");
@@ -136,7 +136,7 @@ con.connect(function(err) {
 	router.post('/private/:notesId', function(req, res, next) {
 		con.query(`UPDATE notes SET private='${req.body.privateMode}' WHERE name='${req.params.notesId.toLowerCase()}';`, function (err, result, fields) {
             if (err) throw err;
-			console.log(req.body.privateMode);
+			//console.log(req.body.privateMode);
                     res.send(result)
 		});
 	});
