@@ -105,6 +105,16 @@ class Notes extends Component {
     };
 
     getPassword();
+
+
+
+
+
+
+
+
+
+
   }
 
   handleCreateChange(e) {
@@ -130,6 +140,18 @@ class Notes extends Component {
       //.replace(/&#13;\r?\n/g, '<br />')
   }
 
+  createNotesBranches = async () => {
+    const branches = Object.entries(this.props.match.params);
+
+    for(let i = 0; i < branches.length ; i++){
+      console.log('hi', branches);
+              //TODO: Make sure you populate the level column and the PID columns here.
+                await axios.post(
+                `${this.props.baseURL}/api/notes/${this.props.match.params.id}`,
+                );
+    }
+  };
+
   handleSubmit(e) {
     let passedUpdateData = this.state.value;
     if (passedUpdateData) {
@@ -150,9 +172,12 @@ class Notes extends Component {
         try {
           if (this.state.passEntered) {
             if(!!this.state.value){
-                await axios.post(
-                `${this.props.baseURL}/api/notes/${this.props.match.params.id}`,
-                );
+
+              this.createNotesBranches();
+
+                //await axios.post(
+                //`${this.props.baseURL}/api/notes/${this.props.match.params.id}`,
+                //);
             }
             await axios.post(
               `${this.props.baseURL}/api/notes/update/${this.props.match.params.id}`,

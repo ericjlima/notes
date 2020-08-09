@@ -8,7 +8,6 @@ import {
 } from 'react-router-dom';
 
 import Notes from './components/notes';
-import SubNotes from './components/subnotes';
 import Login from './components/login';
 import QuickLogin from './components/quickLogin';
 import axios from 'axios';
@@ -57,9 +56,19 @@ class App extends Component {
     );
   }
 
+  generateBranchedRoutes(){
+    const result = [];
+    let stringRes = '/:id';
+
+    for(let i = 1; i < 99 ; i++){
+        stringRes = '/:id' + i + stringRes;
+        result.unshift(<Route path={stringRes} render={(routeProps) => <Notes {...routeProps} baseURL={this.state.baseURL} />} />);
+    }
+    return result;
+  }
+
 
   render() {
-
     return (
       <div id="layout" className={`${this.state.activeMenu}`}>
         <div id="main">
@@ -89,8 +98,7 @@ class App extends Component {
                        </li>
                       {this.state.notes.map((note,index) =>
                        <li className="pure-menu-item" key={index}>
-                         <a
-                          className="pure-menu-link" href={`/${note.name}`}>{this.toTitleCase(note.name)}</a>
+                         <a className="pure-menu-link" href={`/${note.name}`}>{this.toTitleCase(note.name)}</a>
                        </li>
                   )}
                     </ul>
@@ -98,8 +106,7 @@ class App extends Component {
                 </div>
                 <Switch>
                   <Route path={"/login"} render={(routeProps) => <Login {...routeProps} />} baseURL={this.state.baseURL} />
-
-                  <Route path={"/:id/:sid"} render={(routeProps) => <SubNotes {...routeProps} baseURL={this.state.baseURL} />} />
+                  {this.generateBranchedRoutes()}
                   <Route path={"/:id"}  render={(routeProps) => <Notes {...routeProps} baseURL={this.state.baseURL} />} />
                   <Redirect from='*' to='/' />
                 </Switch>
