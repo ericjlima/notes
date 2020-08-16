@@ -56,7 +56,6 @@ const Notes = (props) => {
     const branches = Object.entries(props.match.params);
     const parentData = [];
     let pid;
-    let previousNote;
     for(let i = 0; i < branches.length ; i++){
         console.log('brlanches', branches.length);
       if(i === 0) {
@@ -181,7 +180,7 @@ const Notes = (props) => {
   const createNotesParentBranches = async (passedUpdateData) => {
     const branches = Object.entries(props.match.params);
     const parentData = [];
-    let pid;
+    let pid = 0;
     let previousNote;
 
     for(let i = 0; i < branches.length ; i++){
@@ -190,7 +189,7 @@ const Notes = (props) => {
           `${props.baseURL}/api/notes/${branches[i][1]}`,
           {messageData: passedUpdateData, pid: 0}
         );
-        previousNote = await axios.get(`${props.baseURL}/api/notes/${branches[i][1]}`);
+        previousNote = await axios.get(`${props.baseURL}/api/notes/namepid/${branches[i][1]}/${pid}`);
       console.log('prevNotex', previousNote)
       } else {
         pid = previousNote.data[0].id;
@@ -200,11 +199,13 @@ const Notes = (props) => {
         {messageData: passedUpdateData, pid: pid}
         );
       console.log('branches', branches)
-        previousNote = await axios.get(`${props.baseURL}/api/notes/${branches[i][1]}`);
+        previousNote = await axios.get(`${props.baseURL}/api/notes/namepid/${branches[i][1]}/${pid}`);
       console.log('prevNote2', previousNote)
       }
+      console.log('wot', previousNote.data[0].id);
+      console.log('pid', pid);
       await axios.post(
-        `${props.baseURL}/api/notes/update/${props.match.params.id}`,//TODO: this has to go to namepd instead?
+        `${props.baseURL}/api/notes/update/${props.match.params.id}/${previousNote.data[0].id}`,//TODO: this has to go to namepd instead?
         {messageData: passedUpdateData},
       );
     }
