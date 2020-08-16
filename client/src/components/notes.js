@@ -22,7 +22,7 @@ const Notes = (props) => {
     const textAreaRef = useRef(null);
 
 
-  //TODO: how do you deal with the same note names?
+  //TODO: QA same notes names code a bit more
   //TODO: unmoutn anything? Study unmounting and why we use it.
   useEffect(() => {
     setChildNotes([]); //This line resolves a bug where the childnotes dont render. Not sure why. Guess you have to do this and it's a weird oddity of React.
@@ -135,21 +135,39 @@ const Notes = (props) => {
     const branches = Object.entries(props.match.params);
     const parentData = [];
     let pid;
+    let previousNote;
 
     for(let i = 0; i < branches.length ; i++){
+      if(i === 0) {
+        await axios.post(
+          `${props.baseURL}/api/notes/${branches[i][1]}`,
+          {messageData: passedUpdateData, pid: 0}
+        );
+        previousNote = await axios.get(`${props.baseURL}/api/notes/${branches[i][1]}`);
+      console.log('prevNotex', previousNote)
+      } else {
+        pid = previousNote.data[0].id;
+      console.log('prevNote', previousNote);
+        await axios.post(
+        `${props.baseURL}/api/notes/${branches[i][1]}`,
+        {messageData: passedUpdateData, pid: pid}
+        );
+      console.log('branches', branches)
+        previousNote = await axios.get(`${props.baseURL}/api/notes/${branches[i][1]}`);
+      console.log('prevNote2', previousNote)
+      }
       await axios.post(
-        `${props.baseURL}/api/notes/${branches[i][1]}`
-      );
-      const obj = await axios.get(`${props.baseURL}/api/notes/${branches[i][1]}`);
-      parentData.push(obj.data);
-    }
-    for(let i = 0; i < branches.length ; i++){
-      if(i === 0) pid = 0; else pid = parentData[i-1][0].id;
-      await axios.post(
-        `${props.baseURL}/api/notes/update/${branches[i][1]}`,
-        {messageData: passedUpdateData, pid: pid},
+        `${props.baseURL}/api/notes/update/${props.match.params.id}`,
+        {messageData: passedUpdateData},
       );
     }
+    //for(let i = 0; i < branches.length ; i++){
+      //if(i === 0) pid = 0; else pid = parentData[i-1][0].id;
+      //await axios.post(
+        //`${props.baseURL}/api/notes/update/${branches[i][1]}`,
+        //{messageData: passedUpdateData, pid: pid},
+      //);
+    //}
     setVerificationMessage('Message was saved.');
     setMessage(value);
     setTimeout(() => {
