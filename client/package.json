@@ -1,6 +1,6 @@
 {
   "name": "client",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "proxy": "http://localhost:3009",
   "dependencies": {
@@ -8,8 +8,8 @@
     "cors": "^2.8.4",
     "draft-js": "^0.10.5",
     "md5": "^2.2.1",
-    "react": "^16.3.2",
-    "react-dom": "^16.3.2",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.3.1",
     "react-scripts": "1.1.4",
