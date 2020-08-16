@@ -28,8 +28,10 @@ const Notes = (props) => {
     setChildNotes([]); //This line resolves a bug where the childnotes dont render. Not sure why. Guess you have to do this and it's a weird oddity of React.
     const getChildNotes = async (currentNoteData) => {
       try {
+        //const secondLastParam = props.match.url.split('/')[props.match.url.split('/').length-2];
         const response = await axios.get(
           `${props.baseURL}/api/notes/children/${currentNoteData.id}`,
+          //{slp: secondLastParam, pid: pid}
         );
         const children = response.data;
         let addChild;
@@ -46,8 +48,53 @@ const Notes = (props) => {
     const getNoteData = async () => {
       try {
         const secondLastParam = props.match.url.split('/')[props.match.url.split('/').length-2];
-        console.log('slp', secondLastParam)
-        const response = await axios.get(`${props.baseURL}/api/notes/${props.match.params.id}`);
+        //console.log('slp', secondLastParam);
+        let response;
+
+
+
+    const branches = Object.entries(props.match.params);
+    const parentData = [];
+    let pid;
+    let previousNote;
+    for(let i = 0; i < branches.length ; i++){
+        console.log('brlanches', branches.length);
+      if(i === 0) {
+        pid = 0;
+        response = await axios.get(
+          `${props.baseURL}/api/notes/namepid/${branches[i][1]}/${pid}`
+        );
+        //console.log('xresponse', response);
+        //console.log('xpid', pid);
+        pid = response.data[0].id;
+        //console.log('response', response);
+        //console.log('pid', pid);
+      } else {
+        console.log('namepid', branches[i][1] + pid);
+        response = await axios.get(
+          `${props.baseURL}/api/notes/namepid/${branches[i][1]}/${pid}`
+        );
+        //TODO: errors on the last one because it wasn't created. Figure out a way to create it? or newshit has the wrong parent day8. onSubmit make sure to give the correct pid and namepid
+        pid = response.data[0].id;
+        console.log('response2', response);
+        console.log('i', i);
+      }
+        console.log('branches', branches);
+        //console.log('xresponse', response.data[0]);
+    }
+
+
+
+
+
+
+        //if(!secondLastParam){
+          //response = await axios.get(`${props.baseURL}/api/notes/${props.match.params.id}`);
+        //} else {
+          //const secondLastResponse = await axios.get(`${props.baseURL}/api/notes/${secondLastParam}`);
+          //console.log('secondLastResponse', secondLastResponse);
+        //}
+        console.log('1response', response)
         getChildNotes(response.data[0]);
         console.log('response', response)
     
@@ -157,7 +204,7 @@ const Notes = (props) => {
       console.log('prevNote2', previousNote)
       }
       await axios.post(
-        `${props.baseURL}/api/notes/update/${props.match.params.id}`,
+        `${props.baseURL}/api/notes/update/${props.match.params.id}`,//TODO: this has to go to namepd instead?
         {messageData: passedUpdateData},
       );
     }
