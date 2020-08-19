@@ -62,7 +62,7 @@ class App extends Component {
 
     for(let i = 1; i < 99 ; i++){
         stringRes = '/:id' + i + stringRes;
-        result.unshift(<Route path={stringRes} render={(routeProps) => <Notes {...routeProps} baseURL={this.state.baseURL} key={window.location.pathname} />} />);
+        result.unshift(<Route path={stringRes} key={i} render={(routeProps) => <Notes {...routeProps} baseURL={this.state.baseURL} key={window.location.pathname} />} />);
     }
     return result;
   }

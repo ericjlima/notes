@@ -6,26 +6,21 @@ axios.defaults.withCredentials = true;
 
 const Notes = (props) => {
 
-    //TODO: Only notes with a pid of 0 can show up in the left side bar.
-    //TODO: QA same notes names code a bit more
-    //TODO: looks like there are console.log errors in the front end on new notes pages. Can't routes failing their fetch
-    //TODO: MAke sure to remove unused routes. I think no longer using the original get route for anything?
-    //TODO: can you condense the below with one use state. Maybe call it note and setUseNote with all the other properties.
-    const [passEntered, setPassEntered] = useState(false);
-    const [privateMode, setPrivateMode] = useState(0);
-    const [privateText, setPrivateText] = useState('none');
-    const [hiddenTextArea, setHiddenTextArea] = useState(true);
-    const [verificationMessage, setVerificationMessage] = useState(null);
-    const [dateModified, setDateModified] = useState(null);
-    const [dateCreated, setDateCreated] = useState(null);
-    const [childNotes, setChildNotes] = useState([]);
-    const [message, setMessage] = useState(null);
-    const [value, setValue] = useState('');
+  const [passEntered, setPassEntered] = useState(false);
+  const [privateMode, setPrivateMode] = useState(0);
+  const [privateText, setPrivateText] = useState('Private Mode is Off');
+  const [hiddenTextArea, setHiddenTextArea] = useState(true);
+  const [verificationMessage, setVerificationMessage] = useState(null);
+  const [dateModified, setDateModified] = useState(null);
+  const [dateCreated, setDateCreated] = useState(null);
+  const [childNotes, setChildNotes] = useState([]);
+  const [message, setMessage] = useState(null);
+  const [value, setValue] = useState('');
 
-    const textAreaRef = useRef(null);
+  const textAreaRef = useRef(null);
 
 
-  //TODO: unmoutn anything? Study unmounting and why we use it.
+  //TODO: Memory leak about an component not mounting? Click the back button and check what the console is saying. Ask around potentially
   useEffect(() => {
     setChildNotes([]); //This line resolves a bug where the childnotes dont render. Not sure why. Guess you have to do this and it's a weird oddity of React.
     const getChildNotes = async (currentNoteData) => {
@@ -51,8 +46,6 @@ const Notes = (props) => {
       try {
         let response;
 
-
-
         const branches = Object.entries(props.match.params);
         let pid;
         for(let i = 0; i < branches.length ; i++){
@@ -61,23 +54,17 @@ const Notes = (props) => {
             response = await axios.get(
               `${props.baseURL}/api/notes/namepid/${branches[i][1]}/${pid}`
             );
-            pid = response.data[0].id;
+            !!response.data[0] && (pid = response.data[0].id);
           } else {
             response = await axios.get(
               `${props.baseURL}/api/notes/namepid/${branches[i][1]}/${pid}`
             );
-            pid = response.data[0].id;
+            !!response.data[0] && (pid = response.data[0].id);
           }
         }
+        !!response.data[0] && (getChildNotes(response.data[0]));
 
-
-
-
-
-
-        getChildNotes(response.data[0]);
-    
-        if (response.data[0].date_created) {
+        if (!!response.data[0] && response.data[0].date_created) {
           let strippedDateCreated = response.data[0].date_created
             .replace(/T/g, ' ')
             .replace(/Z/g, '');
@@ -102,8 +89,8 @@ const Notes = (props) => {
               setMessage('');
               setPrivateText('Private Mode Is On');
             } else if (!response.data[0].private) {
-                setMessage(response.data[0].message);
-                setPrivateText('Private Mode Is Off');
+              setMessage(response.data[0].message);
+              setPrivateText('Private Mode Is Off');
             }
           }
           togglePrivateMode();
@@ -173,30 +160,20 @@ const Notes = (props) => {
       } else {
         pid = previousNote.data[0].id;
         await axios.post(
-        `${props.baseURL}/api/notes/${branches[i][1]}`,
-        {messageData: passedUpdateData, pid: pid}
+          `${props.baseURL}/api/notes/${branches[i][1]}`,
+          {messageData: passedUpdateData, pid: pid}
         );
         previousNote = await axios.get(`${props.baseURL}/api/notes/namepid/${branches[i][1]}/${pid}`);
       }
-      console.log('1', props.match.params.id);
-      console.log('2', previousNote.data[0].id);
-      console.log('3', passedUpdateData);
       await axios.post(
-        `${props.baseURL}/api/notes/update/${props.match.params.id}/${pid ? previousNote.data[0].id : 0 }`,//TODO: this has to go to namepd instead?
+        `${props.baseURL}/api/notes/update/${props.match.params.id}/${pid && (previousNote.data[0].id)}`,
         {messageData: passedUpdateData},
       );
     }
-    //for(let i = 0; i < branches.length ; i++){
-      //if(i === 0) pid = 0; else pid = parentData[i-1][0].id;
-      //await axios.post(
-        //`${props.baseURL}/api/notes/update/${branches[i][1]}`,
-        //{messageData: passedUpdateData, pid: pid},
-      //);
-    //}
     setVerificationMessage('Message was saved.');
     setMessage(value);
     setTimeout(() => {
-        setVerificationMessage('');
+      setVerificationMessage('');
     }, 2000);
   };
 
@@ -206,32 +183,32 @@ const Notes = (props) => {
       //sql statements seem to error unless we replace these characters before making a query.
       passedUpdateData = encodeURIComponent(passedUpdateData);
       passedUpdateData = passedUpdateData
-        //.replace(/&#10;/g, '<br />')
-        //.replace(/&#13;/g, '<br />')
-            //.replace(/<br\s?\/?>/g,"\n");
-        //.replace(/\r\n|\r|\n/g,"<br />")
+      //.replace(/&#10;/g, '<br />')
+      //.replace(/&#13;/g, '<br />')
+      //.replace(/<br\s?\/?>/g,"\n");
+      //.replace(/\r\n|\r|\n/g,"<br />")
         .replace(/;/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
+          .replace(/'/g, '&#39;');
 
-      const updateNote = async (passedUpdateData) => {
-        try {
-          if (passEntered) {
-            if(!!value){
-              initalizeOrUpdateAllRoutesToDB(passedUpdateData);
-            }
+            const updateNote = async (passedUpdateData) => {
+              try {
+                if (passEntered) {
+                  if(!!value){
+                    initalizeOrUpdateAllRoutesToDB(passedUpdateData);
+                  }
+                }
+              } catch (error) {
+                setVerificationMessage('Some kind of error occured:' + error);
+                setMessage(value);
+                console.error(error);
+              }
+            };
+
+            updateNote(passedUpdateData);
           }
-        } catch (error) {
-            setVerificationMessage('Some kind of error occured:' + error);
-            setMessage(value);
-            console.error(error);
-        }
-      };
-
-      updateNote(passedUpdateData);
-    }
     e.preventDefault();
   }
 
@@ -244,16 +221,16 @@ const Notes = (props) => {
       if (window.confirm('Really delete?')) {
         const deleteNote = async () => {
           try{
-		await axios.delete(
-		  `${props.baseURL}/api/notes/${props.match.params.id}`,
-		);
-                setVerificationMessage('Deleting...');
-		setTimeout( () => {
-	          window.location.replace('/');
-		}, 2000);
-	  }  catch (error) {
-	     console.log(error);
-	  }
+            await axios.delete(
+              `${props.baseURL}/api/notes/${props.match.params.id}`,
+            );
+            setVerificationMessage('Deleting...');
+            setTimeout( () => {
+              window.location.replace('/');
+            }, 2000);
+          }  catch (error) {
+            console.log(error);
+          }
         };
 
         deleteNote();
@@ -264,33 +241,33 @@ const Notes = (props) => {
   const handlePrivate = e => {
     if (passEntered) {
       if (privateMode) {
-          setPrivateMode(0); 
-          setPrivateText('Private Mode Is Off');
-          const postPrivateOff = () => {
-            axios.post(
-              `${props.baseURL}/api/notes/private/${props.match.params.id}`,
-              {privateMode: 0},
-            )
+        setPrivateMode(0); 
+        setPrivateText('Private Mode Is Off');
+        const postPrivateOff = () => {
+          axios.post(
+            `${props.baseURL}/api/notes/private/${props.match.params.id}`,
+            {privateMode: 0},
+          )
             .then(response => {})
             .catch(function(error) {
               return JSON.stringify(error);
             });
-          }
-          postPrivateOff();
+        }
+        postPrivateOff();
       } else if (!privateMode) {
-          setPrivateMode(1); 
-          setPrivateText('Private Mode Is On');
-          const postPrivateOn = () => {
-            axios.post(
-              `${props.baseURL}/api/notes/private/${props.match.params.id}`,
-              {privateMode: 1},
-            )
+        setPrivateMode(1); 
+        setPrivateText('Private Mode Is On');
+        const postPrivateOn = () => {
+          axios.post(
+            `${props.baseURL}/api/notes/private/${props.match.params.id}`,
+            {privateMode: 1},
+          )
             .then(response => {})
             .catch(function(error) {
               return JSON.stringify(error);
             });
-          };
-          postPrivateOn();
+        };
+        postPrivateOn();
       }
     }
   }
@@ -312,84 +289,84 @@ const Notes = (props) => {
     });
   }
 
-    var hidden = {
-      display: hiddenTextArea ? 'none' : 'block',
-    };
+  var hidden = {
+    display: hiddenTextArea ? 'none' : 'block',
+  };
 
-    return (
-      <div className="notes">
-          <Link
-            to={props.match.url.substring(
-              0,
-              props.match.url.lastIndexOf('/'),
-            )}>
-            &lt; Back to {!!props.match.url.split('/')[props.match.url.split('/').length-2] ? props.match.url.split('/')[props.match.url.split('/').length-2] : 'Homepage'}
-          </Link> 
-          <div className="header">
-          <h1>{toTitleCase(props.match.params.id)}</h1>
-          <br />
-          <ul className="subnotes-list">
-            {childNotes.map((e, i) => {
-              return (
-                <li key={i}>
-                  <Link to={window.location.pathname + '/' + e} key={window.location.pathname}>{e}</Link>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-
-        <div dangerouslySetInnerHTML={{__html: unescape(message)}} />
+  return (
+    <div className="notes">
+      <Link
+        to={props.match.url.substring(
+          0,
+            props.match.url.lastIndexOf('/'),
+        )}>
+        &lt; Back to {!!props.match.url.split('/')[props.match.url.split('/').length-2] ? props.match.url.split('/')[props.match.url.split('/').length-2] : 'Homepage'}
+      </Link> 
+      <div className="header">
+        <h1>{toTitleCase(props.match.params.id)}</h1>
         <br />
-        <button
-          style={hidden}
-          className={`pure-button pure-button-primary private-button ${!!privateMode && 'privateMode-button'}`}
-          onClick={handlePrivate}>
-          {privateText}
-        </button>
-        <form
-          style={hidden}
-          method="get"
-          className="pure-form pure-form-aligned createNote"
-          onSubmit={handleSubmit}>
-          <fieldset>
-            <div className="pure-control-group">
-              <div className="pure-control-group">
-                <textarea
-                  onChange={event => setValue(event.target.value)}
-                  id="create"
-                  type="text"
-                  value={decodeHtml(value)}
-                  placeholder="Create"
-                  ref={textAreaRef}
-                />
-              </div>
-            </div>
-            <button
-              type="submit"
-              className="pure-button pure-button-primary messageSubmit-button">
-              Submit
-            </button>
-            <button
-              className="pure-button pure-button-primary logout-button"
-              onClick={handleLogout}>
-              Logout
-            </button>
-            <button
-              className="pure-button pure-button-primary deleteNote-button"
-              onClick={handleDelete}>
-              Delete
-            </button>
-            <p className="verificationMessage">
-              {' '}
-              {verificationMessage}{' '}
-            </p>
-          </fieldset>
-        </form>
-        <p>Date Created: {dateCreated}</p>
-        <p>Date Modified: {dateModified}</p>
+        <ul className="subnotes-list">
+          {childNotes.map((e, i) => {
+            return (
+              <li key={i}>
+                <Link to={window.location.pathname + '/' + e} key={window.location.pathname}>{e}</Link>
+              </li>
+            );
+          })}
+        </ul>
       </div>
-    );
+
+      <div dangerouslySetInnerHTML={{__html: unescape(message)}} />
+      <br />
+      <button
+        style={hidden}
+        className={`pure-button pure-button-primary private-button ${!!privateMode && 'privateMode-button'}`}
+        onClick={handlePrivate}>
+        {privateText}
+      </button>
+      <form
+        style={hidden}
+        method="get"
+        className="pure-form pure-form-aligned createNote"
+        onSubmit={handleSubmit}>
+        <fieldset>
+          <div className="pure-control-group">
+            <div className="pure-control-group">
+              <textarea
+                onChange={event => setValue(event.target.value)}
+                id="create"
+                type="text"
+                value={decodeHtml(value)}
+                placeholder="Create"
+                ref={textAreaRef}
+              />
+            </div>
+          </div>
+          <button
+            type="submit"
+            className="pure-button pure-button-primary messageSubmit-button">
+            Submit
+          </button>
+          <button
+            className="pure-button pure-button-primary logout-button"
+            onClick={handleLogout}>
+            Logout
+          </button>
+          <button
+            className="pure-button pure-button-primary deleteNote-button"
+            onClick={handleDelete}>
+            Delete
+          </button>
+          <p className="verificationMessage">
+            {' '}
+            {verificationMessage}{' '}
+          </p>
+        </fieldset>
+      </form>
+      <p>Date Created: {dateCreated}</p>
+      <p>Date Modified: {dateModified}</p>
+    </div>
+  );
 };
 
 export default Notes;
