@@ -1,5 +1,6 @@
 import React from 'react';
 
+//TODO: finish this
 
 class SearchBar extends Component {
     render(){
