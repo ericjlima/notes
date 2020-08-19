@@ -6,6 +6,10 @@ axios.defaults.withCredentials = true;
 
 const Notes = (props) => {
 
+    //TODO: Only notes with a pid of 0 can show up in the left side bar.
+    //TODO: QA same notes names code a bit more
+    //TODO: looks like there are console.log errors in the front end on new notes pages. Can't routes failing their fetch
+    //TODO: MAke sure to remove unused routes. I think no longer using the original get route for anything?
     //TODO: can you condense the below with one use state. Maybe call it note and setUseNote with all the other properties.
     const [passEntered, setPassEntered] = useState(false);
     const [privateMode, setPrivateMode] = useState(0);
@@ -17,12 +21,10 @@ const Notes = (props) => {
     const [childNotes, setChildNotes] = useState([]);
     const [message, setMessage] = useState(null);
     const [value, setValue] = useState('');
-    const [timer, setTimer] = useState(null);
 
     const textAreaRef = useRef(null);
 
 
-  //TODO: QA same notes names code a bit more
   //TODO: unmoutn anything? Study unmounting and why we use it.
   useEffect(() => {
     setChildNotes([]); //This line resolves a bug where the childnotes dont render. Not sure why. Guess you have to do this and it's a weird oddity of React.
@@ -47,55 +49,33 @@ const Notes = (props) => {
 
     const getNoteData = async () => {
       try {
-        const secondLastParam = props.match.url.split('/')[props.match.url.split('/').length-2];
-        //console.log('slp', secondLastParam);
         let response;
 
 
 
-    const branches = Object.entries(props.match.params);
-    const parentData = [];
-    let pid;
-    for(let i = 0; i < branches.length ; i++){
-        console.log('brlanches', branches.length);
-      if(i === 0) {
-        pid = 0;
-        response = await axios.get(
-          `${props.baseURL}/api/notes/namepid/${branches[i][1]}/${pid}`
-        );
-        //console.log('xresponse', response);
-        //console.log('xpid', pid);
-        pid = response.data[0].id;
-        //console.log('response', response);
-        //console.log('pid', pid);
-      } else {
-        console.log('namepid', branches[i][1] + pid);
-        response = await axios.get(
-          `${props.baseURL}/api/notes/namepid/${branches[i][1]}/${pid}`
-        );
-        //TODO: errors on the last one because it wasn't created. Figure out a way to create it? or newshit has the wrong parent day8. onSubmit make sure to give the correct pid and namepid
-        pid = response.data[0].id;
-        console.log('response2', response);
-        console.log('i', i);
-      }
-        console.log('branches', branches);
-        //console.log('xresponse', response.data[0]);
-    }
+        const branches = Object.entries(props.match.params);
+        let pid;
+        for(let i = 0; i < branches.length ; i++){
+          if(i === 0) {
+            pid = 0;
+            response = await axios.get(
+              `${props.baseURL}/api/notes/namepid/${branches[i][1]}/${pid}`
+            );
+            pid = response.data[0].id;
+          } else {
+            response = await axios.get(
+              `${props.baseURL}/api/notes/namepid/${branches[i][1]}/${pid}`
+            );
+            pid = response.data[0].id;
+          }
+        }
 
 
 
 
 
 
-        //if(!secondLastParam){
-          //response = await axios.get(`${props.baseURL}/api/notes/${props.match.params.id}`);
-        //} else {
-          //const secondLastResponse = await axios.get(`${props.baseURL}/api/notes/${secondLastParam}`);
-          //console.log('secondLastResponse', secondLastResponse);
-        //}
-        console.log('1response', response)
         getChildNotes(response.data[0]);
-        console.log('response', response)
     
         if (response.data[0].date_created) {
           let strippedDateCreated = response.data[0].date_created
@@ -158,17 +138,18 @@ const Notes = (props) => {
 
   }, [passEntered]);
 
-  const handleCreateChange = (e) => {
-    e.persist();
+  useEffect(() => {
+    const e = {};
+    e.preventDefault = () => { return false };
+    //e.preventDefault = false;
     //return txt.value.replace(/\r?\n/g, '<br />\n');
     //TODO: find when enter is pressed and replace with <br /> somehow...
-    clearTimeout(timer);
-    setValue(e.target.value);
-
-    setTimer(setTimeout(() => {
-        handleSubmit(e);
-      }, 2000));
-  }
+    const timeOutId = setTimeout(() => { 
+      //setDisplayMessage(value); 
+      handleSubmit(e); 
+    }, 2000);
+    return () => clearTimeout(timeOutId);
+  }, [value]);
 
   const decodeHtml = (html) => {
     var txt = document.createElement('textarea');
@@ -177,9 +158,8 @@ const Notes = (props) => {
     //.replace(/&#13;\r?\n/g, '<br />')
   }
 
-  const createNotesParentBranches = async (passedUpdateData) => {
+  const initalizeOrUpdateAllRoutesToDB = async (passedUpdateData) => {
     const branches = Object.entries(props.match.params);
-    const parentData = [];
     let pid = 0;
     let previousNote;
 
@@ -190,22 +170,19 @@ const Notes = (props) => {
           {messageData: passedUpdateData, pid: 0}
         );
         previousNote = await axios.get(`${props.baseURL}/api/notes/namepid/${branches[i][1]}/${pid}`);
-      console.log('prevNotex', previousNote)
       } else {
         pid = previousNote.data[0].id;
-      console.log('prevNote', previousNote);
         await axios.post(
         `${props.baseURL}/api/notes/${branches[i][1]}`,
         {messageData: passedUpdateData, pid: pid}
         );
-      console.log('branches', branches)
         previousNote = await axios.get(`${props.baseURL}/api/notes/namepid/${branches[i][1]}/${pid}`);
-      console.log('prevNote2', previousNote)
       }
-      console.log('wot', previousNote.data[0].id);
-      console.log('pid', pid);
+      console.log('1', props.match.params.id);
+      console.log('2', previousNote.data[0].id);
+      console.log('3', passedUpdateData);
       await axios.post(
-        `${props.baseURL}/api/notes/update/${props.match.params.id}/${previousNote.data[0].id}`,//TODO: this has to go to namepd instead?
+        `${props.baseURL}/api/notes/update/${props.match.params.id}/${pid ? previousNote.data[0].id : 0 }`,//TODO: this has to go to namepd instead?
         {messageData: passedUpdateData},
       );
     }
@@ -243,7 +220,7 @@ const Notes = (props) => {
         try {
           if (passEntered) {
             if(!!value){
-              createNotesParentBranches(passedUpdateData);
+              initalizeOrUpdateAllRoutesToDB(passedUpdateData);
             }
           }
         } catch (error) {
@@ -346,7 +323,7 @@ const Notes = (props) => {
               0,
               props.match.url.lastIndexOf('/'),
             )}>
-            &lt; Back to {props.match.url.split('/')[props.match.url.split('/').length-2]}
+            &lt; Back to {!!props.match.url.split('/')[props.match.url.split('/').length-2] ? props.match.url.split('/')[props.match.url.split('/').length-2] : 'Homepage'}
           </Link> 
           <div className="header">
           <h1>{toTitleCase(props.match.params.id)}</h1>
@@ -355,7 +332,7 @@ const Notes = (props) => {
             {childNotes.map((e, i) => {
               return (
                 <li key={i}>
-                  <Link to={props.match.params.id + '/' + e} key={window.location.pathname}>{e}</Link>
+                  <Link to={window.location.pathname + '/' + e} key={window.location.pathname}>{e}</Link>
                 </li>
               );
             })}
@@ -379,7 +356,7 @@ const Notes = (props) => {
             <div className="pure-control-group">
               <div className="pure-control-group">
                 <textarea
-                  onChange={handleCreateChange}
+                  onChange={event => setValue(event.target.value)}
                   id="create"
                   type="text"
                   value={decodeHtml(value)}
