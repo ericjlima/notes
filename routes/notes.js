@@ -87,7 +87,7 @@ con.connect(function(err) {
 //TRUNCATE TABLE password; // this lets you delete your password. A new one can be added after.
 //INSERT INTO password(password) VALUE("fkajshdlkasd81173871273askljdhasdjh");
 router.get('/', function(req, res, next) {
-  con.query("SELECT name FROM notes where pid = 0 OR pid IS NULL", function (err, result, fields) {
+  con.query("SELECT name FROM notes where pid = 0 OR pid IS NULL ORDER BY name", function (err, result, fields) {
     if (err) throw err;
     // console.log(result);
     res.json( result );
