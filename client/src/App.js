@@ -24,6 +24,7 @@ class App extends Component {
       notes: [],
       dates: [], //need to implelment still
       passwordShown: true,
+      logged: false,
       passEntered: false,
       pass: "",
     }
@@ -31,8 +32,8 @@ class App extends Component {
 
   componentDidMount(){
     fetch(`${this.state.baseURL}/api/notes`)
-    .then(res => res.json())
-    .then(notes => this.setState({ notes }));
+      .then(res => res.json())
+      .then(notes => this.setState({ notes }));
   }
 
   handleClick() {
@@ -49,10 +50,10 @@ class App extends Component {
 
   toTitleCase(str) {
     return str.replace(
-        /\w\S*/g,
-        function(txt) {
-            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-        }
+      /\w\S*/g,
+      function(txt) {
+        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+      }
     );
   }
 
@@ -61,12 +62,17 @@ class App extends Component {
     let stringRes = '/:id';
 
     for(let i = 1; i < 99 ; i++){
-        stringRes = '/:id' + i + stringRes;
-        result.unshift(<Route path={stringRes} key={i} render={(routeProps) => <Notes {...routeProps} baseURL={this.state.baseURL} key={window.location.pathname} />} />);
+      stringRes = '/:id' + i + stringRes;
+      result.unshift(<Route path={stringRes} key={i} render={(routeProps) => <Notes {...routeProps} baseURL={this.state.baseURL} key={window.location.pathname} />} />);
     }
     return result;
   }
 
+  setLogged(val){
+    this.setState({
+      logged: val,
+    });
+  }
 
   render() {
     return (
@@ -76,7 +82,7 @@ class App extends Component {
           <div className="content">
             <Router>
               <div>
-                <a href="#menu" id="menuLink" onClick={this.handleClick.bind(this)} className={`menu-link`}>
+                <a href="#menu" id="menuLink" onClick={this.handleClick.bind(this)} className={`menu-link ${this.state.logged ? 'loggedIn' : ''}`}>
                   <span></span>
                 </a>
 
@@ -90,24 +96,24 @@ class App extends Component {
                     </NavLink>
                     <ul className="pure-menu-list">
 
-                      <QuickLogin baseURL={this.state.baseURL} />
+                      <QuickLogin baseURL={this.state.baseURL} setLogged={this.setLogged.bind(this)} />
 
                       <li className="pure-menu-item" key="0">
-                         <a
+                        <a
                           className="pure-menu-link" href={`/login`}>Login</a>
-                       </li>
+                      </li>
                       {this.state.notes.map((note,index) =>
-                       <li className="pure-menu-item" key={index}>
-                         <a className="pure-menu-link" href={`/${note.name}`}>{this.toTitleCase(note.name)}</a>
-                       </li>
-                  )}
+                      <li className="pure-menu-item" key={index}>
+                        <a className="pure-menu-link" href={`/${note.name}`}>{this.toTitleCase(note.name)}</a>
+                      </li>
+                      )}
                     </ul>
                   </div>
                 </div>
                 <Switch>
                   <Route path={"/login"} render={(routeProps) => <Login {...routeProps} />} baseURL={this.state.baseURL} />
                   {this.generateBranchedRoutes()}
-                  <Route path={"/:id"}  render={(routeProps) => <Notes {...routeProps} baseURL={this.state.baseURL} />} />
+                  <Route path={"/:id"}  render={(routeProps) => <Notes {...routeProps} baseURL={this.state.baseURL} setLogged={this.setLogged.bind(this)} />} />
                   <Redirect from='*' to='/' />
                 </Switch>
               </div>

@@ -106,13 +106,14 @@ const Notes = (props) => {
 
 
   useEffect(() => {
-
+console.log('lx', passEntered)
     const getPassword = async () => {
       try {
         const response = await axios.get(
           `${props.baseURL}/api/password/`,
         );
         if(response.data.logged){
+          props.setLogged(true);
           setPassEntered(true);
           setHiddenTextArea(false);
         }
@@ -165,11 +166,15 @@ const Notes = (props) => {
         );
         previousNote = await axios.get(`${props.baseURL}/api/notes/namepid/${branches[i][1]}/${pid}`);
       }
-      await axios.post(
-        `${props.baseURL}/api/notes/update/${props.match.params.id}/${pid && (previousNote.data[0].id)}`,
-        {messageData: passedUpdateData},
-      );
     }
+
+    console.log('prev', previousNote);
+
+    //needs to be the parent of the previousNote
+    await axios.post(
+      `${props.baseURL}/api/notes/update/${props.match.params.id}/${branches.length > 1 ? (pid) : (0) }`,
+      {messageData: passedUpdateData},
+    );
     setVerificationMessage('Message was saved.');
     setMessage(value);
     setTimeout(() => {
@@ -296,6 +301,7 @@ const Notes = (props) => {
   return (
     <div className="notes">
       <Link
+        className="backToParent"
         to={props.match.url.substring(
           0,
             props.match.url.lastIndexOf('/'),
@@ -316,55 +322,64 @@ const Notes = (props) => {
         </ul>
       </div>
 
-      <div dangerouslySetInnerHTML={{__html: unescape(message)}} />
       <br />
-      <button
-        style={hidden}
-        className={`pure-button pure-button-primary private-button ${!!privateMode && 'privateMode-button'}`}
-        onClick={handlePrivate}>
-        {privateText}
-      </button>
-      <form
-        style={hidden}
-        method="get"
-        className="pure-form pure-form-aligned createNote"
-        onSubmit={handleSubmit}>
-        <fieldset>
-          <div className="pure-control-group">
+       
+      <div className="noteContent">
+      <div className={`leftSide ${!passEntered ? 'makeCenter' : ''}`}>
+        <div dangerouslySetInnerHTML={{__html: unescape(message)}} />
+        <p>Date Modified: {dateModified}</p>
+        <p>Date Created: {dateCreated}</p>
+      </div>
+      {(passEntered && 
+      <div className="rightSide">
+        <button
+          style={hidden}
+          className={`pure-button pure-button-primary private-button ${!!privateMode && 'privateMode-button'}`}
+          onClick={handlePrivate}>
+          {privateText}
+        </button>
+        <form
+          style={hidden}
+          method="get"
+          className="pure-form pure-form-aligned createNote"
+          onSubmit={handleSubmit}>
+          <fieldset>
             <div className="pure-control-group">
-              <textarea
-                onChange={event => setValue(event.target.value)}
-                id="create"
-                type="text"
-                value={decodeHtml(value)}
-                placeholder="Create"
-                ref={textAreaRef}
-              />
+              <div className="pure-control-group">
+                <textarea
+                  onChange={event => setValue(event.target.value)}
+                  id="create"
+                  type="text"
+                  value={decodeHtml(value)}
+                  placeholder="Create"
+                  ref={textAreaRef}
+                />
+              </div>
             </div>
-          </div>
-          <button
-            type="submit"
-            className="pure-button pure-button-primary messageSubmit-button">
-            Submit
-          </button>
-          <button
-            className="pure-button pure-button-primary logout-button"
-            onClick={handleLogout}>
-            Logout
-          </button>
-          <button
-            className="pure-button pure-button-primary deleteNote-button"
-            onClick={handleDelete}>
-            Delete
-          </button>
-          <p className="verificationMessage">
-            {' '}
-            {verificationMessage}{' '}
-          </p>
-        </fieldset>
-      </form>
-      <p>Date Created: {dateCreated}</p>
-      <p>Date Modified: {dateModified}</p>
+            <button
+              type="submit"
+              className="pure-button pure-button-primary messageSubmit-button">
+              Submit
+            </button>
+            <button
+              className="pure-button pure-button-primary logout-button"
+              onClick={handleLogout}>
+              Logout
+            </button>
+            <button
+              className="pure-button pure-button-primary deleteNote-button"
+              onClick={handleDelete}>
+              Delete
+            </button>
+            <p className="verificationMessage">
+              {' '}
+              {verificationMessage}{' '}
+            </p>
+          </fieldset>
+        </form>
+      </div>
+      )}
+      </div>
     </div>
   );
 };
