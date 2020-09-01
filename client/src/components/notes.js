@@ -106,14 +106,14 @@ const Notes = (props) => {
 
 
   useEffect(() => {
-console.log('lx', passEntered)
     const getPassword = async () => {
       try {
         const response = await axios.get(
           `${props.baseURL}/api/password/`,
         );
         if(response.data.logged){
-          props.setLogged(true);
+          //TODO: get redux in here to deal with if the user is logged
+          //await props.setLogged(true);
           setPassEntered(true);
           setHiddenTextArea(false);
         }
@@ -167,8 +167,6 @@ console.log('lx', passEntered)
         previousNote = await axios.get(`${props.baseURL}/api/notes/namepid/${branches[i][1]}/${pid}`);
       }
     }
-
-    console.log('prev', previousNote);
 
     //needs to be the parent of the previousNote
     await axios.post(
