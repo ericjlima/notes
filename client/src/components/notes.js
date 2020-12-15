@@ -112,8 +112,8 @@ const Notes = (props) => {
           `${props.baseURL}/api/password/`,
         );
         if(response.data.logged){
-          //TODO: get redux in here to set the logged state.
-          //props.setLogged(true);
+          //TODO: get redux in here to deal with if the user is logged
+          //await props.setLogged(true);
           setPassEntered(true);
           setHiddenTextArea(false);
         }
