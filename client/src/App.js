@@ -20,7 +20,7 @@ class App extends Component {
     super(props);
     this.state = {
       activeMenu: '',
-      baseURL: "", //http://ericnote.us:3009  //or empty quote
+      baseURL: "https://api.ericnote.us", //https://api.ericnote.us  //or empty quote
       notes: [],
       dates: [], //need to implelment still
       passwordShown: true,
@@ -96,7 +96,7 @@ class App extends Component {
                     </NavLink>
                     <ul className="pure-menu-list">
 
-                      <QuickLogin baseURL={this.state.baseURL} setLogged={this.setLogged.bind(this)} />
+                      <QuickLogin baseURL={this.state.baseURL} />
 
                       <li className="pure-menu-item" key="0">
                         <a
