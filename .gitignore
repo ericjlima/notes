@@ -7,8 +7,12 @@
 # testing
 /coverage
 
+
 # config
+/config
+config
 /config/secret.json
+config/secret.json
 
 # production
 /build
