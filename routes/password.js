@@ -27,8 +27,8 @@ var sessionStore = new MySQLStore(options);
 var con = mysql.createConnection({
   host: "localhost",
   user: "ericx2x",
-  password: "water123",
-  database: "mydb"
+  password: config.password,
+  database: config.database
 });
 
 router.use(session({
