@@ -76,7 +76,7 @@ con.connect(function(err) {
 //if (err) throw err;
 //console.log("Number of records inserted: " + result.affectedRows);
 //});
-//var p = `${"INSERT INTO password (password) VALUE('" + sha256('lkjhasdf') + "')"}`;//REMEMBER TO REMOVE WHEN DONE
+//var p = `${"INSERT INTO password (password) VALUE('" + sha256(config.clientPassword) + "')"}`;//REMEMBER TO REMOVE WHEN DONE
 //con.query(p, function(err, result){
 //if(err) throw err;
 //console.log('password errored');
