@@ -21,7 +21,7 @@ con.connect(function(err) {
 
 //START OF AUTOSETUP
 
-//var sql = "CREATE TABLE notes (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), message VARCHAR(255), date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, date_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, private BOOLEAN, pid INT, namepid VARCHAR(255) UNIQUE NOT NULL)";
+//var sql = "CREATE TABLE notes (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), message longtext, date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, date_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, private BOOLEAN, pid INT, namepid VARCHAR(255) UNIQUE NOT NULL)";
 //con.query(sql, function (err, result) {
 //if (err) throw err;
 //console.log("Notes Table created");
@@ -54,28 +54,13 @@ con.connect(function(err) {
 //console.log("Number of records inserted: " + result.affectedRows);
 //});
 
-//var sql = "CREATE TABLE subnotes (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), message VARCHAR(255), UNIQUE (name), date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, date_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, private BOOLEAN, note_id INT REFERENCES notes (id))";
-//con.query(sql, function (err, result) {
-//if (err) throw err;
-//console.log("Table created");
-//});
-
-//var sql = "INSERT IGNORE INTO subnotes (name, message, note_id) VALUES ?";
-//var values = [
-//['subnotes1', 'thing1', 1],
-//['Day2', 'thing2', 2],
-//['Day3', 'thing3', 3]
-//];
-//con.query(sql, [values], function (err, result) {
-//if (err) throw err;
-//console.log("Number of records inserted: " + result.affectedRows);
-//});
 
 //var pw = "CREATE TABLE password (id INT AUTO_INCREMENT PRIMARY KEY, password VARCHAR(255))";
-//con.query(pw, [values], function (err, result) {
+//con.query(pw, function (err, result) {
 //if (err) throw err;
-//console.log("Number of records inserted: " + result.affectedRows);
+//console.log("password table made");
 //});
+//console.log('see', config.clientPassword);
 //var p = `${"INSERT INTO password (password) VALUE('" + sha256(config.clientPassword) + "')"}`;//REMEMBER TO REMOVE WHEN DONE
 //con.query(p, function(err, result){
 //if(err) throw err;
@@ -141,6 +126,15 @@ router.post('/:notesId', function(req, res, next) {
   });
 });
 
+
+router.post('/update/:notesId/:pid', function(req, res, next) {
+  con.query(`UPDATE notes SET message='${req.body.messageData}' WHERE namepid='${req.params.notesId} ${req.params.pid}';`, function (err, result, fields) {
+    //console.log('msgdata', req.body.messageData);
+    //console.log('namepid', req.params.notesId + ' ' + req.params.pid);
+    if (err) throw err;
+    res.send(result)
+  });
+});
 
 router.post('/update/:notesId/:pid', function(req, res, next) {
   con.query(`UPDATE notes SET message='${req.body.messageData}' WHERE namepid='${req.params.notesId} ${req.params.pid}';`, function (err, result, fields) {
