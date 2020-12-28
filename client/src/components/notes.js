@@ -44,18 +44,18 @@ const Notes = props => {
       try {
         let response;
 
-        const branches = Object.entries(props.match.params);
+        const branches = Object.values(props.match.params);
         let pid;
         for (let i = 0; i < branches.length; i++) {
           if (i === 0) {
             pid = 0;
             response = await axios.get(
-              `${props.baseURL}/api/notes/namepid/${branches[i][1]}/${pid}`,
+              `${props.baseURL}/api/notes/namepid/${branches[i]}/${pid}`,
             );
             !!response.data[0] && (pid = response.data[0].id);
           } else {
             response = await axios.get(
-              `${props.baseURL}/api/notes/namepid/${branches[i][1]}/${pid}`,
+              `${props.baseURL}/api/notes/namepid/${branches[i]}/${pid}`,
             );
             !!response.data[0] && (pid = response.data[0].id);
           }
@@ -141,41 +141,62 @@ const Notes = props => {
     //.replace(/&#13;\r?\n/g, '<br />')
   };
 
-  const collectPidAndOrPostEachBranch = async (passedUpdateData, postBool, updatePidBool) => {
-    const branches = Object.entries(props.match.params);
+  const collectIdAndOrPostEachBranch = async (
+    passedUpdateData,
+    postBool,
+    updateCurrNoteId,
+    idNumber,
+    moveDirectory,
+  ) => {
+    let branches = Object.values(props.match.params);
+    if (moveDirectory) {
+      branches = moveDirectory;
+    }
+
     let pid = 0;
     let previousNote;
 
-    //This function updates the note information (name pid and message) of each branch if necessary.
     for (let i = 0; i < branches.length; i++) {
       if (i === 0) {
         if (postBool) {
-          await axios.post(`${props.baseURL}/api/notes/${branches[i][1]}`, {
+          await axios.post(`${props.baseURL}/api/notes/${branches[i]}`, {
             messageData: passedUpdateData,
             pid: 0,
           });
         }
         previousNote = await axios.get(
-          `${props.baseURL}/api/notes/namepid/${branches[i][1]}/${pid}`,
+          `${props.baseURL}/api/notes/namepid/${branches[i]}/${pid}`,
         );
       } else {
         pid = previousNote.data[0].id;
 
         if (postBool) {
-          await axios.post(`${props.baseURL}/api/notes/${branches[i][1]}`, {
+          await axios.post(`${props.baseURL}/api/notes/${branches[i]}`, {
             messageData: passedUpdateData,
             pid: pid,
           });
         }
 
         previousNote = await axios.get(
-          `${props.baseURL}/api/notes/namepid/${branches[i][1]}/${pid}`,
+          `${props.baseURL}/api/notes/namepid/${branches[i]}/${pid}`,
         );
       }
     }
 
-    if (postBool) {
-      //needs to be the parent of the previousNote
+    if (updateCurrNoteId) {
+      await axios.delete(
+        `${props.baseURL}/api/notes/${previousNote.data[0].id}`,
+      );
+      await axios.post(
+        `${props.baseURL}/api/notes/updatePid/${
+          branches[branches.length - 1]
+        }/${branches.length > 1 ? pid : 0}/${idNumber}`,
+        {messageData: value},
+      );
+    }
+
+    if (postBool && !updateCurrNoteId) {
+      //This will only fire on a normal creation of a note and nothing to do with moving or renaming
       await axios.post(
         `${props.baseURL}/api/notes/update/${props.match.params.id}/${
           branches.length > 1 ? pid : 0
@@ -184,20 +205,11 @@ const Notes = props => {
       );
     }
 
-    if(updatePidBool){ //can't update the pid if using it to find the PID.. find it first then change it? TODO:// continue from here
-      await axios.post(
-        `${props.baseURL}/api/notes/update/${props.match.params.id}/${
-          branches.length > 1 ? pid : 0
-        }`,
-        {messageData: passedUpdateData},
-      );
-    }
-
-    return branches.length > 1 ? pid : 0;
+    return previousNote.data[0] ? previousNote.data[0].id : 0;
   };
 
   const updateNoteAndVerification = async passedUpdateData => {
-    collectPidAndOrPostEachBranch(passedUpdateData, true);
+    collectIdAndOrPostEachBranch(passedUpdateData, true);
 
     setVerificationMessage('Message was saved.');
     setMessage(value);
@@ -250,14 +262,16 @@ const Notes = props => {
       if (window.confirm('Really delete?')) {
         const deleteNote = async () => {
           try {
-            await axios.delete(
-              `${props.baseURL}/api/notes/${props.match.params.id}`,
-            );
-            setVerificationMessage('Deleting...');
+            const currNoteId = await collectIdAndOrPostEachBranch('');
+            await axios.delete(`${props.baseURL}/api/notes/${currNoteId}`);
+            setVerificationMessage('Note Deleted');
             setTimeout(() => {
               window.location.replace('/');
             }, 2000);
           } catch (error) {
+            setVerificationMessage(
+              'An error happened in deleting the note!!!!',
+            );
             console.log(error);
           }
         };
@@ -267,7 +281,7 @@ const Notes = props => {
     }
   };
 
-  const handlePrivate = e => {
+  const handlePrivate = () => {
     if (passEntered) {
       if (privateMode) {
         setPrivateMode(0);
@@ -278,7 +292,6 @@ const Notes = props => {
               `${props.baseURL}/api/notes/private/${props.match.params.id}`,
               {privateMode: 0},
             )
-            .then(response => {})
             .catch(function (error) {
               return JSON.stringify(error);
             });
@@ -293,7 +306,6 @@ const Notes = props => {
               `${props.baseURL}/api/notes/private/${props.match.params.id}`,
               {privateMode: 1},
             )
-            .then(response => {})
             .catch(function (error) {
               return JSON.stringify(error);
             });
@@ -306,7 +318,7 @@ const Notes = props => {
   const handleLogout = () => {
     axios
       .post(`${props.baseURL}/api/password/logout`)
-      .then(response => {
+      .then(() => {
         window.location.reload();
       })
       .catch(function (error) {
@@ -325,23 +337,19 @@ const Notes = props => {
   };
 
   const moveNote = async () => {
-    var destination = prompt('Enter path to move note to', 'my/example/note/');
-    destination = destination.split('/');
-    console.log(destination[0]);
-
-    console.log('props', props);
-    console.log('pid', collectPidAndOrPostEachBranch());
-    //await axios.post(
-    //`${props.baseURL}/api/notes/update/${props.match.params.id}/${
-    //branches.length > 1 ? pid : 0
-    //}`,
-    //{messageData: passedUpdateData},
-    //);
+    var destination = prompt('Enter path to move note to', 'my/example/note/b');
 
     if (destination === null || destination === '') {
       alert('You did not enter the note field.');
     } else {
-      // Note moved.. or use this txt = 'Moved this note to ' + destination + '.';
+      destination = destination.split('/').filter(function (el) {
+        return el.length !== 0;
+      });
+      const oldPid = await collectIdAndOrPostEachBranch('');
+      collectIdAndOrPostEachBranch('', true, true, oldPid, destination);
+      console.log('destination', destination);
+      const printDestination = destination.toString().replaceAll(',', '/');
+      setVerificationMessage('Note successfully moved to: ' + printDestination);
     }
   };
 
@@ -385,6 +393,7 @@ const Notes = props => {
           <div className="rightSide">
             <div className="topRow">
               <p className="verificationMessage">{verificationMessage} </p>
+              <br />
               <button
                 style={hidden}
                 className={`pure-button pure-button-primary private-button ${
@@ -401,14 +410,13 @@ const Notes = props => {
               <button
                 className="pure-button pure-button-primary  logout-button"
                 onClick={moveNote}>
-                Move
+                Move / Rename
               </button>
+              {/*TODO: Create Favorites/SpecialPriorities/MainTopics/Awareness Button */}
             </div>
-            <form
+            <div
               style={hidden}
-              method="get"
-              className="pure-form pure-form-aligned createNote"
-              onSubmit={handleSubmit}>
+              className="pure-form pure-form-aligned createNote">
               <fieldset>
                 <div className="pure-control-group">
                   <div className="pure-control-group">
@@ -424,6 +432,7 @@ const Notes = props => {
                 </div>
                 <button
                   type="submit"
+                  onClick={handleSubmit}
                   className="pure-button pure-button-primary messageSubmit-button">
                   Submit
                 </button>
@@ -439,7 +448,7 @@ const Notes = props => {
                 </button>
                 <p className="verificationMessage"> {verificationMessage} </p>
               </fieldset>
-            </form>
+            </div>
           </div>
         )}
       </div>

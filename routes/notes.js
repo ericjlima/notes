@@ -136,10 +136,13 @@ router.post('/update/:notesId/:pid', function(req, res, next) {
   });
 });
 
-router.post('/update/:notesId/:pid', function(req, res, next) {
-  con.query(`UPDATE notes SET message='${req.body.messageData}' WHERE namepid='${req.params.notesId} ${req.params.pid}';`, function (err, result, fields) {
-    //console.log('msgdata', req.body.messageData);
-    //console.log('namepid', req.params.notesId + ' ' + req.params.pid);
+router.post('/updatePid/:notesId/:newPid/:id', function(req, res, next) {
+  con.query(`UPDATE notes SET name='${req.params.notesId}', message='${req.body.messageData}', pid='${req.params.newPid}', namepid='${req.params.notesId} ${req.params.newPid}' WHERE id='${req.params.id}';`, function (err, result, fields) {
+    //TODO: can't set namepid here for some reason
+    console.log('Msg', req.params.messageData);
+    console.log('noteId', req.params.notesId);
+    console.log('pidgot hit', req.params.id);
+    console.log('newgot hit', req.params.newPid);
     if (err) throw err;
     res.send(result)
   });
@@ -154,10 +157,10 @@ router.post('/private/:notesId', function(req, res, next) {
   });
 });
 
-router.delete('/:notesId', function(req, res, next) {
+router.delete('/:id', function(req, res, next) {
   //console.log("deleted");
   //console.log(req.params.notesId);
-  con.query(`DELETE FROM notes WHERE name='${req.params.notesId}'`, function (err, result, fields) {
+  con.query(`DELETE FROM notes WHERE id='${req.params.id}'`, function (err, result, fields) {
     if (err) throw err;
     res.send(result);
     // 	console.log(req.params.notesID);
