@@ -20,6 +20,7 @@ const Notes = props => {
 
   //TODO: Memory leak about an component not mounting? Click the back button and check what the console is saying. Ask around potentially
   useEffect(() => {
+
     setChildNotes([]); //This line resolves a bug where the childnotes dont render. Not sure why. Guess you have to do this and it's a weird oddity of React.
     const getChildNotes = async currentNoteData => {
       try {
@@ -353,6 +354,12 @@ const Notes = props => {
     }
   };
 
+  const pinNote = async () => {
+
+    alert();
+
+  };
+
   return (
     <div className="notes">
       <Link
@@ -412,7 +419,11 @@ const Notes = props => {
                 onClick={moveNote}>
                 Move / Rename
               </button>
-              {/*TODO: Create Favorites/SpecialPriorities/MainTopics/Awareness Button */}
+              <button
+                className="pure-button pure-button-primary  logout-button"
+                onClick={pinNote}>
+                Pin
+              </button>
             </div>
             <div
               style={hidden}

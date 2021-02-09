@@ -8,7 +8,8 @@ import {
 } from 'react-router-dom';
 
 import Notes from './components/notes';
-import Login from './components/login';
+//import Login from './components/login';
+import AllNotes from './components/allNotes';
 import QuickLogin from './components/quickLogin';
 import axios from 'axios';
 import './App.css';
@@ -54,11 +55,11 @@ class App extends Component {
     });
   }
 
-  generateBranchedRoutes() {
+  generateChildNoteRoutes() {
     const result = [];
     let stringRes = '/:id';
 
-    for (let i = 1; i < 99; i++) {
+    for (let i = 1; i < 299; i++) {
       stringRes = '/:id' + i + stringRes;
       result.unshift(
         <Route
@@ -114,6 +115,11 @@ class App extends Component {
                           Login
                         </a>
                       </li>
+                      <li className="pure-menu-item" key="0">
+                        <a className="pure-menu-link" href={`/allNotes`}>
+                          All Notes
+                        </a>
+                      </li>
                       {this.state.notes.map((note, index) => (
                         <li className="pure-menu-item" key={index}>
                           <a className="pure-menu-link" href={`/${note.name}`}>
@@ -125,12 +131,15 @@ class App extends Component {
                   </div>
                 </div>
                 <Switch>
-                  <Route
+                  {/* <Route
                     path={'/login'}
-                    render={routeProps => <Login {...routeProps} />}
-                    baseURL={this.state.baseURL}
+                    render={routeProps => <Login {...routeProps} baseURL={this.state.baseURL} />}
+                  />*/}
+                  <Route
+                    path={'/allnotes'}
+                    render={routeProps => <AllNotes {...routeProps} baseURL={this.state.baseURL} toTitleCase={this.toTitleCase} />}
                   />
-                  {this.generateBranchedRoutes()}
+                  {this.generateChildNoteRoutes()}
                   <Route
                     path={'/:id'}
                     render={routeProps => (

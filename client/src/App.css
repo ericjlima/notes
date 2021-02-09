@@ -23,88 +23,111 @@
 }
 
 @keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.leftSide, .rightSide{
+.leftSide,
+.rightSide {
   display: inline-block;
   vertical-align: top;
   /*margin: 0 auto;*/
 }
 
-.leftSide{
+.leftSide {
   max-width: 680px;
   display: inline-block;
 }
-.rightSide{
+.rightSide {
   width: 100%;
 }
 
-.makeCenter{
+.makeCenter {
   margin: 0 auto;
 }
 
-.messageSubmit-button, .verificationMessage{
+.messageSubmit-button,
+.verificationMessage {
   display: inline-block;
 }
 
-.verificationMessage{
+.verificationMessage {
   margin: 0 0 0 1em;
 }
 
-.verificationMessage:nth-child(2){
+.verificationMessage:nth-child(2) {
   margin: 0 0 0 1em;
 }
 
-.createNote textarea{
+.createNote textarea {
   width: 100%;
-  min-width: 500px;
+  min-width: 510px;
   height: 800px;
 }
 
-.topRow{
+.topRow {
   display: block;
 }
 
-.pure-button-primary.logout-button, .pure-button-primary.deleteNote-button{
+.pure-button-primary.logout-button,
+.pure-button-primary.deleteNote-button {
   margin: 0 0 0 1em;
 }
 
-.pure-button-primary.privateMode-button{
+.pure-button-primary.privateMode-button {
   background: red;
 }
 
-.pure-button-primary.deleteNote-button{
+.pure-button-primary.deleteNote-button {
   background: red;
 }
 
-.subnotes-list{
+.subnotes-list {
   padding: 0;
 }
 
-.subnotes-list li{
-    display: inline-block;
-    margin-right: 10px;
+.subnotes-list li {
+  display: inline-block;
+  margin-right: 10px;
 }
 
-.backToParent{
+.backToParent {
   margin-left: 30px;
 }
 
-.menu-link.loggedIn{
-  background: rgba(31, 141, 214,0.5);
+.menu-link.loggedIn {
+  background: rgba(31, 141, 214, 0.5);
 }
 
+/**********allnotes*************/
+.allnotes {
+  list-style: none;
+}
+.allnotes li a {
+  color: black;
+}
+.allnotes li:nth-of-type(2n) a{
+  background: #E0E0E0;
+}
+.allnotes li a:hover{
+  background-color: #333;
+  color: white;
+}
+
+
 @media (min-width: 48em) {
-  .noteContent{
-    display: flex; 
+  .noteContent {
+    display: flex;
     justify-content: center;
   }
-  .leftSide{
+  .leftSide {
     min-width: 250px;
   }
-  .rightSide{
+  .rightSide {
     min-width: 250px;
     width: 680px;
     padding: 0 20px 0 20px;
