@@ -1,5 +1,5 @@
 var express = require('express');
-var router = express.Router(); 
+var router = express.Router();
 //var cors = require('cors');
 var app = express();
 var mysql = require('mysql');
@@ -10,22 +10,22 @@ var con = mysql.createConnection({
   host: config.host,
   user: config.user,
   password: config.password,
-  database: config.database
+  database: config.database,
 });
 
 //router.use(cors({origin: "http://www.ericnote.us", credentials: true}));
 //router.use(cors({origin: ["http://ericnote.us", "http://www.ericnote.us"], credentials: true}));
-con.connect(function(err) {
+con.connect(function (err) {
   if (err) throw err;
 });
 
 //START OF AUTOSETUP
 
-//var sql = "CREATE TABLE notes (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), message longtext, date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, date_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, private BOOLEAN, pid INT, namepid VARCHAR(255) UNIQUE NOT NULL)";
+//var sql = "CREATE TABLE notes (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), message longtext, date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, date_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, private BOOLEAN DEFAULT FALSE, pid INT, namepid VARCHAR(255) UNIQUE NOT NULL, pin BOOLEAN DEFAULT FALSE)";
 //con.query(sql, function (err, result) {
 //if (err) throw err;
 //console.log("Notes Table created");
-//}); 
+//});
 //var sql = "CREATE TABLE sessions (session_id INT AUTO_INCREMENT PRIMARY KEY, expires TIMESTAMP, data VARCHAR(255))";
 //con.query(sql, function (err, result) {
 //if (err) throw err;
@@ -54,7 +54,6 @@ con.connect(function(err) {
 //console.log("Number of records inserted: " + result.affectedRows);
 //});
 
-
 //var pw = "CREATE TABLE password (id INT AUTO_INCREMENT PRIMARY KEY, password VARCHAR(255))";
 //con.query(pw, function (err, result) {
 //if (err) throw err;
@@ -71,102 +70,147 @@ con.connect(function(err) {
 
 //TRUNCATE TABLE password; // this lets you delete your password. A new one can be added after.
 //INSERT INTO password(password) VALUE("fkajshdlkasd81173871273askljdhasdjh");
-router.get('/', function(req, res, next) {
-  con.query("SELECT name FROM notes where pid = 0 OR pid IS NULL ORDER BY name", function (err, result, fields) {
+router.get('/', function (req, res, next) {
+  con.query(
+    'SELECT name FROM notes where pid = 0 OR pid IS NULL ORDER BY name',
+    function (err, result, fields) {
+      if (err) throw err;
+      // console.log(result);
+      res.json(result);
+    },
+  );
+});
+
+router.get('/pinNotes', function (req, res, next) {
+  con.query('SELECT name FROM notes where pin = true ORDER BY name', function (
+    err,
+    result,
+    fields,
+  ) {
     if (err) throw err;
-    // console.log(result);
-    res.json( result );
+    res.send(result);
   });
 });
 
-router.get('/:notesId', function(req, res, next) {
-  con.query(`SELECT n.id, n.name, n.message, n.date_created, n.date_modified, n.private, sn.name AS subnote_title FROM notes n
-            LEFT JOIN subnotes sn ON n.id = sn.note_id
-            WHERE n.name='${req.params.notesId.toLowerCase()}';`, function (err, result, fields) {
-              //console.log('baseUrl', req.baseUrl);
-              //console.log('path', req.path);
-              //console.log('originalUrl', req.originalUrl);
-              if (err) throw err;
-              res.send(result);
-            });
+router.get('/:notesId', function (req, res, next) {
+  con.query(
+    `con.query("SELECT name FROM notes where pid = 0 OR pid IS NULL ORDER BY name", function (err, result, fields) {
+';`,
+    function (err, result, fields) {
+      //console.log('baseUrl', req.baseUrl);
+      //console.log('path', req.path);
+      //console.log('originalUrl', req.originalUrl);
+      if (err) throw err;
+      res.send(result);
+    },
+  );
 });
 
-router.get('/namepid/:notesId/:pid', function(req, res, next) {
-  con.query(`SELECT id, name, message, date_created, date_modified, private, pid, namepid FROM notes 
-            WHERE namepid='${req.params.notesId} ${req.params.pid}';`, function (err, result, fields) {
-              //console.log('req.params.notesId', req.params.notesId);
-              //console.log('req.body.pid', req.params.pid);
-              //console.log('result', result);
-              //console.log('path', req.path);
-              //console.log('originalUrl', req.originalUrl);
-              if (err) throw err;
-              res.send(result);
-            });
+router.get('/namepid/:notesId/:pid', function (req, res, next) {
+  con.query(
+    `SELECT id, name, message, date_created, date_modified, private, pid, namepid FROM notes 
+            WHERE namepid='${req.params.notesId} ${req.params.pid}';`,
+    function (err, result, fields) {
+      //console.log('req.params.notesId', req.params.notesId);
+      //console.log('req.body.pid', req.params.pid);
+      //console.log('result', result);
+      //console.log('path', req.path);
+      //console.log('originalUrl', req.originalUrl);
+      if (err) throw err;
+      res.send(result);
+    },
+  );
 });
 
-router.get('/children/:notesId', function(req, res, next) {
-  con.query(`SELECT id, name, message, date_created, date_modified, private, pid FROM notes 
-            WHERE pid='${req.params.notesId}';`, function (err, result, fields) {
-              //console.log('req', req.params);
-              //console.log('result', result);
-              //console.log('path', req.path);
-              //console.log('originalUrl', req.originalUrl);
-              if (err) throw err;
-              res.send(result);
-            });
+router.get('/children/:notesId', function (req, res, next) {
+  con.query(
+    `SELECT id, name, message, date_created, date_modified, private, pid FROM notes 
+            WHERE pid='${req.params.notesId}';`,
+    function (err, result, fields) {
+      //console.log('req', req.params);
+      //console.log('result', result);
+      //console.log('path', req.path);
+      //console.log('originalUrl', req.originalUrl);
+      if (err) throw err;
+      res.send(result);
+    },
+  );
 });
 
-router.post('/:notesId', function(req, res, next) {
-  con.query(`INSERT IGNORE INTO notes (name, message, pid, namepid) VALUES ('${req.params.notesId.toLowerCase()}', '${req.body.messageData}', '${req.body.pid}', '${req.params.notesId} ${req.body.pid}')`, function (err, result, fields) {
-    if (err) throw err;
-    res.send(result)
-    // console.log(result);
-    // let sql = `INSERT IGNORE INTO notes (name, message) VALUES ('${req.params.notesId}', '')`;
-    // let query = con.query(sql);
-  });
+router.post('/:notesId', function (req, res, next) {
+  con.query(
+    `INSERT IGNORE INTO notes (name, message, pid, namepid) VALUES ('${req.params.notesId.toLowerCase()}', '${
+      req.body.messageData
+    }', '${req.body.pid}', '${req.params.notesId} ${req.body.pid}')`,
+    function (err, result, fields) {
+      if (err) throw err;
+      res.send(result);
+      // console.log(result);
+      // let sql = `INSERT IGNORE INTO notes (name, message) VALUES ('${req.params.notesId}', '')`;
+      // let query = con.query(sql);
+    },
+  );
 });
 
-
-router.post('/update/:notesId/:pid', function(req, res, next) {
-  con.query(`UPDATE notes SET message='${req.body.messageData}' WHERE namepid='${req.params.notesId} ${req.params.pid}';`, function (err, result, fields) {
-    //console.log('msgdata', req.body.messageData);
-    //console.log('namepid', req.params.notesId + ' ' + req.params.pid);
-    if (err) throw err;
-    res.send(result)
-  });
+router.post('/update/:notesId/:pid', function (req, res, next) {
+  con.query(
+    `UPDATE notes SET message='${req.body.messageData}' WHERE namepid='${req.params.notesId} ${req.params.pid}';`,
+    function (err, result, fields) {
+      //console.log('msgdata', req.body.messageData);
+      //console.log('namepid', req.params.notesId + ' ' + req.params.pid);
+      if (err) throw err;
+      res.send(result);
+    },
+  );
 });
 
-router.post('/updatePid/:notesId/:newPid/:id', function(req, res, next) {
-  con.query(`UPDATE notes SET name='${req.params.notesId}', message='${req.body.messageData}', pid='${req.params.newPid}', namepid='${req.params.notesId} ${req.params.newPid}' WHERE id='${req.params.id}';`, function (err, result, fields) {
-    //TODO: can't set namepid here for some reason
-    console.log('Msg', req.params.messageData);
-    console.log('noteId', req.params.notesId);
-    console.log('pidgot hit', req.params.id);
-    console.log('newgot hit', req.params.newPid);
-    if (err) throw err;
-    res.send(result)
-  });
+router.post('/updatePid/:notesId/:newPid/:id', function (req, res, next) {
+  con.query(
+    `UPDATE notes SET name='${req.params.notesId}', message='${req.body.messageData}', pid='${req.params.newPid}', namepid='${req.params.notesId} ${req.params.newPid}' WHERE id='${req.params.id}';`,
+    function (err, result, fields) {
+      if (err) throw err;
+      res.send(result);
+    },
+  );
 });
 
-
-router.post('/private/:notesId', function(req, res, next) {
-  con.query(`UPDATE notes SET private='${req.body.privateMode}' WHERE name='${req.params.notesId.toLowerCase()}';`, function (err, result, fields) {
-    if (err) throw err;
-    //console.log(req.body.privateMode);
-    res.send(result)
-  });
+router.post('/private/:notesId', function (req, res, next) {
+  con.query(
+    `UPDATE notes SET private='${
+      req.body.privateMode
+    }' WHERE name='${req.params.notesId.toLowerCase()}';`,
+    function (err, result, fields) {
+      if (err) throw err;
+      //console.log(req.body.privateMode);
+      res.send(result);
+    },
+  );
 });
 
-router.delete('/:id', function(req, res, next) {
+router.delete('/:id', function (req, res, next) {
   //console.log("deleted");
   //console.log(req.params.notesId);
-  con.query(`DELETE FROM notes WHERE id='${req.params.id}'`, function (err, result, fields) {
+  con.query(`DELETE FROM notes WHERE id='${req.params.id}'`, function (
+    err,
+    result,
+    fields,
+  ) {
     if (err) throw err;
     res.send(result);
     // 	console.log(req.params.notesID);
     // let sql = `DELETE FROM notes WHERE name='${req.params.notesId}'`;
     //  let query = con.query(sql);
   });
+});
+
+router.post('/setpin/:namepid', function (req, res, next) {
+  con.query(
+    `UPDATE notes SET pin=NOT pin WHERE namepid='${req.params.namepid}';`,
+    function (err, result, fields) {
+      if (err) throw err;
+      res.send(result);
+    },
+  );
 });
 
 module.exports = router;
