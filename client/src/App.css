@@ -110,14 +110,13 @@
 .allnotes li a {
   color: black;
 }
-.allnotes li:nth-of-type(2n) a{
-  background: #E0E0E0;
+.allnotes li:nth-of-type(2n) a {
+  background: #e0e0e0;
 }
-.allnotes li a:hover{
+.allnotes li a:hover {
   background-color: #333;
   color: white;
 }
-
 
 @media (min-width: 48em) {
   .noteContent {

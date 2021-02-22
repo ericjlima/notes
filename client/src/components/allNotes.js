@@ -7,12 +7,21 @@ const AllNotes = props => {
   //const [passwordShown, setPassShown] = useState(true);
   //const [passEntered, setPassEntered] = useState(false);
   const [notes, setNotes] = useState([]);
-
+  console.log('props', props);
   useEffect(() => {
     fetch(`${props.baseURL}/api/notes`)
       .then(res => res.json())
-      .then(resnotes => { console.log('res', resnotes); setNotes(resnotes) } );
+      .then(resnotes => {
+        console.log('res', resnotes);
+        setNotes(resnotes);
+      });
   }, []);
+
+  const toTitleCase = str => {
+    return str.replace(/\w\S*/g, function (txt) {
+      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    });
+  };
 
   return (
     <div className="allnotes">
@@ -23,11 +32,10 @@ const AllNotes = props => {
       {notes.map((note, index) => (
         <li className="pure-menu-item" key={index}>
           <a className="pure-menu-link" href={`/${note.name}`}>
-            {props.toTitleCase(note.name)}
+            {toTitleCase(note.name)}
           </a>
         </li>
       ))}
-      
     </div>
   );
 };

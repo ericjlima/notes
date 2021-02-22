@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   BrowserRouter as Router,
   Route,
@@ -16,46 +16,41 @@ import './App.css';
 
 axios.defaults.withCredentials = true;
 
-class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      activeMenu: '',
-      baseURL: '', //https://api.ericnote.us  //or empty quote
-      notes: [],
-      dates: [], //need to implelment still
-      passwordShown: true,
-      logged: false,
-      passEntered: false,
-      pass: '',
+const App = () => {
+  const [activeMenu, setActiveMenu] = useState('');
+  const [pinNotes, setPinNotes] = useState([]);
+  const [logged, setLogged] = useState(false);
+
+  const baseURL = ''; //https://api.ericnote.us  //or empty quote
+
+  useEffect(() => {
+    const getPinNotes = async () => {
+      const pinNotesCallback = await axios.get(
+        `${baseURL}/api/notes/pinNotes/`,
+      );
+      setPinNotes(pinNotesCallback.data);
     };
-  }
+    getPinNotes();
+  }, []);
 
-  componentDidMount() {
-    fetch(`${this.state.baseURL}/api/notes`)
-      .then(res => res.json())
-      .then(notes => this.setState({notes}));
-  }
-
-  handleClick() {
-    if (this.state.activeMenu === 'active') {
-      this.setState({
-        activeMenu: '',
-      });
+  const handleClick = () => {
+    if (activeMenu === 'active') {
+      setActiveMenu('');
     } else {
-      this.setState({
-        activeMenu: 'active',
+      setActiveMenu('active');
+    }
+  };
+
+  const toTitleCase = str => {
+    if (str) {
+      return str.replace(/\w\S*/g, function (txt) {
+        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
       });
     }
-  }
+    return str;
+  };
 
-  toTitleCase(str) {
-    return str.replace(/\w\S*/g, function (txt) {
-      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-    });
-  }
-
-  generateChildNoteRoutes() {
+  const generateChildNoteRoutes = () => {
     const result = [];
     let stringRes = '/:id';
 
@@ -68,7 +63,7 @@ class App extends Component {
           render={routeProps => (
             <Notes
               {...routeProps}
-              baseURL={this.state.baseURL}
+              baseURL={baseURL}
               key={window.location.pathname}
             />
           )}
@@ -76,89 +71,89 @@ class App extends Component {
       );
     }
     return result;
-  }
+  };
 
-  setLogged(val) {
-    this.setState({
-      logged: val,
-    });
-  }
+  const setLoggedMethod = val => {
+    setLogged(val);
+  };
 
-  render() {
-    return (
-      <div id="layout" className={`${this.state.activeMenu}`}>
-        <div id="main">
-          <div className="content">
-            <Router>
-              <div>
-                <a
-                  href="#menu"
-                  id="menuLink"
-                  onClick={this.handleClick.bind(this)}
-                  className={`menu-link ${
-                    this.state.logged ? 'loggedIn' : ''
-                  }`}>
-                  <span></span>
-                </a>
-                <div id="menu">
-                  <div className="pure-menu">
-                    <NavLink
-                      activeClassName="pure-menu-selected"
-                      className="pure-menu-heading"
-                      to="/">
-                      Eric's Notes
-                    </NavLink>
-                    <ul className="pure-menu-list">
-                      <QuickLogin baseURL={this.state.baseURL} />
-                      <li className="pure-menu-item" key="0">
-                        <a className="pure-menu-link" href={`/login`}>
-                          Login
+  return (
+    <div id="layout" className={`${activeMenu}`}>
+      <div id="main">
+        <div className="content">
+          <Router>
+            <div>
+              <a
+                href="#menu"
+                id="menuLink"
+                onClick={() => handleClick()}
+                className={`menu-link ${logged ? 'loggedIn' : ''}`}>
+                <span></span>
+              </a>
+              <div id="menu">
+                <div className="pure-menu">
+                  <NavLink
+                    activeClassName="pure-menu-selected"
+                    className="pure-menu-heading"
+                    to="/">
+                    Eric's Notes
+                  </NavLink>
+                  <ul className="pure-menu-list">
+                    <QuickLogin baseURL={baseURL} />
+                    <li className="pure-menu-item" key="0">
+                      <a className="pure-menu-link" href={`/login`}>
+                        Login
+                      </a>
+                    </li>
+                    <li className="pure-menu-item" key="1">
+                      <a className="pure-menu-link" href={`/allNotes`}>
+                        All Notes
+                      </a>
+                    </li>
+                    {pinNotes.map((note, index) => (
+                      <li className="pure-menu-item" key={index}>
+                        <a className="pure-menu-link" href={`/${note.name}`}>
+                          {toTitleCase(note.name)}
                         </a>
                       </li>
-                      <li className="pure-menu-item" key="0">
-                        <a className="pure-menu-link" href={`/allNotes`}>
-                          All Notes
-                        </a>
-                      </li>
-                      {this.state.notes.map((note, index) => (
-                        <li className="pure-menu-item" key={index}>
-                          <a className="pure-menu-link" href={`/${note.name}`}>
-                            {this.toTitleCase(note.name)}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                    ))}
+                  </ul>
                 </div>
-                <Switch>
-                  {/* <Route
+              </div>
+              <Switch>
+                {/* <Route
                     path={'/login'}
                     render={routeProps => <Login {...routeProps} baseURL={this.state.baseURL} />}
                   />*/}
-                  <Route
-                    path={'/allnotes'}
-                    render={routeProps => <AllNotes {...routeProps} baseURL={this.state.baseURL} toTitleCase={this.toTitleCase} />}
-                  />
-                  {this.generateChildNoteRoutes()}
-                  <Route
-                    path={'/:id'}
-                    render={routeProps => (
-                      <Notes
-                        {...routeProps}
-                        baseURL={this.state.baseURL}
-                        setLogged={this.setLogged.bind(this)}
-                      />
-                    )}
-                  />
-                  <Redirect from="*" to="/" />
-                </Switch>
-              </div>
-            </Router>
-          </div>
+                <Route
+                  path={'/allnotes'}
+                  render={routeProps => (
+                    <AllNotes
+                      {...routeProps}
+                      baseURL={baseURL}
+                      toTitleCase={toTitleCase()}
+                    />
+                  )}
+                />
+                {generateChildNoteRoutes()}
+                <Route
+                  path={'/:id'}
+                  render={routeProps => (
+                    <Notes
+                      {...routeProps}
+                      baseURL={baseURL}
+                      setLogged={setLoggedMethod()}
+                    />
+                  )}
+                />
+                <Redirect from="*" to="/" />
+              </Switch>
+            </div>
+          </Router>
         </div>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
 export default App;

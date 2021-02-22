@@ -15,12 +15,12 @@ const Notes = props => {
   const [childNotes, setChildNotes] = useState([]);
   const [message, setMessage] = useState(null);
   const [value, setValue] = useState('');
+  const [dataCurrentNote, setDataCurrentNote] = useState({});
 
   const textAreaRef = useRef(null);
 
   //TODO: Memory leak about an component not mounting? Click the back button and check what the console is saying. Ask around potentially
   useEffect(() => {
-
     setChildNotes([]); //This line resolves a bug where the childnotes dont render. Not sure why. Guess you have to do this and it's a weird oddity of React.
     const getChildNotes = async currentNoteData => {
       try {
@@ -44,7 +44,6 @@ const Notes = props => {
     const getNoteData = async () => {
       try {
         let response;
-
         const branches = Object.values(props.match.params);
         let pid;
         for (let i = 0; i < branches.length; i++) {
@@ -53,6 +52,7 @@ const Notes = props => {
             response = await axios.get(
               `${props.baseURL}/api/notes/namepid/${branches[i]}/${pid}`,
             );
+            setDataCurrentNote(response);
             !!response.data[0] && (pid = response.data[0].id);
           } else {
             response = await axios.get(
@@ -128,11 +128,11 @@ const Notes = props => {
     //e.preventDefault = false;
     //return txt.value.replace(/\r?\n/g, '<br />\n');
     //TODO: find when enter is pressed and replace with <br /> somehow...
-    const timeOutId = setTimeout(() => {
-      //setDisplayMessage(value);
-      handleSubmit(e);
-    }, 2000);
-    return () => clearTimeout(timeOutId);
+    //const timeOutId = setTimeout(() => {
+    //setDisplayMessage(value);
+    handleSubmit(e);
+    //}, 2000);
+    //return () => clearTimeout(timeOutId);
   }, [value]);
 
   const decodeHtml = html => {
@@ -183,6 +183,8 @@ const Notes = props => {
         );
       }
     }
+
+    setDataCurrentNote(previousNote);
 
     if (updateCurrNoteId) {
       await axios.delete(
@@ -355,9 +357,9 @@ const Notes = props => {
   };
 
   const pinNote = async () => {
-
-    alert();
-
+    await axios.post(
+      `${props.baseURL}/api/notes/setpin/${dataCurrentNote.data[0].namepid}`,
+    );
   };
 
   return (
