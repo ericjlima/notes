@@ -4,15 +4,11 @@ import axios from 'axios';
 axios.defaults.withCredentials = true;
 
 const AllNotes = props => {
-  //const [passwordShown, setPassShown] = useState(true);
-  //const [passEntered, setPassEntered] = useState(false);
   const [notes, setNotes] = useState([]);
-  console.log('props', props);
   useEffect(() => {
     fetch(`${props.baseURL}/api/notes`)
       .then(res => res.json())
       .then(resnotes => {
-        console.log('res', resnotes);
         setNotes(resnotes);
       });
   }, []);

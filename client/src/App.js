@@ -110,13 +110,16 @@ const App = () => {
                         All Notes
                       </a>
                     </li>
-                    {pinNotes.map((note, index) => (
-                      <li className="pure-menu-item" key={index}>
-                        <a className="pure-menu-link" href={`/${note.name}`}>
-                          {toTitleCase(note.name)}
-                        </a>
-                      </li>
-                    ))}
+                    {pinNotes.map((note, index) => {
+                      console.log('note', note);
+                      return (
+                        <li className="pure-menu-item" key={index}>
+                          <a className="pure-menu-link" href={`/${note.name}`}>
+                            {toTitleCase(note.name)}
+                          </a>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
               </div>

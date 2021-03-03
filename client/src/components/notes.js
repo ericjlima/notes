@@ -15,6 +15,7 @@ const Notes = props => {
   const [childNotes, setChildNotes] = useState([]);
   const [message, setMessage] = useState(null);
   const [value, setValue] = useState('');
+  const [pinToggle, setPinToggle] = useState(false);
   const [dataCurrentNote, setDataCurrentNote] = useState({});
 
   const textAreaRef = useRef(null);
@@ -350,7 +351,6 @@ const Notes = props => {
       });
       const oldPid = await collectIdAndOrPostEachBranch('');
       collectIdAndOrPostEachBranch('', true, true, oldPid, destination);
-      console.log('destination', destination);
       const printDestination = destination.toString().replaceAll(',', '/');
       setVerificationMessage('Note successfully moved to: ' + printDestination);
     }

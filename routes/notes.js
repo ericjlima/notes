@@ -82,7 +82,7 @@ router.get('/', function (req, res, next) {
 });
 
 router.get('/pinNotes', function (req, res, next) {
-  con.query('SELECT name FROM notes where pin = true ORDER BY name', function (
+  con.query('SELECT name, namepid FROM notes where pin = true ORDER BY name', function (
     err,
     result,
     fields,
@@ -203,7 +203,7 @@ router.delete('/:id', function (req, res, next) {
   });
 });
 
-router.post('/setpin/:namepid', function (req, res, next) {
+router.post('/setpin/:namepid/:README.md', function (req, res, next) {
   con.query(
     `UPDATE notes SET pin=NOT pin WHERE namepid='${req.params.namepid}';`,
     function (err, result, fields) {
