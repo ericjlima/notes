@@ -21,7 +21,7 @@ con.connect(function (err) {
 
 //START OF AUTOSETUP
 
-//var sql = "CREATE TABLE notes (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), message longtext, date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, date_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, private BOOLEAN DEFAULT FALSE, pid INT, namepid VARCHAR(255) UNIQUE NOT NULL, pin BOOLEAN DEFAULT FALSE)";
+//var sql = "CREATE TABLE notes (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), message longtext, date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, date_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, private BOOLEAN DEFAULT FALSE, pid INT, namepid VARCHAR(255) UNIQUE NOT NULL, pinid INT DEFAULT 0)";
 //con.query(sql, function (err, result) {
 //if (err) throw err;
 //console.log("Notes Table created");
@@ -82,7 +82,7 @@ router.get('/', function (req, res, next) {
 });
 
 router.get('/pinNotes', function (req, res, next) {
-  con.query('SELECT name, namepid FROM notes where pin = true ORDER BY name', function (
+  con.query('SELECT name, namepid FROM notes where pinid > 0 ORDER BY name', function (
     err,
     result,
     fields,
@@ -203,14 +203,27 @@ router.delete('/:id', function (req, res, next) {
   });
 });
 
-router.post('/setpin/:namepid/:README.md', function (req, res, next) {
+//router.post('/setpin/:namepid', function (req, res, next) {
+  //con.query(
+    //`UPDATE notes SET pin=NOT pin WHERE namepid='${req.params.namepid}';`,
+    //function (err, result, fields) {
+      //if (err) throw err;
+      //res.send(result);
+    //},
+  //);
+//});
+
+router.post('/setPinId/:namepid/:id', function (req, res, next) {
   con.query(
-    `UPDATE notes SET pin=NOT pin WHERE namepid='${req.params.namepid}';`,
+    `UPDATE notes SET pinid = if(pinid = '${req.params.id}', 0, '${req.params.id}' ) WHERE namepid='${req.params.namepid}';`,
+    //`UPDATE notes SET pinid = '${req.params.id}' WHERE namepid='${req.params.namepid}';`,
     function (err, result, fields) {
+      console.log(req.params.id)
       if (err) throw err;
       res.send(result);
     },
   );
 });
+
 
 module.exports = router;
