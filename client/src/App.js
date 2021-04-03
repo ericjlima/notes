@@ -28,6 +28,7 @@ const App = () => {
       const pinNotesCallback = await axios.get(
         `${baseURL}/api/notes/pinNotes/`,
       );
+      console.log('pinNotesCallback', pinNotesCallback)
       setPinNotes(pinNotesCallback.data);
     };
     getPinNotes();
@@ -111,7 +112,6 @@ const App = () => {
                       </a>
                     </li>
                     {pinNotes.map((note, index) => {
-                      console.log('note', note);
                       return (
                         <li className="pure-menu-item" key={index}>
                           <a className="pure-menu-link" href={`/${note.name}`}>

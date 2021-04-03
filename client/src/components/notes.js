@@ -15,12 +15,11 @@ const Notes = props => {
   const [childNotes, setChildNotes] = useState([]);
   const [message, setMessage] = useState(null);
   const [value, setValue] = useState('');
-  const [pinToggle, setPinToggle] = useState(false);
   const [dataCurrentNote, setDataCurrentNote] = useState({});
 
   const textAreaRef = useRef(null);
 
-  //TODO: Memory leak about an component not mounting? Click the back button and check what the console is saying. Ask around potentially
+  //TODO: Memory leak about a component not mounting? Click the back button and check what the console is saying. Ask around potentially
   useEffect(() => {
     setChildNotes([]); //This line resolves a bug where the childnotes dont render. Not sure why. Guess you have to do this and it's a weird oddity of React.
     const getChildNotes = async currentNoteData => {
@@ -45,19 +44,19 @@ const Notes = props => {
     const getNoteData = async () => {
       try {
         let response;
-        const branches = Object.values(props.match.params);
+        const paths = Object.values(props.match.params);
         let pid;
-        for (let i = 0; i < branches.length; i++) {
+        for (let i = 0; i < paths.length; i++) {
           if (i === 0) {
             pid = 0;
             response = await axios.get(
-              `${props.baseURL}/api/notes/namepid/${branches[i]}/${pid}`,
+              `${props.baseURL}/api/notes/namepid/${paths[i]}/${pid}`,
             );
             setDataCurrentNote(response);
             !!response.data[0] && (pid = response.data[0].id);
           } else {
             response = await axios.get(
-              `${props.baseURL}/api/notes/namepid/${branches[i]}/${pid}`,
+              `${props.baseURL}/api/notes/namepid/${paths[i]}/${pid}`,
             );
             !!response.data[0] && (pid = response.data[0].id);
           }
@@ -150,37 +149,37 @@ const Notes = props => {
     idNumber,
     moveDirectory,
   ) => {
-    let branches = Object.values(props.match.params);
+    let paths = Object.values(props.match.params);
     if (moveDirectory) {
-      branches = moveDirectory;
+      paths = moveDirectory;
     }
 
     let pid = 0;
     let previousNote;
 
-    for (let i = 0; i < branches.length; i++) {
+    for (let i = 0; i < paths.length; i++) {
       if (i === 0) {
         if (postBool) {
-          await axios.post(`${props.baseURL}/api/notes/${branches[i]}`, {
+          await axios.post(`${props.baseURL}/api/notes/${paths[i]}`, {
             messageData: passedUpdateData,
             pid: 0,
           });
         }
         previousNote = await axios.get(
-          `${props.baseURL}/api/notes/namepid/${branches[i]}/${pid}`,
+          `${props.baseURL}/api/notes/namepid/${paths[i]}/${pid}`,
         );
       } else {
         pid = previousNote.data[0].id;
 
         if (postBool) {
-          await axios.post(`${props.baseURL}/api/notes/${branches[i]}`, {
+          await axios.post(`${props.baseURL}/api/notes/${paths[i]}`, {
             messageData: passedUpdateData,
             pid: pid,
           });
         }
 
         previousNote = await axios.get(
-          `${props.baseURL}/api/notes/namepid/${branches[i]}/${pid}`,
+          `${props.baseURL}/api/notes/namepid/${paths[i]}/${pid}`,
         );
       }
     }
@@ -193,8 +192,8 @@ const Notes = props => {
       );
       await axios.post(
         `${props.baseURL}/api/notes/updatePid/${
-          branches[branches.length - 1]
-        }/${branches.length > 1 ? pid : 0}/${idNumber}`,
+          paths[paths.length - 1]
+        }/${paths.length > 1 ? pid : 0}/${idNumber}`,
         {messageData: value},
       );
     }
@@ -203,7 +202,7 @@ const Notes = props => {
       //This will only fire on a normal creation of a note and nothing to do with moving or renaming
       await axios.post(
         `${props.baseURL}/api/notes/update/${props.match.params.id}/${
-          branches.length > 1 ? pid : 0
+          paths.length > 1 ? pid : 0
         }`,
         {messageData: passedUpdateData},
       );
@@ -356,9 +355,15 @@ const Notes = props => {
     }
   };
 
-  const pinNote = async () => {
+  //const pinNote = async () => {
+    //await axios.post(
+      //`${props.baseURL}/api/notes/setpin/${dataCurrentNote.data[0].namepid}`,
+    //);
+  //};
+
+  const pinNoteId = async () => {
     await axios.post(
-      `${props.baseURL}/api/notes/setpin/${dataCurrentNote.data[0].namepid}`,
+      `${props.baseURL}/api/notes/setPinId/${dataCurrentNote.data[0].namepid}/${dataCurrentNote.data[0].id}`,
     );
   };
 
@@ -423,7 +428,7 @@ const Notes = props => {
               </button>
               <button
                 className="pure-button pure-button-primary  logout-button"
-                onClick={pinNote}>
+                onClick={pinNoteId}>
                 Pin
               </button>
             </div>
