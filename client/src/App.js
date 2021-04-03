@@ -7,6 +7,7 @@ import {
   NavLink,
 } from 'react-router-dom';
 
+import {retrievePaths} from './utils/notePipelineHelper';
 import Notes from './components/notes';
 //import Login from './components/login';
 import AllNotes from './components/allNotes';
@@ -24,14 +25,17 @@ const App = () => {
   const baseURL = ''; //https://api.ericnote.us  //or empty quote
 
   useEffect(() => {
-    const getPinNotes = async () => {
-      const pinNotesCallback = await axios.get(
-        `${baseURL}/api/notes/pinNotes/`,
-      );
-      setPinNotes(pinNotesCallback.data);
-    };
     getPinNotes();
   }, []);
+
+  const getPinNotes = async () => {
+    const pinNotesCallback = await axios.get(`${baseURL}/api/notes/pinNotes/`);
+
+    pinNotesCallback.data.map(async (note) => {
+      const thepath = await retrievePaths(note.name, note.namepid, baseURL);
+      setPinNotes(pinNotes => [...pinNotes, thepath]);
+    });
+  };
 
   const handleClick = () => {
     if (activeMenu === 'active') {
@@ -63,6 +67,8 @@ const App = () => {
           render={routeProps => (
             <Notes
               {...routeProps}
+              getPinNotes={getPinNotes}
+              setPinNotes={setPinNotes}
               baseURL={baseURL}
               key={window.location.pathname}
             />
@@ -111,10 +117,9 @@ const App = () => {
                       </a>
                     </li>
                     {pinNotes.map((note, index) => {
-                      console.log('note', note);
                       return (
                         <li className="pure-menu-item" key={index}>
-                          <a className="pure-menu-link" href={`/${note.name}`}>
+                          <a className="pure-menu-link" href={`/${note.url}`}>
                             {toTitleCase(note.name)}
                           </a>
                         </li>

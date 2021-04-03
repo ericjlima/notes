@@ -82,14 +82,23 @@ router.get('/', function (req, res, next) {
 });
 
 router.get('/pinNotes', function (req, res, next) {
-  con.query('SELECT name, namepid FROM notes where pin = true ORDER BY name', function (
-    err,
-    result,
-    fields,
-  ) {
-    if (err) throw err;
-    res.send(result);
-  });
+  con.query(
+    'SELECT name, namepid FROM notes where pin = true ORDER BY name',
+    function (err, result, fields) {
+      if (err) throw err;
+      res.send(result);
+    },
+  );
+});
+
+router.get('/getPinNote/:currentNoteId', function (req, res, next) {
+  con.query(
+    `SELECT pin FROM notes where id = '${req.params.currentNoteId}'`,
+    function (err, result, fields) {
+      if (err) throw err;
+      res.send(result);
+    },
+  );
 });
 
 router.get('/:notesId', function (req, res, next) {
@@ -116,6 +125,18 @@ router.get('/namepid/:notesId/:pid', function (req, res, next) {
       //console.log('result', result);
       //console.log('path', req.path);
       //console.log('originalUrl', req.originalUrl);
+      if (err) throw err;
+      res.send(result);
+    },
+  );
+});
+
+//retreivePathing
+router.get('/retreivePathing/:id', function (req, res, next) {
+  con.query(
+    `SELECT namepid FROM notes 
+            WHERE id='${req.params.id}';`,
+    function (err, result, fields) {
       if (err) throw err;
       res.send(result);
     },
@@ -203,7 +224,7 @@ router.delete('/:id', function (req, res, next) {
   });
 });
 
-router.post('/setpin/:namepid/:README.md', function (req, res, next) {
+router.post('/setpin/:namepid', function (req, res, next) {
   con.query(
     `UPDATE notes SET pin=NOT pin WHERE namepid='${req.params.namepid}';`,
     function (err, result, fields) {

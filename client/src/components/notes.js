@@ -6,6 +6,7 @@ axios.defaults.withCredentials = true;
 
 const Notes = props => {
   const [passEntered, setPassEntered] = useState(false);
+  const [pinnedNote, setPinnedNote] = useState(false);
   const [privateMode, setPrivateMode] = useState(0);
   const [privateText, setPrivateText] = useState('Private Mode is Off');
   const [hiddenTextArea, setHiddenTextArea] = useState(true);
@@ -15,7 +16,6 @@ const Notes = props => {
   const [childNotes, setChildNotes] = useState([]);
   const [message, setMessage] = useState(null);
   const [value, setValue] = useState('');
-  const [pinToggle, setPinToggle] = useState(false);
   const [dataCurrentNote, setDataCurrentNote] = useState({});
 
   const textAreaRef = useRef(null);
@@ -45,19 +45,19 @@ const Notes = props => {
     const getNoteData = async () => {
       try {
         let response;
-        const branches = Object.values(props.match.params);
+        const paths = Object.values(props.match.params);
         let pid;
-        for (let i = 0; i < branches.length; i++) {
+        for (let i = 0; i < paths.length; i++) {
           if (i === 0) {
             pid = 0;
             response = await axios.get(
-              `${props.baseURL}/api/notes/namepid/${branches[i]}/${pid}`,
+              `${props.baseURL}/api/notes/namepid/${paths[i]}/${pid}`,
             );
             setDataCurrentNote(response);
             !!response.data[0] && (pid = response.data[0].id);
           } else {
             response = await axios.get(
-              `${props.baseURL}/api/notes/namepid/${branches[i]}/${pid}`,
+              `${props.baseURL}/api/notes/namepid/${paths[i]}/${pid}`,
             );
             !!response.data[0] && (pid = response.data[0].id);
           }
@@ -79,7 +79,6 @@ const Notes = props => {
             0,
             strippedDateModified.indexOf('.'),
           );
-
           setDateModified(strippedDateModified);
           setDateCreated(strippedDateCreated);
           setValue(unescape(response.data[0].message));
@@ -150,51 +149,52 @@ const Notes = props => {
     idNumber,
     moveDirectory,
   ) => {
-    let branches = Object.values(props.match.params);
+    let paths = Object.values(props.match.params);
     if (moveDirectory) {
-      branches = moveDirectory;
+      paths = moveDirectory;
     }
 
     let pid = 0;
     let previousNote;
 
-    for (let i = 0; i < branches.length; i++) {
+    for (let i = 0; i < paths.length; i++) {
       if (i === 0) {
         if (postBool) {
-          await axios.post(`${props.baseURL}/api/notes/${branches[i]}`, {
+          await axios.post(`${props.baseURL}/api/notes/${paths[i]}`, {
             messageData: passedUpdateData,
             pid: 0,
           });
         }
         previousNote = await axios.get(
-          `${props.baseURL}/api/notes/namepid/${branches[i]}/${pid}`,
+          `${props.baseURL}/api/notes/namepid/${paths[i]}/${pid}`,
         );
       } else {
         pid = previousNote.data[0].id;
 
         if (postBool) {
-          await axios.post(`${props.baseURL}/api/notes/${branches[i]}`, {
+          await axios.post(`${props.baseURL}/api/notes/${paths[i]}`, {
             messageData: passedUpdateData,
             pid: pid,
           });
         }
 
         previousNote = await axios.get(
-          `${props.baseURL}/api/notes/namepid/${branches[i]}/${pid}`,
+          `${props.baseURL}/api/notes/namepid/${paths[i]}/${pid}`,
         );
       }
     }
 
     setDataCurrentNote(previousNote);
+    getPinNote(previousNote.data[0].id);
 
     if (updateCurrNoteId) {
       await axios.delete(
         `${props.baseURL}/api/notes/${previousNote.data[0].id}`,
       );
       await axios.post(
-        `${props.baseURL}/api/notes/updatePid/${
-          branches[branches.length - 1]
-        }/${branches.length > 1 ? pid : 0}/${idNumber}`,
+        `${props.baseURL}/api/notes/updatePid/${paths[paths.length - 1]}/${
+          paths.length > 1 ? pid : 0
+        }/${idNumber}`,
         {messageData: value},
       );
     }
@@ -203,7 +203,7 @@ const Notes = props => {
       //This will only fire on a normal creation of a note and nothing to do with moving or renaming
       await axios.post(
         `${props.baseURL}/api/notes/update/${props.match.params.id}/${
-          branches.length > 1 ? pid : 0
+          paths.length > 1 ? pid : 0
         }`,
         {messageData: passedUpdateData},
       );
@@ -356,10 +356,31 @@ const Notes = props => {
     }
   };
 
-  const pinNote = async () => {
+  const setPinNote = async () => {
     await axios.post(
       `${props.baseURL}/api/notes/setpin/${dataCurrentNote.data[0].namepid}`,
     );
+    setPinnedNote(!pinnedNote);
+    props.setPinNotes([]);
+    props.getPinNotes();
+  };
+
+  const getPinNote = async id => {
+    const res = await axios.get(`${props.baseURL}/api/notes/getPinNote/${id}`);
+    setPinnedNote(res.data[0].pin);
+    return res.data[0].pin;
+  };
+
+  const backToParent = () => {
+    //1 TODO: finish this logic. There's a bug where if there's a / at the end the original logic doesn't work.
+    //console.log('props.match.url.substring(0, props.match.url.lastIndexOf('/'))}', props.match.url.substring(0, props.match.url.lastIndexOf('/')));
+    //return props.match.url.substring(0, props.match.url.lastIndexOf('/'))}>
+    //&lt; Back to{' '}
+    //{!!props.match.url.split('/')[props.match.url.split('/').length - 2]
+    //? props.match.url.split('/')[props.match.url.split('/').length - 2]
+    //: 'Homepage';
+    //
+    //2 TODO: deal with private mode still showing subnotes
   };
 
   return (
@@ -406,7 +427,7 @@ const Notes = props => {
               <button
                 style={hidden}
                 className={`pure-button pure-button-primary private-button ${
-                  !!privateMode && 'privateMode-button'
+                  !!privateMode && 'toggleRed-button'
                 }`}
                 onClick={handlePrivate}>
                 {privateText}
@@ -422,9 +443,11 @@ const Notes = props => {
                 Move / Rename
               </button>
               <button
-                className="pure-button pure-button-primary  logout-button"
-                onClick={pinNote}>
-                Pin
+                className={`pure-button pure-button-primary logout-button ${
+                  !!pinnedNote && 'toggleRed-button'
+                }`}
+                onClick={setPinNote}>
+                {!!pinnedNote ? 'UnPin' : 'Pin'}
               </button>
             </div>
             <div

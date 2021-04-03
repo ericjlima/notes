@@ -78,7 +78,7 @@
   margin: 0 0 0 1em;
 }
 
-.pure-button-primary.privateMode-button {
+.pure-button-primary.toggleRed-button {
   background: red;
 }
 
