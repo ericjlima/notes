@@ -54,6 +54,9 @@ const Notes = props => {
               `${props.baseURL}/api/notes/namepid/${paths[i]}/${pid}`,
             );
             setDataCurrentNote(response);
+
+            //make the pin button red
+            getPinNote(response.data[0].id);
             !!response.data[0] && (pid = response.data[0].id);
           } else {
             response = await axios.get(
@@ -128,11 +131,10 @@ const Notes = props => {
     //e.preventDefault = false;
     //return txt.value.replace(/\r?\n/g, '<br />\n');
     //TODO: find when enter is pressed and replace with <br /> somehow...
-    //const timeOutId = setTimeout(() => {
-    //setDisplayMessage(value);
-    handleSubmit(e);
-    //}, 2000);
-    //return () => clearTimeout(timeOutId);
+    const waitTwoSecondsBeforeSubmitting = setTimeout(() => {
+      handleSubmit(e);
+    }, 2000);
+    return () => clearTimeout(waitTwoSecondsBeforeSubmitting);
   }, [value]);
 
   const decodeHtml = html => {
@@ -185,7 +187,6 @@ const Notes = props => {
     }
 
     setDataCurrentNote(previousNote);
-    getPinNote(previousNote.data[0].id);
 
     if (updateCurrNoteId) {
       await axios.delete(
@@ -361,6 +362,9 @@ const Notes = props => {
       `${props.baseURL}/api/notes/setpin/${dataCurrentNote.data[0].namepid}`,
     );
     setPinnedNote(!pinnedNote);
+
+
+    //refresh side bar
     props.setPinNotes([]);
     props.getPinNotes();
   };
@@ -371,26 +375,21 @@ const Notes = props => {
     return res.data[0].pin;
   };
 
-  const backToParent = () => {
-    //1 TODO: finish this logic. There's a bug where if there's a / at the end the original logic doesn't work.
-    //console.log('props.match.url.substring(0, props.match.url.lastIndexOf('/'))}', props.match.url.substring(0, props.match.url.lastIndexOf('/')));
-    //return props.match.url.substring(0, props.match.url.lastIndexOf('/'))}>
-    //&lt; Back to{' '}
-    //{!!props.match.url.split('/')[props.match.url.split('/').length - 2]
-    //? props.match.url.split('/')[props.match.url.split('/').length - 2]
-    //: 'Homepage';
-    //
-    //2 TODO: deal with private mode still showing subnotes
-  };
-
   return (
     <div className="notes">
       <Link
         className="backToParent"
-        to={props.match.url.substring(0, props.match.url.lastIndexOf('/'))}>
+        to={props.match.url.substring(
+          0,
+          props.match.url.replace(/\/+$/, '').lastIndexOf('/'),
+        )}>
         &lt; Back to{' '}
-        {!!props.match.url.split('/')[props.match.url.split('/').length - 2]
-          ? props.match.url.split('/')[props.match.url.split('/').length - 2]
+        {!!props.match.url.replace(/\/+$/, '').split('/')[
+          props.match.url.replace(/\/+$/, '').split('/').length - 2
+        ]
+          ? props.match.url.replace(/\/+$/, '').split('/')[
+              props.match.url.replace(/\/+$/, '').split('/').length - 2
+            ]
           : 'Homepage'}
       </Link>
       <div className="header">

@@ -31,7 +31,7 @@ const App = () => {
   const getPinNotes = async () => {
     const pinNotesCallback = await axios.get(`${baseURL}/api/notes/pinNotes/`);
 
-    pinNotesCallback.data.map(async (note) => {
+    pinNotesCallback.data.map(async note => {
       const thepath = await retrievePaths(note.name, note.namepid, baseURL);
       setPinNotes(pinNotes => [...pinNotes, thepath]);
     });
@@ -150,6 +150,8 @@ const App = () => {
                     <Notes
                       {...routeProps}
                       baseURL={baseURL}
+                      getPinNotes={getPinNotes}
+                      setPinNotes={setPinNotes}
                       setLogged={setLoggedMethod()}
                     />
                   )}

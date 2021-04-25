@@ -83,7 +83,7 @@ router.get('/', function (req, res, next) {
 
 router.get('/pinNotes', function (req, res, next) {
   con.query(
-    'SELECT name, namepid FROM notes where pin = true ORDER BY name',
+    'SELECT name, namepid FROM notes where pin = true AND private = 0 ORDER BY name',
     function (err, result, fields) {
       if (err) throw err;
       res.send(result);
