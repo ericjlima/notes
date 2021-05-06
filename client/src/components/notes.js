@@ -23,84 +23,6 @@ const Notes = props => {
   //TODO: Memory leak about an component not mounting? Click the back button and check what the console is saying. Ask around potentially
   useEffect(() => {
     setChildNotes([]); //This line resolves a bug where the childnotes dont render. Not sure why. Guess you have to do this and it's a weird oddity of React.
-    const getChildNotes = async currentNoteData => {
-      try {
-        //const secondLastParam = props.match.url.split('/')[props.match.url.split('/').length-2];
-        const response = await axios.get(
-          `${props.baseURL}/api/notes/children/${currentNoteData.id}`,
-          //{slp: secondLastParam, pid: pid}
-        );
-        const children = response.data;
-        let addChild;
-        children.forEach(e => {
-          addChild = childNotes;
-          addChild.push(e.name);
-        });
-        if (!!children.length) setChildNotes(addChild);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    const getNoteData = async () => {
-      try {
-        let response;
-        const paths = Object.values(props.match.params);
-        let pid;
-        for (let i = 0; i < paths.length; i++) {
-          if (i === 0) {
-            pid = 0;
-            response = await axios.get(
-              `${props.baseURL}/api/notes/namepid/${paths[i]}/${pid}`,
-            );
-            setDataCurrentNote(response);
-
-            //make the pin button red
-            getPinNote(response.data[0].id);
-            !!response.data[0] && (pid = response.data[0].id);
-          } else {
-            response = await axios.get(
-              `${props.baseURL}/api/notes/namepid/${paths[i]}/${pid}`,
-            );
-            !!response.data[0] && (pid = response.data[0].id);
-          }
-        }
-        !!response.data[0] && getChildNotes(response.data[0]);
-
-        if (!!response.data[0] && response.data[0].date_created) {
-          let strippedDateCreated = response.data[0].date_created
-            .replace(/T/g, ' ')
-            .replace(/Z/g, '');
-          strippedDateCreated = strippedDateCreated.substring(
-            0,
-            strippedDateCreated.indexOf('.'),
-          );
-          let strippedDateModified = response.data[0].date_modified
-            .replace(/T/g, ' ')
-            .replace(/Z/g, '');
-          strippedDateModified = strippedDateModified.substring(
-            0,
-            strippedDateModified.indexOf('.'),
-          );
-          setDateModified(strippedDateModified);
-          setDateCreated(strippedDateCreated);
-          setValue(unescape(response.data[0].message));
-          setPrivateMode(response.data[0].private);
-          const togglePrivateMode = () => {
-            if (response.data[0].private) {
-              setMessage('');
-              setPrivateText('Private Mode Is On');
-            } else if (!response.data[0].private) {
-              setMessage(response.data[0].message);
-              setPrivateText('Private Mode Is Off');
-            }
-          };
-          togglePrivateMode();
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
 
     getNoteData();
   }, []);
@@ -136,6 +58,85 @@ const Notes = props => {
     }, 2000);
     return () => clearTimeout(waitTwoSecondsBeforeSubmitting);
   }, [value]);
+
+  const getChildNotes = async currentNoteData => {
+    try {
+      //const secondLastParam = props.match.url.split('/')[props.match.url.split('/').length-2];
+      const response = await axios.get(
+        `${props.baseURL}/api/notes/children/${currentNoteData.id}`,
+        //{slp: secondLastParam, pid: pid}
+      );
+      const children = response.data;
+      let addChild;
+      children.forEach(e => {
+        addChild = childNotes;
+        addChild.push(e.name);
+      });
+      if (!!children.length) setChildNotes(addChild);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const getNoteData = async () => {
+    try {
+      let response;
+      const paths = Object.values(props.match.params);
+      let pid;
+      for (let i = 0; i < paths.length; i++) {
+        if (i === 0) {
+          pid = 0;
+          response = await axios.get(
+            `${props.baseURL}/api/notes/namepid/${paths[i]}/${pid}`,
+          );
+          //make the pin button red
+          !!response.data[0] && (pid = response.data[0].id);
+        } else {
+          response = await axios.get(
+            `${props.baseURL}/api/notes/namepid/${paths[i]}/${pid}`,
+          );
+          !!response.data[0] && (pid = response.data[0].id);
+        }
+      }
+
+      if (!!response.data[0] && response.data[0].date_created) {
+        let strippedDateCreated = response.data[0].date_created
+          .replace(/T/g, ' ')
+          .replace(/Z/g, '');
+        strippedDateCreated = strippedDateCreated.substring(
+          0,
+          strippedDateCreated.indexOf('.'),
+        );
+        let strippedDateModified = response.data[0].date_modified
+          .replace(/T/g, ' ')
+          .replace(/Z/g, '');
+        strippedDateModified = strippedDateModified.substring(
+          0,
+          strippedDateModified.indexOf('.'),
+        );
+        getChildNotes(response.data[0]);
+        setDateModified(strippedDateModified);
+        setDateCreated(strippedDateCreated);
+        setValue(unescape(response.data[0].message));
+        setPrivateMode(response.data[0].private);
+        console.log('RESPECT', response);
+        setDataCurrentNote(response);
+        setPinnedNote(getPinNote(response.data[0].id));
+        const togglePrivateMode = () => {
+          if (response.data[0].private) {
+            setMessage('');
+            setPrivateText('Private Mode Is On');
+          } else if (!response.data[0].private) {
+            setMessage(response.data[0].message);
+            setPrivateText('Private Mode Is Off');
+          }
+        };
+        togglePrivateMode();
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const decodeHtml = html => {
     var txt = document.createElement('textarea');
@@ -186,8 +187,6 @@ const Notes = props => {
       }
     }
 
-    setDataCurrentNote(previousNote);
-
     if (updateCurrNoteId) {
       await axios.delete(
         `${props.baseURL}/api/notes/${previousNote.data[0].id}`,
@@ -223,8 +222,22 @@ const Notes = props => {
     }, 2000);
   };
 
+  const formatDate = () => {
+    var d = new Date(),
+      month = '' + (d.getMonth() + 1),
+      day = '' + d.getDate(),
+      year = d.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join('-');
+  };
+
   const handleSubmit = e => {
     let passedUpdateData = value;
+    console.log('value', value);
+    console.log('message', message);
     if (passedUpdateData) {
       //sql statements seem to error unless we replace these characters before making a query.
       passedUpdateData = encodeURIComponent(passedUpdateData);
@@ -254,6 +267,8 @@ const Notes = props => {
       };
 
       updateNote(passedUpdateData);
+
+      setDateModified(formatDate());
     }
     e.preventDefault();
   };
@@ -358,11 +373,17 @@ const Notes = props => {
   };
 
   const setPinNote = async () => {
-    await axios.post(
-      `${props.baseURL}/api/notes/setpin/${dataCurrentNote.data[0].namepid}`,
-    );
-    setPinnedNote(!pinnedNote);
-
+    console.log('current note', dataCurrentNote.data[0]);
+    if (dataCurrentNote.data[0]) {
+      await axios.post(
+        `${props.baseURL}/api/notes/setpin/${dataCurrentNote.data[0].namepid}`,
+      );
+      //const getPin = getPinNote(dataCurrentNote.data[0].id);
+      //console.log('getPin', getPin);
+      setPinnedNote(!pinnedNote);
+    } else {
+      alert('cant get current note');
+    }
 
     //refresh side bar
     props.setPinNotes([]);
@@ -371,7 +392,6 @@ const Notes = props => {
 
   const getPinNote = async id => {
     const res = await axios.get(`${props.baseURL}/api/notes/getPinNote/${id}`);
-    setPinnedNote(res.data[0].pin);
     return res.data[0].pin;
   };
 
@@ -441,13 +461,15 @@ const Notes = props => {
                 onClick={moveNote}>
                 Move / Rename
               </button>
-              <button
-                className={`pure-button pure-button-primary logout-button ${
-                  !!pinnedNote && 'toggleRed-button'
-                }`}
-                onClick={setPinNote}>
-                {!!pinnedNote ? 'UnPin' : 'Pin'}
-              </button>
+              {!!dateModified && (
+                <button
+                  className={`pure-button pure-button-primary logout-button ${
+                    !!pinnedNote && 'toggleRed-button'
+                  }`}
+                  onClick={setPinNote}>
+                  {!!pinnedNote ? 'UnPin' : 'Pin'}
+                </button>
+              )}
             </div>
             <div
               style={hidden}
