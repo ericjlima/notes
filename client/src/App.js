@@ -106,11 +106,11 @@ const App = () => {
                   </NavLink>
                   <ul className="pure-menu-list">
                     <QuickLogin baseURL={baseURL} />
-                    <li className="pure-menu-item" key="0">
+                    {/*<li className="pure-menu-item" key="0">
                       <a className="pure-menu-link" href={`/login`}>
                         Login
                       </a>
-                    </li>
+                    </li>*/}
                     <li className="pure-menu-item" key="1">
                       <a className="pure-menu-link" href={`/allNotes`}>
                         All Notes

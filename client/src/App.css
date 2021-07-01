@@ -73,8 +73,12 @@
   display: block;
 }
 
-.pure-button-primary.logout-button,
+.pure-button-primary.bar-button,
 .pure-button-primary.deleteNote-button {
+  margin: 0 0 0 1em;
+}
+
+.pure-button-primary.logout-button {
   margin: 10px 0 0 1em;
 }
 

@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useRef} from 'react';
 import axios from 'axios';
 import {Link} from 'react-router-dom';
+import {checkIfNoteExists} from '../utils/notePipelineHelper';
 
 axios.defaults.withCredentials = true;
 
@@ -14,7 +15,7 @@ const Notes = props => {
   const [dateModified, setDateModified] = useState(null);
   const [dateCreated, setDateCreated] = useState(null);
   const [childNotes, setChildNotes] = useState([]);
-  const [message, setMessage] = useState(null);
+  const [loadOnce, setLoadOnce] = useState(false);
   const [value, setValue] = useState('');
   const [dataCurrentNote, setDataCurrentNote] = useState({});
 
@@ -54,7 +55,11 @@ const Notes = props => {
     //return txt.value.replace(/\r?\n/g, '<br />\n');
     //TODO: find when enter is pressed and replace with <br /> somehow...
     const waitTwoSecondsBeforeSubmitting = setTimeout(() => {
-      handleSubmit(e);
+      if (!loadOnce) {
+        setLoadOnce(true);
+      } else {
+        handleSubmit(e);
+      }
     }, 2000);
     return () => clearTimeout(waitTwoSecondsBeforeSubmitting);
   }, [value]);
@@ -117,17 +122,22 @@ const Notes = props => {
         getChildNotes(response.data[0]);
         setDateModified(strippedDateModified);
         setDateCreated(strippedDateCreated);
+        //console.log('response.data[0].message', response.data[0].message);
         setValue(unescape(response.data[0].message));
         setPrivateMode(response.data[0].private);
-        console.log('RESPECT', response);
+        //console.log('RESPECT', response);
         setDataCurrentNote(response);
-        setPinnedNote(getPinNote(response.data[0].id));
+        //setPinnedNote(getPinNote(response.data[0].id));
         const togglePrivateMode = () => {
           if (response.data[0].private) {
-            setMessage('');
+            setTimeout(() => {
+              setVerificationMessage('In Private Mode!');
+            }, 2000);
+
+            setValue(unescape(response.data[0].message));
             setPrivateText('Private Mode Is On');
           } else if (!response.data[0].private) {
-            setMessage(response.data[0].message);
+            setValue(unescape(response.data[0].message));
             setPrivateText('Private Mode Is Off');
           }
         };
@@ -216,7 +226,7 @@ const Notes = props => {
     collectIdAndOrPostEachBranch(passedUpdateData, true);
 
     setVerificationMessage('Message was saved.');
-    setMessage(value);
+    setValue(unescape(value));
     setTimeout(() => {
       setVerificationMessage('');
     }, 2000);
@@ -236,8 +246,7 @@ const Notes = props => {
 
   const handleSubmit = e => {
     let passedUpdateData = value;
-    console.log('value', value);
-    console.log('message', message);
+    //console.log('value', value);
     if (passedUpdateData) {
       //sql statements seem to error unless we replace these characters before making a query.
       passedUpdateData = encodeURIComponent(passedUpdateData);
@@ -261,14 +270,14 @@ const Notes = props => {
           }
         } catch (error) {
           setVerificationMessage('Some kind of error occured:' + error);
-          setMessage(value);
+          setValue(unescape(value));
           console.error(error);
         }
       };
 
       updateNote(passedUpdateData);
 
-      setDateModified(formatDate());
+      setDateCreated(formatDate());
     }
     e.preventDefault();
   };
@@ -332,6 +341,10 @@ const Notes = props => {
         };
         postPrivateOn();
       }
+
+      //update the sidebar's state to not have private note show up anymore (toggles)
+      props.setPinNotes([]);
+      props.getPinNotes();
     }
   };
 
@@ -365,15 +378,22 @@ const Notes = props => {
       destination = destination.split('/').filter(function (el) {
         return el.length !== 0;
       });
-      const oldPid = await collectIdAndOrPostEachBranch('');
-      collectIdAndOrPostEachBranch('', true, true, oldPid, destination);
-      const printDestination = destination.toString().replaceAll(',', '/');
-      setVerificationMessage('Note successfully moved to: ' + printDestination);
+      const noteExistence = await checkIfNoteExists(destination, props.baseURL);
+      if (!noteExistence) {
+        const oldPid = await collectIdAndOrPostEachBranch('');
+        collectIdAndOrPostEachBranch('', true, true, oldPid, destination);
+        const printDestination = destination.toString().replaceAll(',', '/');
+        setVerificationMessage(
+          'Note successfully moved to: ' + printDestination,
+        );
+      } else {
+        alert('Sorry a note already exists in that destination! Please, try a different destination');
+      }
     }
   };
 
   const setPinNote = async () => {
-    console.log('current note', dataCurrentNote.data[0]);
+    //console.log('current note', dataCurrentNote.data[0]);
     if (dataCurrentNote.data[0]) {
       await axios.post(
         `${props.baseURL}/api/notes/setpin/${dataCurrentNote.data[0].namepid}`,
@@ -390,10 +410,10 @@ const Notes = props => {
     props.getPinNotes();
   };
 
-  const getPinNote = async id => {
-    const res = await axios.get(`${props.baseURL}/api/notes/getPinNote/${id}`);
-    return res.data[0].pin;
-  };
+  //const getPinNote = async id => {
+  //const res = await axios.get(`${props.baseURL}/api/notes/getPinNote/${id}`);
+  //return res.data[0].pin;
+  //};
 
   return (
     <div className="notes">
@@ -412,7 +432,7 @@ const Notes = props => {
             ]
           : 'Homepage'}
       </Link>
-      <div className="header">
+      <div className={`header ${privateMode && 'pure-button-primary'}`}>
         <h1>{toTitleCase(props.match.params.id)}</h1>
         <br />
         <ul className="subnotes-list">
@@ -434,7 +454,7 @@ const Notes = props => {
 
       <div className="noteContent">
         <div className={`leftSide ${!passEntered ? 'makeCenter' : ''}`}>
-          <div dangerouslySetInnerHTML={{__html: unescape(message)}} />
+          <div dangerouslySetInnerHTML={{__html: unescape(value)}} />
           <p>Date Modified: {dateModified}</p>
           <p>Date Created: {dateCreated}</p>
         </div>
@@ -452,18 +472,13 @@ const Notes = props => {
                 {privateText}
               </button>
               <button
-                className="pure-button pure-button-primary  logout-button"
-                onClick={handleLogout}>
-                Rename
-              </button>
-              <button
-                className="pure-button pure-button-primary  logout-button"
+                className="pure-button pure-button-primary bar-button"
                 onClick={moveNote}>
                 Move / Rename
               </button>
               {!!dateModified && (
                 <button
-                  className={`pure-button pure-button-primary logout-button ${
+                  className={`pure-button pure-button-primary bar-button ${
                     !!pinnedNote && 'toggleRed-button'
                   }`}
                   onClick={setPinNote}>
@@ -478,7 +493,7 @@ const Notes = props => {
                 <div className="pure-control-group">
                   <div className="pure-control-group">
                     <textarea
-                      onChange={event => setValue(event.target.value)}
+                      onChange={event => setValue(unescape(event.target.value))}
                       id="create"
                       type="text"
                       value={decodeHtml(value)}
@@ -492,11 +507,6 @@ const Notes = props => {
                   onClick={handleSubmit}
                   className="pure-button pure-button-primary messageSubmit-button">
                   Submit
-                </button>
-                <button
-                  className="pure-button pure-button-primary logout-button"
-                  onClick={handleLogout}>
-                  Logout
                 </button>
                 <button
                   className="pure-button pure-button-primary deleteNote-button"

@@ -15,3 +15,21 @@ export const retrievePaths = async (name, namepid, baseURL) => {
 
   return {name: name, url: paths.toString().replaceAll(',', '/')};
 };
+
+export const checkIfNoteExists = async (destination, baseURL) => {
+  let pid = 0;
+  for (let i = 0; i < destination.length; i++) {
+    const response = await axios.get(
+      `${baseURL}/api/notes/namepid/${destination[i]}/${pid}`,
+    );
+    !!response.data[0] && (pid = response.data[0].id);
+    if (
+      i === destination.length - 1 &&
+      response.data[0] &&
+      response.data[0].message
+    ) {
+      return true;
+    }
+  }
+  return false;
+};
