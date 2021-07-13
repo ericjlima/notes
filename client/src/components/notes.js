@@ -60,7 +60,7 @@ const Notes = props => {
       } else {
         handleSubmit(e);
       }
-    }, 2000);
+    }, 1000);
     return () => clearTimeout(waitTwoSecondsBeforeSubmitting);
   }, [value]);
 
@@ -283,6 +283,10 @@ const Notes = props => {
   };
 
   const handleDelete = () => {
+    if(!!childNotes.length){
+      alert("Can't delete this note. It has children.");
+      return;
+    }
     if (
       window.confirm(
         'Are you sure you want to delete this record from the database?',
@@ -348,17 +352,6 @@ const Notes = props => {
     }
   };
 
-  const handleLogout = () => {
-    axios
-      .post(`${props.baseURL}/api/password/logout`)
-      .then(() => {
-        window.location.reload();
-      })
-      .catch(function (error) {
-        return JSON.stringify(error);
-      });
-  };
-
   const toTitleCase = str => {
     return str.replace(/\w\S*/g, function (txt) {
       return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
@@ -387,7 +380,9 @@ const Notes = props => {
           'Note successfully moved to: ' + printDestination,
         );
       } else {
-        alert('Sorry a note already exists in that destination! Please, try a different destination');
+        alert(
+          'Sorry a note already exists in that destination! Please, try a different destination',
+        );
       }
     }
   };
@@ -471,11 +466,13 @@ const Notes = props => {
                 onClick={handlePrivate}>
                 {privateText}
               </button>
-              <button
-                className="pure-button pure-button-primary bar-button"
-                onClick={moveNote}>
-                Move / Rename
-              </button>
+              {!!dateCreated && (
+                <button
+                  className="pure-button pure-button-primary bar-button"
+                  onClick={moveNote}>
+                  Move / Rename
+                </button>
+              )}
               {!!dateModified && (
                 <button
                   className={`pure-button pure-button-primary bar-button ${

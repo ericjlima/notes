@@ -293,5 +293,12 @@ Copyright (c) Nicolas Gallagher and Jonathan Neal
 
 
 .pure-control-group{
-  margin: 4px 0 2px 4px;
+  margin: 4px 0 2px 0;
+}
+.vertical-center{
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
 }

@@ -33,3 +33,10 @@ export const checkIfNoteExists = async (destination, baseURL) => {
   }
   return false;
 };
+
+//export const checkIfNoteHasChildren = async (id, baseURL) => {
+  //const response = await axios.get(
+    //`${baseURL}/api/notes/haschildren/${id}`,
+  //);
+  //return false;
+//};

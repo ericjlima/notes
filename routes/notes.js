@@ -115,12 +115,12 @@ router.get('/:notesId', function (req, res, next) {
   );
 });
 
-router.get('/namepid/:notesId/:pid', function (req, res, next) {
+router.get('/namepid/:notesName/:pid', function (req, res, next) {
   con.query(
     `SELECT id, name, message, date_created, date_modified, private, pid, namepid FROM notes 
-            WHERE namepid='${req.params.notesId} ${req.params.pid}';`,
+            WHERE namepid='${req.params.notesName} ${req.params.pid}';`,
     function (err, result, fields) {
-      //console.log('req.params.notesId', req.params.notesId);
+      //console.log('req.params.notesName', req.params.notesName);
       //console.log('req.body.pid', req.params.pid);
       //console.log('result', result);
       //console.log('path', req.path);
