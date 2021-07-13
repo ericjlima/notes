@@ -156,6 +156,14 @@ const App = () => {
                     />
                   )}
                 />
+                <Route
+                  path={'/'}
+                  render={() => (
+                    <div className='vertical-center'>
+                      <h3>This is Eric Lima's notes website.</h3>
+                    </div>
+                  )}
+                />
                 <Redirect from="*" to="/" />
               </Switch>
             </div>
