@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 var sha256 = require('sha256');
+import {AuthenticatedContext} from '../App';
 
 axios.defaults.withCredentials = true;
 
-class QuickLogin extends Component {
+class QuickLogin extends Component {  //TODO: rewrite quick login to be a functional component and instead of chanig the parents state lets change the context's value
   constructor(props) {
     super(props);
     this.state = {
@@ -18,6 +19,9 @@ class QuickLogin extends Component {
     axios.get(`${this.props.baseURL}/api/password/${this.state.pass}`).then((response) => {
       if (response.data.logged) {
         this.setState({ passEntered: true, passwordShown: false, checkPass: response.data.password, checkSessionID: response.data.sessionID });
+        this.props.setAuthenticated(true);
+
+        const { language, setLanguage } = useContext(LanguageContext);
       }
     }).catch(function (error) {
       return JSON.stringify(error);
@@ -34,6 +38,8 @@ class QuickLogin extends Component {
   handleSubmitPass(e) {
     axios.post(`${this.props.baseURL}/api/password`, { password: sha256(this.state.pass) }).then((response) => {
       if (response.data === "logged") {
+        this.props.setAuthenticated(true);
+
         this.setState({ passEntered: true });
         this.setState({
           message: this.state.value,

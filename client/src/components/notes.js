@@ -1,7 +1,8 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef, useContext} from 'react';
 import axios from 'axios';
 import {Link} from 'react-router-dom';
 import {checkIfNoteExists} from '../utils/notePipelineHelper';
+import {AuthenticatedContext} from '../App'; //call this authenitcated
 
 axios.defaults.withCredentials = true;
 
@@ -20,6 +21,9 @@ const Notes = props => {
   const [dataCurrentNote, setDataCurrentNote] = useState({});
 
   const textAreaRef = useRef(null);
+
+  const privateCon = useContext(AuthenticatedContext);
+  console.log('privateCon', privateCon);
 
   //TODO: Memory leak about an component not mounting? Click the back button and check what the console is saying. Ask around potentially
   useEffect(() => {
@@ -283,7 +287,7 @@ const Notes = props => {
   };
 
   const handleDelete = () => {
-    if(!!childNotes.length){
+    if (!!childNotes.length) {
       alert("Can't delete this note. It has children.");
       return;
     }
@@ -449,7 +453,10 @@ const Notes = props => {
 
       <div className="noteContent">
         <div className={`leftSide ${!passEntered ? 'makeCenter' : ''}`}>
-          <div dangerouslySetInnerHTML={{__html: unescape(value)}} />
+          {console.log('privateMode', privateMode)}
+          {(!privateMode || passEntered) && (
+            <div dangerouslySetInnerHTML={{__html: unescape(value)}} />
+          )}
           <p>Date Modified: {dateModified}</p>
           <p>Date Created: {dateCreated}</p>
         </div>

@@ -6,11 +6,21 @@ axios.defaults.withCredentials = true;
 const AllNotes = props => {
   const [notes, setNotes] = useState([]);
   useEffect(() => {
+
     fetch(`${props.baseURL}/api/notes`)
       .then(res => res.json())
       .then(resnotes => {
         setNotes(resnotes);
       });
+
+
+    fetch(`${props.baseURL}/api/notes/allnotes`)
+      .then(res => res.json())
+      .then(resnotes => {
+        setNotes(resnotes);
+      });
+
+
   }, []);
 
   const toTitleCase = str => {
