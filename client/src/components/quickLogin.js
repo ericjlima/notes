@@ -1,104 +1,97 @@
-import React, { Component } from 'react';
+import React, {useEffect, useState, useContext} from 'react';
 import axios from 'axios';
-var sha256 = require('sha256');
 import {AuthenticatedContext} from '../App';
+
+var sha256 = require('sha256');
 
 axios.defaults.withCredentials = true;
 
-class QuickLogin extends Component {  //TODO: rewrite quick login to be a functional component and instead of chanig the parents state lets change the context's value
-  constructor(props) {
-    super(props);
-    this.state = {
-      passwordShown: true,
-      passEntered: false,
-      pass: "",
-    };
-  }
+const QuickLogin = props => {
+  const {Authenticated, setAuthenticated} = useContext(AuthenticatedContext);
+  const [pass, setPass] = useState('');
+  const [incorrectPassword, setIncorrectPassword] = useState('');
 
-  componentDidMount() {
-    axios.get(`${this.props.baseURL}/api/password/${this.state.pass}`).then((response) => {
-      if (response.data.logged) {
-        this.setState({ passEntered: true, passwordShown: false, checkPass: response.data.password, checkSessionID: response.data.sessionID });
-        this.props.setAuthenticated(true);
-
-        const { language, setLanguage } = useContext(LanguageContext);
-      }
-    }).catch(function (error) {
-      return JSON.stringify(error);
-    });
-  }
-
-  handlePassEnter(e) {
-    this.setState({
-      pass: e.target.value
-    });
-  }
-
-
-  handleSubmitPass(e) {
-    axios.post(`${this.props.baseURL}/api/password`, { password: sha256(this.state.pass) }).then((response) => {
-      if (response.data === "logged") {
-        this.props.setAuthenticated(true);
-
-        this.setState({ passEntered: true });
-        this.setState({
-          message: this.state.value,
-          passwordShown: false,
-        });
-        this.forceUpdate();
-        window.location.reload();
-      } else {
-        this.setState({
-          incorrectPassword: "You've entered an incorrect password.",
-          message: this.state.value
-        });
-        setTimeout(() => {
-          this.setState({
-            incorrectPassword: "",
-            verificationMessage: ""
-          });
-        }, 2000)
-      }
-    }).catch(function (error) {
-      return JSON.stringify(error);
-    });
-    e.preventDefault();
-  }
-
-  handleLogout() {
-    axios.post(`${this.props.baseURL}/api/password/logout`)
-      .then((response) => {
-        window.location.reload();
-      }).catch(function (error) {
+  useEffect(() => {
+    axios
+      .get(`${props.baseURL}/api/password/${pass}`)
+      .then(response => {
+        if (response.data.logged) {
+          setAuthenticated(true);
+        }
+      })
+      .catch(function (error) {
         return JSON.stringify(error);
       });
-  }
+  }, []);
 
-  render() {
+  const handleSubmitPass = e => {
+    axios
+      .post(`${props.baseURL}/api/password`, {password: sha256(pass)})
+      .then(response => {
+        if (response.data === 'logged') {
+          setAuthenticated(true);
+        } else {
+          setIncorrectPassword("You've entered an incorrect password.");
+          setTimeout(() => {
+            setIncorrectPassword('');
+          }, 2000);
+        }
+      })
+      .catch(function (error) {
+        return JSON.stringify(error);
+      });
+    e.preventDefault();
+  };
 
-    var passwordShown = {
-      display: this.state.passwordShown ? "block" : "none"
-    };
+  const handleLogout = () => {
+    axios
+      .post(`${props.baseURL}/api/password/logout`)
+      .then(response => {
+        setAuthenticated(false);
+      })
+      .catch(function (error) {
+        return JSON.stringify(error);
+      });
+  };
 
-    var hidden = {
-      display: this.state.passwordShown ? "none" : "block"
-    }
+  let passwordShownStyle = {
+    display: !Authenticated ? 'block' : 'none',
+  };
 
-    return (
-      <div>
-        <form style={passwordShown} method="get" className="pure-form pure-form-aligned" onSubmit={this.handleSubmitPass.bind(this)}>
-          <fieldset className="quickLog">
+  let hidden = {
+    display: !Authenticated ? 'none' : 'block',
+  };
+
+  return (
+    <div>
+      <form
+        style={passwordShownStyle}
+        method="get"
+        className="pure-form pure-form-aligned"
+        onSubmit={handleSubmitPass}>
+        <fieldset className="quickLog">
+          <div className="pure-control-group">
             <div className="pure-control-group">
-              <div className='pure-control-group'>
-                <input onChange={this.handlePassEnter.bind(this)} id="quickpassenter" type="password" value={this.state.pass} placeholder="Quick Login" />
-                <p className="verificationMessage"> {this.state.incorrectPassword} </p>
-              </div>
+              <input
+                onChange={event => setPass(event.target.value)}
+                id="quickpassenter"
+                type="password"
+                value={pass}
+                placeholder="Quick Login"
+              />
+              <p className="verificationMessage"> {incorrectPassword} </p>
             </div>
-          </fieldset>
-        </form><button style={hidden} className="pure-button quickLog pure-button-primary logout-button" onClick={this.handleLogout.bind(this)}>Logout</button>
-      </div>
-    );
-  }
-}
+          </div>
+        </fieldset>
+      </form>
+      <button
+        style={hidden}
+        className="pure-button quickLog pure-button-primary logout-button"
+        onClick={handleLogout}>
+        Logout
+      </button>
+    </div>
+  );
+};
 
 export default QuickLogin;

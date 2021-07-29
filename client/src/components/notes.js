@@ -7,11 +7,9 @@ import {AuthenticatedContext} from '../App'; //call this authenitcated
 axios.defaults.withCredentials = true;
 
 const Notes = props => {
-  const [passEntered, setPassEntered] = useState(false);
   const [pinnedNote, setPinnedNote] = useState(false);
-  const [privateMode, setPrivateMode] = useState(0);
+  const [isPrivateNote, setIsPrivateNote] = useState(0);
   const [privateText, setPrivateText] = useState('Private Mode is Off');
-  const [hiddenTextArea, setHiddenTextArea] = useState(true);
   const [verificationMessage, setVerificationMessage] = useState(null);
   const [dateModified, setDateModified] = useState(null);
   const [dateCreated, setDateCreated] = useState(null);
@@ -22,42 +20,26 @@ const Notes = props => {
 
   const textAreaRef = useRef(null);
 
-  const privateCon = useContext(AuthenticatedContext);
-  console.log('privateCon', privateCon);
+  const {Authenticated} = useContext(AuthenticatedContext);
 
-  //TODO: Memory leak about an component not mounting? Click the back button and check what the console is saying. Ask around potentially
   useEffect(() => {
     setChildNotes([]); //This line resolves a bug where the childnotes dont render. Not sure why. Guess you have to do this and it's a weird oddity of React.
-
     getNoteData();
   }, []);
 
-  useEffect(() => {
-    const getPassword = async () => {
-      try {
-        const response = await axios.get(`${props.baseURL}/api/password/`);
-        if (response.data.logged) {
-          //TODO: get redux in here to deal with if the user is logged
-          //await props.setLogged(true);
-          setPassEntered(true);
-          setHiddenTextArea(false);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    getPassword();
-  }, [passEntered]);
+  useEffect(async () => {
+    if (dataCurrentNote.data) {
+      const getPin = await getPinNote(dataCurrentNote.data[0].id);
+      setPinnedNote(getPin);
+    }
+  }, [dataCurrentNote]);
 
   useEffect(() => {
     const e = {};
     e.preventDefault = () => {
       return false;
     };
-    //e.preventDefault = false;
-    //return txt.value.replace(/\r?\n/g, '<br />\n');
-    //TODO: find when enter is pressed and replace with <br /> somehow...
+
     const waitTwoSecondsBeforeSubmitting = setTimeout(() => {
       if (!loadOnce) {
         setLoadOnce(true);
@@ -68,12 +50,21 @@ const Notes = props => {
     return () => clearTimeout(waitTwoSecondsBeforeSubmitting);
   }, [value]);
 
+  const handleKeyPress = event => {
+    if (event.key === 'Enter' && event.shiftKey) {
+      var firstSearchString = '<br />';
+      var searchStringArray = Array.from(firstSearchString);
+      for (let i = 0; i < searchStringArray.length; i++) {
+        document.getElementById('message_textarea').value +=
+          searchStringArray[i];
+      }
+    }
+  };
+
   const getChildNotes = async currentNoteData => {
     try {
-      //const secondLastParam = props.match.url.split('/')[props.match.url.split('/').length-2];
       const response = await axios.get(
         `${props.baseURL}/api/notes/children/${currentNoteData.id}`,
-        //{slp: secondLastParam, pid: pid}
       );
       const children = response.data;
       let addChild;
@@ -98,7 +89,6 @@ const Notes = props => {
           response = await axios.get(
             `${props.baseURL}/api/notes/namepid/${paths[i]}/${pid}`,
           );
-          //make the pin button red
           !!response.data[0] && (pid = response.data[0].id);
         } else {
           response = await axios.get(
@@ -126,18 +116,14 @@ const Notes = props => {
         getChildNotes(response.data[0]);
         setDateModified(strippedDateModified);
         setDateCreated(strippedDateCreated);
-        //console.log('response.data[0].message', response.data[0].message);
         setValue(unescape(response.data[0].message));
-        setPrivateMode(response.data[0].private);
-        //console.log('RESPECT', response);
+        setIsPrivateNote(response.data[0].private);
         setDataCurrentNote(response);
-        //setPinnedNote(getPinNote(response.data[0].id));
         const togglePrivateMode = () => {
           if (response.data[0].private) {
             setTimeout(() => {
               setVerificationMessage('In Private Mode!');
             }, 2000);
-
             setValue(unescape(response.data[0].message));
             setPrivateText('Private Mode Is On');
           } else if (!response.data[0].private) {
@@ -156,7 +142,6 @@ const Notes = props => {
     var txt = document.createElement('textarea');
     txt.innerHTML = html;
     return txt.value;
-    //.replace(/&#13;\r?\n/g, '<br />')
   };
 
   const collectIdAndOrPostEachBranch = async (
@@ -250,15 +235,10 @@ const Notes = props => {
 
   const handleSubmit = e => {
     let passedUpdateData = value;
-    //console.log('value', value);
     if (passedUpdateData) {
       //sql statements seem to error unless we replace these characters before making a query.
       passedUpdateData = encodeURIComponent(passedUpdateData);
       passedUpdateData = passedUpdateData
-        //.replace(/&#10;/g, '<br />')
-        //.replace(/&#13;/g, '<br />')
-        //.replace(/<br\s?\/?>/g,"\n");
-        //.replace(/\r\n|\r|\n/g,"<br />")
         .replace(/;/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
@@ -267,7 +247,7 @@ const Notes = props => {
 
       const updateNote = async passedUpdateData => {
         try {
-          if (passEntered) {
+          if (Authenticated) {
             if (!!value) {
               updateNoteAndVerification(passedUpdateData);
             }
@@ -312,36 +292,35 @@ const Notes = props => {
             console.log(error);
           }
         };
-
         deleteNote();
       }
     }
   };
 
   const handlePrivate = () => {
-    if (passEntered) {
-      if (privateMode) {
-        setPrivateMode(0);
+    if (Authenticated) {
+      if (isPrivateNote) {
+        setIsPrivateNote(0);
         setPrivateText('Private Mode Is Off');
         const postPrivateOff = () => {
           axios
             .post(
               `${props.baseURL}/api/notes/private/${props.match.params.id}`,
-              {privateMode: 0},
+              {isPrivateNote: 0},
             )
             .catch(function (error) {
               return JSON.stringify(error);
             });
         };
         postPrivateOff();
-      } else if (!privateMode) {
-        setPrivateMode(1);
+      } else if (!isPrivateNote) {
+        setIsPrivateNote(1);
         setPrivateText('Private Mode Is On');
         const postPrivateOn = () => {
           axios
             .post(
               `${props.baseURL}/api/notes/private/${props.match.params.id}`,
-              {privateMode: 1},
+              {isPrivateNote: 1},
             )
             .catch(function (error) {
               return JSON.stringify(error);
@@ -350,7 +329,6 @@ const Notes = props => {
         postPrivateOn();
       }
 
-      //update the sidebar's state to not have private note show up anymore (toggles)
       props.setPinNotes([]);
       props.getPinNotes();
     }
@@ -363,7 +341,7 @@ const Notes = props => {
   };
 
   var hidden = {
-    display: hiddenTextArea ? 'none' : 'inline-block',
+    display: !Authenticated ? 'none' : 'inline-block',
   };
 
   const moveNote = async () => {
@@ -392,13 +370,10 @@ const Notes = props => {
   };
 
   const setPinNote = async () => {
-    //console.log('current note', dataCurrentNote.data[0]);
     if (dataCurrentNote.data[0]) {
       await axios.post(
         `${props.baseURL}/api/notes/setpin/${dataCurrentNote.data[0].namepid}`,
       );
-      //const getPin = getPinNote(dataCurrentNote.data[0].id);
-      //console.log('getPin', getPin);
       setPinnedNote(!pinnedNote);
     } else {
       alert('cant get current note');
@@ -409,10 +384,10 @@ const Notes = props => {
     props.getPinNotes();
   };
 
-  //const getPinNote = async id => {
-  //const res = await axios.get(`${props.baseURL}/api/notes/getPinNote/${id}`);
-  //return res.data[0].pin;
-  //};
+  const getPinNote = async id => {
+    const res = await axios.get(`${props.baseURL}/api/notes/getPinNote/${id}`);
+    return res.data[0].pin;
+  };
 
   return (
     <div className="notes">
@@ -431,7 +406,7 @@ const Notes = props => {
             ]
           : 'Homepage'}
       </Link>
-      <div className={`header ${privateMode && 'pure-button-primary'}`}>
+      <div className={`header ${isPrivateNote && 'pure-button-primary'}`}>
         <h1>{toTitleCase(props.match.params.id)}</h1>
         <br />
         <ul className="subnotes-list">
@@ -452,15 +427,14 @@ const Notes = props => {
       <br />
 
       <div className="noteContent">
-        <div className={`leftSide ${!passEntered ? 'makeCenter' : ''}`}>
-          {console.log('privateMode', privateMode)}
-          {(!privateMode || passEntered) && (
+        <div className={`leftSide ${!Authenticated ? 'makeCenter' : ''}`}>
+          {(!isPrivateNote || Authenticated) && (
             <div dangerouslySetInnerHTML={{__html: unescape(value)}} />
           )}
           <p>Date Modified: {dateModified}</p>
           <p>Date Created: {dateCreated}</p>
         </div>
-        {passEntered && (
+        {Authenticated && (
           <div className="rightSide">
             <div className="topRow">
               <p className="verificationMessage">{verificationMessage} </p>
@@ -468,7 +442,7 @@ const Notes = props => {
               <button
                 style={hidden}
                 className={`pure-button pure-button-primary private-button ${
-                  !!privateMode && 'toggleRed-button'
+                  !!isPrivateNote && 'toggleRed-button'
                 }`}
                 onClick={handlePrivate}>
                 {privateText}
@@ -498,7 +472,8 @@ const Notes = props => {
                   <div className="pure-control-group">
                     <textarea
                       onChange={event => setValue(unescape(event.target.value))}
-                      id="create"
+                      onKeyPress={event => handleKeyPress(event)}
+                      id="message_textarea"
                       type="text"
                       value={decodeHtml(value)}
                       placeholder="Create"

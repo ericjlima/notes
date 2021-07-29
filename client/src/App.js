@@ -31,9 +31,9 @@ const App = () => {
     getPinNotes();
   }, []);
 
-  useEffect(() => {
-    console.log('Authenticated', Authenticated);
-  }, [Authenticated]);
+  //useEffect(() => {
+    //console.log('Authenticated', Authenticated);
+  //}, [Authenticated]);
 
   //const handleChangeAuthenticated = (newValue) => {
   //setAuthenticated(newValue);
