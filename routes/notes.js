@@ -81,9 +81,9 @@ router.get('/', function (req, res, next) {
   );
 });
 
-router.get('/allnotes', function (req, res, next) {
+router.get('/publicNotes', function (req, res, next) {
   con.query(
-    'SELECT name FROM notes where pid = 0 OR pid IS NULL AND private = 0 ORDER BY name',
+    'SELECT name FROM notes where (pid = 0 OR pid IS NULL) AND private = 0 ORDER BY name',
     function (err, result, fields) {
       if (err) throw err;
       // console.log(result);
@@ -107,6 +107,7 @@ router.get('/getPinNote/:currentNoteId', function (req, res, next) {
     `SELECT pin FROM notes where id = '${req.params.currentNoteId}'`,
     function (err, result, fields) {
       if (err) throw err;
+      console.log('res', result);
       res.send(result);
     },
   );
@@ -209,7 +210,7 @@ router.post('/updatePid/:notesId/:newPid/:id', function (req, res, next) {
 router.post('/private/:notesId', function (req, res, next) {
   con.query(
     `UPDATE notes SET private='${
-      req.body.privateMode
+      req.body.isPrivateNote
     }' WHERE name='${req.params.notesId.toLowerCase()}';`,
     function (err, result, fields) {
       if (err) throw err;
