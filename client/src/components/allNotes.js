@@ -1,17 +1,28 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useContext} from 'react';
 import axios from 'axios';
+import {AuthenticatedContext} from '../App';
 
 axios.defaults.withCredentials = true;
 
 const AllNotes = props => {
   const [notes, setNotes] = useState([]);
+  const {Authenticated} = useContext(AuthenticatedContext);
+
   useEffect(() => {
-    fetch(`${props.baseURL}/api/notes`)
-      .then(res => res.json())
-      .then(resnotes => {
-        setNotes(resnotes);
-      });
-  }, []);
+    if (Authenticated) {
+      fetch(`${props.baseURL}/api/notes`)
+        .then(res => res.json())
+        .then(resnotes => {
+          setNotes(resnotes);
+        });
+    } else {
+      fetch(`${props.baseURL}/api/notes/publicNotes`)
+        .then(res => res.json())
+        .then(resnotes => {
+          setNotes(resnotes);
+        });
+    }
+  }, [Authenticated]);
 
   const toTitleCase = str => {
     return str.replace(/\w\S*/g, function (txt) {

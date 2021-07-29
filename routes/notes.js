@@ -81,6 +81,17 @@ router.get('/', function (req, res, next) {
   );
 });
 
+router.get('/allnotes', function (req, res, next) {
+  con.query(
+    'SELECT name FROM notes where pid = 0 OR pid IS NULL AND private = 0 ORDER BY name',
+    function (err, result, fields) {
+      if (err) throw err;
+      // console.log(result);
+      res.json(result);
+    },
+  );
+});
+
 router.get('/pinNotes', function (req, res, next) {
   con.query(
     'SELECT name, namepid FROM notes where pin = true AND private = 0 ORDER BY name',

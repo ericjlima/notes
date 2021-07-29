@@ -17,16 +17,27 @@ import './App.css';
 
 axios.defaults.withCredentials = true;
 
+export const AuthenticatedContext = React.createContext();
+
 const App = () => {
   const [activeMenu, setActiveMenu] = useState('');
   const [pinNotes, setPinNotes] = useState([]);
-  const [logged, setLogged] = useState(false);
+  const [Authenticated, setAuthenticated] = useState(false);
+  const AuthenticatedContextValue = {Authenticated, setAuthenticated};
 
   const baseURL = ''; //https://api.ericnote.us  //or empty quote
 
   useEffect(() => {
     getPinNotes();
   }, []);
+
+  //useEffect(() => {
+    //console.log('Authenticated', Authenticated);
+  //}, [Authenticated]);
+
+  //const handleChangeAuthenticated = (newValue) => {
+  //setAuthenticated(newValue);
+  //}
 
   const getPinNotes = async () => {
     const pinNotesCallback = await axios.get(`${baseURL}/api/notes/pinNotes/`);
@@ -79,98 +90,95 @@ const App = () => {
     return result;
   };
 
-  const setLoggedMethod = val => {
-    setLogged(val);
-  };
-
   return (
-    <div id="layout" className={`${activeMenu}`}>
-      <div id="main">
-        <div className="content">
-          <Router>
-            <div>
-              <a
-                href="#menu"
-                id="menuLink"
-                onClick={() => handleClick()}
-                className={`menu-link ${logged ? 'loggedIn' : ''}`}>
-                <span></span>
-              </a>
-              <div id="menu">
-                <div className="pure-menu">
-                  <NavLink
-                    activeClassName="pure-menu-selected"
-                    className="pure-menu-heading"
-                    to="/">
-                    Eric's Notes
-                  </NavLink>
-                  <ul className="pure-menu-list">
-                    <QuickLogin baseURL={baseURL} />
-                    {/*<li className="pure-menu-item" key="0">
+    <AuthenticatedContext.Provider value={AuthenticatedContextValue}>
+      <div id="layout" className={`${activeMenu}`}>
+        <div id="main">
+          <div className="content">
+            <Router>
+              <div>
+                <a
+                  href="#menu"
+                  id="menuLink"
+                  onClick={() => handleClick()}
+                  className={`menu-link`}>
+                  <span></span>
+                </a>
+                <div id="menu">
+                  <div className="pure-menu">
+                    <NavLink
+                      activeClassName="pure-menu-selected"
+                      className="pure-menu-heading"
+                      to="/">
+                      Eric's Notes
+                    </NavLink>
+                    <ul className="pure-menu-list">
+                      <QuickLogin baseURL={baseURL} setAuthenticated={setAuthenticated} />
+                      {/*<li className="pure-menu-item" key="0">
                       <a className="pure-menu-link" href={`/login`}>
                         Login
                       </a>
                     </li>*/}
-                    <li className="pure-menu-item" key="1">
-                      <a className="pure-menu-link" href={`/allNotes`}>
-                        All Notes
-                      </a>
-                    </li>
-                    {pinNotes.map((note, index) => {
-                      return (
-                        <li className="pure-menu-item" key={index}>
-                          <a className="pure-menu-link" href={`/${note.url}`}>
-                            {toTitleCase(note.name)}
-                          </a>
-                        </li>
-                      );
-                    })}
-                  </ul>
+                      <li className="pure-menu-item" key="1">
+                        <a className="pure-menu-link" href={`/allNotes`}>
+                          All Notes
+                        </a>
+                      </li>
+                      {pinNotes.map((note, index) => {
+                        return (
+                          <li className="pure-menu-item" key={index}>
+                            <a className="pure-menu-link" href={`/${note.url}`}>
+                              {toTitleCase(note.name)}
+                            </a>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
                 </div>
-              </div>
-              <Switch>
-                {/* <Route
+                <Switch>
+                  {/* <Route
                     path={'/login'}
                     render={routeProps => <Login {...routeProps} baseURL={this.state.baseURL} />}
                   />*/}
-                <Route
-                  path={'/allnotes'}
-                  render={routeProps => (
-                    <AllNotes
-                      {...routeProps}
-                      baseURL={baseURL}
-                      toTitleCase={toTitleCase()}
-                    />
-                  )}
-                />
-                {generateChildNoteRoutes()}
-                <Route
-                  path={'/:id'}
-                  render={routeProps => (
-                    <Notes
-                      {...routeProps}
-                      baseURL={baseURL}
-                      getPinNotes={getPinNotes}
-                      setPinNotes={setPinNotes}
-                      setLogged={setLoggedMethod()}
-                    />
-                  )}
-                />
-                <Route
-                  path={'/'}
-                  render={() => (
-                    <div className='vertical-center'>
-                      <h3>This is Eric Lima's notes website.</h3>
-                    </div>
-                  )}
-                />
-                <Redirect from="*" to="/" />
-              </Switch>
-            </div>
-          </Router>
+                  <Route
+                    path={'/allnotes'}
+                    render={routeProps => (
+                      <AllNotes
+                        {...routeProps}
+                        baseURL={baseURL}
+                        toTitleCase={toTitleCase()}
+                      />
+                    )}
+                  />
+                  {generateChildNoteRoutes()}
+                  <Route
+                    path={'/:id'}
+                    render={routeProps => (
+                      <Notes
+                        {...routeProps}
+                        baseURL={baseURL}
+                        getPinNotes={getPinNotes}
+                        setPinNotes={setPinNotes}
+                      />
+                    )}
+                  />
+                  <Route
+                    path={'/'}
+                    render={() => (
+                      <div className="vertical-center">
+                        <h3>This is Eric Lima's notes website.</h3>
+                      </div>
+                    )}
+                  />
+                  <Redirect from="*" to="/" />
+                </Switch>
+              </div>
+            </Router>
+          </div>
         </div>
       </div>
-    </div>
+    </AuthenticatedContext.Provider>
   );
 };
 
