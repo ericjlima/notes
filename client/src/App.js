@@ -31,14 +31,6 @@ const App = () => {
     getPinNotes();
   }, []);
 
-  //useEffect(() => {
-    //console.log('Authenticated', Authenticated);
-  //}, [Authenticated]);
-
-  //const handleChangeAuthenticated = (newValue) => {
-  //setAuthenticated(newValue);
-  //}
-
   const getPinNotes = async () => {
     const pinNotesCallback = await axios.get(`${baseURL}/api/notes/pinNotes/`);
 
