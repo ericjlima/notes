@@ -2,7 +2,7 @@ import React, {useState, useEffect, useRef, useContext} from 'react';
 import axios from 'axios';
 import {Link} from 'react-router-dom';
 import {checkIfNoteExists} from '../utils/notePipelineHelper';
-import {AuthenticatedContext} from '../App'; //call this authenitcated
+import {AuthenticatedContext} from '../App';
 
 axios.defaults.withCredentials = true;
 
@@ -391,21 +391,22 @@ const Notes = props => {
 
   return (
     <div className="notes">
-      <Link
-        className="backToParent"
-        to={props.match.url.substring(
-          0,
-          props.match.url.replace(/\/+$/, '').lastIndexOf('/'),
-        )}>
-        &lt; Back to{' '}
-        {!!props.match.url.replace(/\/+$/, '').split('/')[
-          props.match.url.replace(/\/+$/, '').split('/').length - 2
-        ]
-          ? props.match.url.replace(/\/+$/, '').split('/')[
-              props.match.url.replace(/\/+$/, '').split('/').length - 2
-            ]
-          : 'Homepage'}
-      </Link>
+      <button className="backToParent">
+        <Link
+          to={props.match.url.substring(
+            0,
+            props.match.url.replace(/\/+$/, '').lastIndexOf('/'),
+          )}>
+          <span>&#8249;</span> Back to{' '}
+          {!!props.match.url.replace(/\/+$/, '').split('/')[
+            props.match.url.replace(/\/+$/, '').split('/').length - 2
+          ]
+            ? props.match.url.replace(/\/+$/, '').split('/')[
+                props.match.url.replace(/\/+$/, '').split('/').length - 2
+              ]
+            : 'Homepage'}
+        </Link>
+      </button>
       <div className={`header ${isPrivateNote && 'pure-button-primary'}`}>
         <h1>{toTitleCase(props.match.params.id)}</h1>
         <br />
