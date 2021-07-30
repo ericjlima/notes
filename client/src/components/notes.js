@@ -53,13 +53,27 @@ const Notes = props => {
   const handleKeyPress = event => {
     if (event.key === 'Enter' && event.shiftKey) {
       var firstSearchString = '<br />';
-      var searchStringArray = Array.from(firstSearchString);
-      for (let i = 0; i < searchStringArray.length; i++) {
-        document.getElementById('message_textarea').value +=
-          searchStringArray[i];
+      const field = document.getElementById('message_textarea');
+      insertAtCursor(field, firstSearchString);
+    }
+
+  };
+
+      const insertAtCursor = (myField, myValue) => {
+      if (myField.selectionStart || myField.selectionStart === '0') {
+        var startPos = myField.selectionStart;
+        var endPos = myField.selectionEnd;
+        myField.value =
+          myField.value.substring(0, startPos) +
+          myValue +
+          myField.value.substring(endPos, myField.value.length);
+        myField.selectionStart = startPos + myValue.length;
+        myField.selectionEnd = startPos + myValue.length;
+      } else {
+        myField.value += myValue;
       }
     }
-  };
+
 
   const getChildNotes = async currentNoteData => {
     try {
