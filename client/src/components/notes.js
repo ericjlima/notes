@@ -56,24 +56,22 @@ const Notes = props => {
       const field = document.getElementById('message_textarea');
       insertAtCursor(field, firstSearchString);
     }
-
   };
 
-      const insertAtCursor = (myField, myValue) => {
-      if (myField.selectionStart || myField.selectionStart === '0') {
-        var startPos = myField.selectionStart;
-        var endPos = myField.selectionEnd;
-        myField.value =
-          myField.value.substring(0, startPos) +
-          myValue +
-          myField.value.substring(endPos, myField.value.length);
-        myField.selectionStart = startPos + myValue.length;
-        myField.selectionEnd = startPos + myValue.length;
-      } else {
-        myField.value += myValue;
-      }
+  const insertAtCursor = (myField, myValue) => {
+    if (myField.selectionStart || myField.selectionStart === '0') {
+      var startPos = myField.selectionStart;
+      var endPos = myField.selectionEnd;
+      myField.value =
+        myField.value.substring(0, startPos) +
+        myValue +
+        myField.value.substring(endPos, myField.value.length);
+      myField.selectionStart = startPos + myValue.length;
+      myField.selectionEnd = startPos + myValue.length;
+    } else {
+      myField.value += myValue;
     }
-
+  };
 
   const getChildNotes = async currentNoteData => {
     try {
@@ -405,38 +403,37 @@ const Notes = props => {
 
   return (
     <div className="notes">
-      <button className="backToParent">
-        <Link
-          to={props.match.url.substring(
-            0,
-            props.match.url.replace(/\/+$/, '').lastIndexOf('/'),
-          )}>
-          <span>&#8249;</span> Back to{' '}
-          {!!props.match.url.replace(/\/+$/, '').split('/')[
-            props.match.url.replace(/\/+$/, '').split('/').length - 2
-          ]
-            ? props.match.url.replace(/\/+$/, '').split('/')[
-                props.match.url.replace(/\/+$/, '').split('/').length - 2
-              ]
-            : 'Homepage'}
-        </Link>
-      </button>
-      <div className={`header ${isPrivateNote && 'pure-button-primary'}`}>
+      <Link
+        className="pure-button backToParent"
+        to={props.match.url.substring(
+          0,
+          props.match.url.replace(/\/+$/, '').lastIndexOf('/'),
+        )}>
+        <span>&#8249;</span> Back to{' '}
+        {!!props.match.url.replace(/\/+$/, '').split('/')[
+          props.match.url.replace(/\/+$/, '').split('/').length - 2
+        ]
+          ? props.match.url.replace(/\/+$/, '').split('/')[
+              props.match.url.replace(/\/+$/, '').split('/').length - 2
+            ]
+          : 'Homepage'}
+      </Link>
+      <div className={`header ${(isPrivateNote && Authenticated) && 'pure-button-primary'}`}>
         <h1>{toTitleCase(props.match.params.id)}</h1>
         <br />
-        <ul className="subnotes-list">
-          {childNotes.map((e, i) => {
-            return (
-              <li key={i}>
-                <Link
-                  to={window.location.pathname + '/' + e}
-                  key={window.location.pathname}>
-                  {e}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+        {(!isPrivateNote || Authenticated) && (
+          <ul className="subnotes-list">
+            {childNotes.map((e, i) => {
+              return (
+                <li key={i}>
+                  <Link to={props.match.params.id + '/' + e} key={i}>
+                    {e}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </div>
 
       <br />
@@ -446,8 +443,8 @@ const Notes = props => {
           {(!isPrivateNote || Authenticated) && (
             <div dangerouslySetInnerHTML={{__html: unescape(value)}} />
           )}
-          <p>Date Modified: {dateModified}</p>
-          <p>Date Created: {dateCreated}</p>
+          <p>Date Modified: {(isPrivateNote && Authenticated) ? dateModified : 0}</p>
+          <p>Date Created: {(isPrivateNote && Authenticated) ? dateCreated : 0}</p>
         </div>
         {Authenticated && (
           <div className="rightSide">
