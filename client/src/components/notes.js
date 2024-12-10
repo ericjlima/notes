@@ -443,8 +443,8 @@ const Notes = props => {
           {(!isPrivateNote || Authenticated) && (
             <div dangerouslySetInnerHTML={{__html: unescape(value)}} />
           )}
-          <p>Date Modified: {(isPrivateNote && Authenticated) ? dateModified : 0}</p>
-          <p>Date Created: {(isPrivateNote && Authenticated) ? dateCreated : 0}</p>
+          <p>Date Modified: {(!isPrivateNote || Authenticated) ? dateModified : 0}</p>
+          <p>Date Created: {(!isPrivateNote || Authenticated) ? dateCreated : 0}</p>
         </div>
         {Authenticated && (
           <div className="rightSide">
