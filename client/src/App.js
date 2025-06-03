@@ -11,6 +11,7 @@ import {retrievePaths} from './utils/notePipelineHelper';
 import Notes from './components/notes';
 //import Login from './components/login';
 import AllNotes from './components/allNotes';
+import FocusTimer from './components/focusTimer';
 import QuickLogin from './components/quickLogin';
 import axios from 'axios';
 import './App.css';
@@ -25,7 +26,7 @@ const App = () => {
   const [Authenticated, setAuthenticated] = useState(false);
   const AuthenticatedContextValue = {Authenticated, setAuthenticated};
 
-  const baseURL = ''; //https://api.ericnote.us  //or empty quote
+  const baseURL = 'https://api.ericnote.us'; //https://api.ericnote.us  //or empty quote
 
   useEffect(() => {
     getPinNotes();
@@ -137,6 +138,16 @@ const App = () => {
                     path={'/allnotes'}
                     render={routeProps => (
                       <AllNotes
+                        {...routeProps}
+                        baseURL={baseURL}
+                        toTitleCase={toTitleCase()}
+                      />
+                    )}
+                  />
+                  <Route
+                    path={'/focustimer'}
+                    render={routeProps => (
+                      <FocusTimer
                         {...routeProps}
                         baseURL={baseURL}
                         toTitleCase={toTitleCase()}
