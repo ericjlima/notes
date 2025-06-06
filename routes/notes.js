@@ -21,11 +21,38 @@ con.connect(function (err) {
 
 //START OF AUTOSETUP
 
-//var sql = "CREATE TABLE notes (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), message longtext, date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, date_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, private BOOLEAN DEFAULT FALSE, pid INT, namepid VARCHAR(255) UNIQUE NOT NULL, pin BOOLEAN DEFAULT FALSE)";
-//con.query(sql, function (err, result) {
-//if (err) throw err;
-//console.log("Notes Table created");
+//var sql_users = `
+//CREATE TABLE users (
+    //id INT AUTO_INCREMENT PRIMARY KEY,
+    //username VARCHAR(255) UNIQUE NOT NULL,
+    //email VARCHAR(255) UNIQUE NOT NULL,
+    //password_hash VARCHAR(255) NOT NULL,
+    //created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+//);
+//`;
+
+//con.query(sql_users, function (err, result) {
+    //if (err) throw err;
+    //console.log("Users Table created");
+
+    //// Create the Notes table after the Users table
+    //var sql_notes = `
+    //CREATE TABLE notes (
+        //id INT AUTO_INCREMENT PRIMARY KEY,
+        //name VARCHAR(255),
+        //message LONGTEXT,
+        //date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        //date_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        //private BOOLEAN DEFAULT FALSE,
+        //pid INT,
+        //namepid VARCHAR(255) UNIQUE NOT NULL,
+        //pin BOOLEAN DEFAULT FALSE,
+        //user_id INT,
+        //FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    //);
+    //`;
 //});
+
 //var sql = "CREATE TABLE sessions (session_id INT AUTO_INCREMENT PRIMARY KEY, expires TIMESTAMP, data VARCHAR(255))";
 //con.query(sql, function (err, result) {
 //if (err) throw err;

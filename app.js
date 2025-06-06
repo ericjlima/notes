@@ -5,6 +5,8 @@ var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var notesRouter = require('./routes/notes');
+var signupRouter = require('./routes/signup');
+var loginRouter = require('./routes/login');
 var passwordRouter = require('./routes/password');
 var bodyParser = require('body-parser');
 
@@ -29,6 +31,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/api/notes', notesRouter);
+app.use('/api/login', loginRouter);
+app.use('/api/signup', signupRouter);
 app.use('/api/password', passwordRouter);
 
 

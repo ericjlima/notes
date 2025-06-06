@@ -1,105 +1,111 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
-var sha256 = require('sha256');
 
-axios.defaults.withCredentials = true;
+const LoginPage = props => {
+  const [formData, setFormData] = useState({
+    username: '',
+    password: '',
+  });
 
-class Login extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      passwordShown: true,
-      passEntered: false,
-      pass: "",
-    };
-  }
+  const [message, setMessage] = useState('');
 
-  componentDidMount(){
-    axios.get(`${this.props.baseURL}/api/password/${this.state.pass}`).then((response) => {
-      if(response.data.logged){
-          this.setState({ passEntered: true, passwordShown: false, checkPass: response.data.password, checkSessionID: response.data.sessionID});
-        }
-        }).catch(function (error) {
-        return JSON.stringify(error);
-      });
-  }
-  
-  handlePassEnter(e){
-    this.setState({
-      pass: e.target.value
-    });
-  }
+  const handleChange = (e) => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
 
-  handleSubmitPass(e) {
-    axios.post(`${this.props.baseURL}/api/password`, {password: sha256(this.state.pass)}).then((response) => {
-             if(response.data==="logged"){
-                  this.setState({ passEntered: true });
-                  this.setState({
-                    message: this.state.value,
-                    passwordShown: false,
-                  });
-             } else {
-                  this.setState({
-                     incorrectPassword: "You've entered an incorrect password.",
-                     message: this.state.value
-                });
-                setTimeout(()=>{
-                  this.setState({
-                    incorrectPassword: "",
-                    verificationMessage: ""
-                  });
-                },2000)
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-             }
-        }).catch(function (error) {
-        return JSON.stringify(error);
-    });
-      e.preventDefault();
-  }
-
-
-handleLogout(){
-        axios.post(`${this.props.baseURL}/api/password/logout`).then((response) => {
-            window.location.reload();
-             
-        }).catch(function (error) {
-        return JSON.stringify(error);
-    });
-  }
-
-  render() {
-
-
-    var passwordShown = {
-      display: this.state.passwordShown ? "block" : "none"
-    };
-      
-    var hidden = {
-      display: this.state.passwordShown ? "none" : "block"
+    if (!formData.username || !formData.password) {
+      setMessage('Please enter both username and password.');
+      return;
     }
-    return (
-      <div className="login">
-          <div className="header">
-            <h1>Login</h1><br/>
-          </div>
-          <form style={ passwordShown } method="get" className="pure-form pure-form-aligned" onSubmit={this.handleSubmitPass.bind(this)}>
-          <fieldset>
-            <div className="pure-control-group">
-              <div className='pure-control-group'>
-                <label>Password</label>
-                <input onChange={this.handlePassEnter.bind(this)} id="passenter" type="password" value={this.state.pass} placeholder="Eric's use only"/>
-                  <p className="verificationMessage"> {this.state.incorrectPassword} </p>
-              </div>
-            </div>
-            <div className="pure-controls">
-              <button type="submit" className="pure-button pure-button-primary messageSubmit-button">Submit</button>
-            </div>
-          </fieldset>
-        </form><button style={ hidden } className="pure-button pure-button-primary logout-button" onClick={this.handleLogout.bind(this)}>Logout</button>
-        <p style={ hidden }>You're logged in.</p>
-      </div>
-    );
-  }
-}
 
-export default Login;
+    try {
+      const res = await axios.post(
+        `${props.baseURL}/api/login`,
+        formData,
+        {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (res.status === 200) {
+        setMessage('Login successful!');
+        // You can add a redirect or token storage here
+      } else {
+        setMessage(res.data.error || 'Login failed.');
+      }
+    } catch (err) {
+      if (err.response) {
+        setMessage(err.response.data.error || 'Login failed.');
+      } else {
+        setMessage('Error connecting to server.');
+      }
+    }
+  };
+
+  return (
+    <div style={styles.container}>
+      <h2>Log In</h2>
+      <form onSubmit={handleSubmit} style={styles.form}>
+        <input
+          type="text"
+          name="username"
+          placeholder="Username"
+          value={formData.username}
+          onChange={handleChange}
+          style={styles.input}
+        />
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={formData.password}
+          onChange={handleChange}
+          style={styles.input}
+        />
+        <button type="submit" style={styles.button}>Log In</button>
+      </form>
+      {message && <p>{message}</p>}
+    </div>
+  );
+};
+
+const styles = {
+  container: {
+    maxWidth: '400px',
+    margin: '40px auto',
+    padding: '20px',
+    border: '1px solid #ccc',
+    borderRadius: '10px',
+    fontFamily: 'sans-serif',
+    textAlign: 'center',
+  },
+  form: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
+  },
+  input: {
+    padding: '10px',
+    fontSize: '16px',
+  },
+  button: {
+    padding: '10px',
+    backgroundColor: '#28a745',
+    color: 'white',
+    fontWeight: 'bold',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+  },
+};
+
+export default LoginPage;
