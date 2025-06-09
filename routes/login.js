@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
-const mysql = require('mysql');
+const mysql = require('mysql2');
 const config = require('../config/secret.json');
 
 const con = mysql.createConnection(config);
@@ -12,7 +12,6 @@ router.post('/', (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) return res.status(400).json({ error: 'All fields required' });
-  console.log('hit login0.5');
 
   const query = `SELECT * FROM users WHERE username = ?`;
 
@@ -37,7 +36,6 @@ router.post('/', (req, res) => {
     con.query(insertSession, [user.id, sessionToken, expiresAt], (err) => {
       if (err) return res.status(500).json({ error: 'Failed to create session' });
 
-  console.log('hit login3');
       // ✅ Set cookie (HTTP-only)
       res.cookie('session_token', sessionToken, {
         httpOnly: true,
@@ -48,6 +46,29 @@ router.post('/', (req, res) => {
 
       return res.status(200).json({ message: 'Login successful' });
     });
+  });
+});
+
+router.get('/me', (req, res) => {
+  const sessionToken = req.cookies.session_token;
+
+  if (!sessionToken) return res.status(401).json({ error: 'Not logged in' });
+
+  const query = `
+    SELECT users.id, users.username, users.email
+    FROM sessions
+    JOIN users ON sessions.user_id = users.id
+    WHERE session_token = ? AND sessions.expires_at > NOW()
+  `;
+
+  con.query(query, [sessionToken], (err, results) => {
+    if (err) return res.status(500).json({ error: 'Server error' });
+
+    if (results.length === 0) {
+      return res.status(401).json({ error: 'Invalid or expired session' });
+    }
+
+    return res.status(200).json({ user: results[0] });
   });
 });
 

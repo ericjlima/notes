@@ -7,12 +7,17 @@ var indexRouter = require('./routes/index');
 var notesRouter = require('./routes/notes');
 var signupRouter = require('./routes/signup');
 var loginRouter = require('./routes/login');
+var logoutRouter = require('./routes/logout');
+var sessionsRouter = require('./routes/sessions');
 var passwordRouter = require('./routes/password');
 var bodyParser = require('body-parser');
 
 var cors = require('cors');
 
 var app = express();
+const cookieParser = require('cookie-parser');
+
+app.use(cookieParser());
 
 app.use(cors({origin: ["https://ericnote.us", "https://www.ericnote.us"], credentials: true}));
 
@@ -32,6 +37,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/api/notes', notesRouter);
 app.use('/api/login', loginRouter);
+app.use('/api/logout', logoutRouter);
+app.use('/api/sessions', sessionsRouter);
 app.use('/api/signup', signupRouter);
 app.use('/api/password', passwordRouter);
 

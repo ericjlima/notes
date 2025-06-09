@@ -9,9 +9,11 @@ import {
 
 import {retrievePaths} from './utils/notePipelineHelper';
 import Notes from './components/notes';
-//import Login from './components/login';
+import Login from './components/login';
+import SignupPage from './components/signupPage';
 import AllNotes from './components/allNotes';
-import QuickLogin from './components/quickLogin';
+//import QuickLogin from './components/quickLogin';
+//import UserProfile from './components/userProfile';
 import axios from 'axios';
 import './App.css';
 
@@ -20,16 +22,50 @@ axios.defaults.withCredentials = true;
 export const AuthenticatedContext = React.createContext();
 
 const App = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userCreds, setUserCreds] = useState('');
   const [activeMenu, setActiveMenu] = useState('');
   const [pinNotes, setPinNotes] = useState([]);
-  const [Authenticated, setAuthenticated] = useState(false);
-  const AuthenticatedContextValue = {Authenticated, setAuthenticated};
+  const AuthenticatedContextValue = {
+    isLoggedIn,
+    setIsLoggedIn,
+    userCreds,
+    setUserCreds,
+  };
 
-  const baseURL = ''; //https://api.ericnote.us  //or empty quote
+  const baseURL = ''; // Adjust base URL if needed
 
   useEffect(() => {
     getPinNotes();
   }, []);
+
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const response = await axios.get(`${baseURL}/api/login/me`);
+        console.log('response', response);
+        if (response.data && response.data.user) {
+          setIsLoggedIn(true);
+          setUserCreds(response.data.user);
+        } else {
+          setIsLoggedIn(false);
+        }
+      } catch (error) {
+        console.error('Error checking session:', error);
+        setIsLoggedIn(false);
+      }
+    };
+
+    checkSession();
+  }, []);
+  const handleLogout = async () => {
+    try {
+      await axios.post(`${baseURL}/api/logout`);
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
+    setIsLoggedIn(false);
+  };
 
   const getPinNotes = async () => {
     const pinNotesCallback = await axios.get(`${baseURL}/api/notes/pinNotes/`);
@@ -93,7 +129,8 @@ const App = () => {
                   href="#menu"
                   id="menuLink"
                   onClick={() => handleClick()}
-                  className={`menu-link`}>
+                  className={`menu-link`}
+                >
                   <span></span>
                 </a>
                 <div id="menu">
@@ -101,16 +138,36 @@ const App = () => {
                     <NavLink
                       activeClassName="pure-menu-selected"
                       className="pure-menu-heading"
-                      to="/">
+                      to="/"
+                    >
                       Eric's Notes
                     </NavLink>
+                    {!isLoggedIn && (
+                      <div>
+                        <li className="pure-menu-item" key="login">
+                          <a className="pure-menu-link" href={`/login`}>
+                            Login
+                          </a>
+                        </li>
+                        <li className="pure-menu-item" key="signup">
+                          <a className="pure-menu-link" href={`/signup`}>
+                            Sign Up
+                          </a>
+                        </li>
+                      </div>
+                    )}
+
+                    {isLoggedIn && (
+                      <button onClick={handleLogout}>Logout</button>
+                    )}
+
                     <ul className="pure-menu-list">
-                      <QuickLogin baseURL={baseURL} setAuthenticated={setAuthenticated} />
-                      {/*<li className="pure-menu-item" key="0">
-                      <a className="pure-menu-link" href={`/login`}>
-                        Login
-                      </a>
-                    </li>*/}
+                      {/*<QuickLogin baseURL={baseURL} setAuthenticated={setAuthenticated} />*/}
+                      <li className="pure-menu-item" key="0">
+                        <a className="pure-menu-link" href={`/login`}>
+                          Login
+                        </a>
+                      </li>
                       <li className="pure-menu-item" key="1">
                         <a className="pure-menu-link" href={`/allNotes`}>
                           All Notes
@@ -129,10 +186,18 @@ const App = () => {
                   </div>
                 </div>
                 <Switch>
-                  {/* <Route
+                  <Route
                     path={'/login'}
-                    render={routeProps => <Login {...routeProps} baseURL={this.state.baseURL} />}
-                  />*/}
+                    render={routeProps => (
+                      <Login {...routeProps} baseURL={baseURL} />
+                    )}
+                  />
+                  <Route
+                    path={'/signup'}
+                    render={routeProps => (
+                      <SignupPage {...routeProps} baseURL={baseURL} />
+                    )}
+                  />
                   <Route
                     path={'/allnotes'}
                     render={routeProps => (

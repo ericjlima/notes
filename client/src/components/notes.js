@@ -20,7 +20,11 @@ const Notes = props => {
 
   const textAreaRef = useRef(null);
 
-  const {Authenticated} = useContext(AuthenticatedContext);
+  const {isLoggedIn, userCreds} = useContext(AuthenticatedContext);
+
+  console.log('userCreds', userCreds);
+
+  //TODO: Make the front end for only showing the current session user their own text box and not other peoples as well as think about pins working properly and private etc.
 
   useEffect(() => {
     setChildNotes([]); //This line resolves a bug where the childnotes dont render. Not sure why. Guess you have to do this and it's a weird oddity of React.
@@ -156,6 +160,12 @@ const Notes = props => {
     return txt.value;
   };
 
+  function firstPathSegment() {
+    const pathSegments = window.location.pathname.split('/').filter(Boolean);
+    return pathSegments[0];
+  }
+
+
   const collectIdAndOrPostEachBranch = async (
     passedUpdateData,
     postBool,
@@ -171,12 +181,15 @@ const Notes = props => {
     let pid = 0;
     let previousNote;
 
+    console.log('props', props);
+
     for (let i = 0; i < paths.length; i++) {
       if (i === 0) {
         if (postBool) {
           await axios.post(`${props.baseURL}/api/notes/${paths[i]}`, {
             messageData: passedUpdateData,
-            pid: 0,
+            pid: 0, 
+            userCreds: userCreds,
           });
         }
         previousNote = await axios.get(
@@ -189,6 +202,7 @@ const Notes = props => {
           await axios.post(`${props.baseURL}/api/notes/${paths[i]}`, {
             messageData: passedUpdateData,
             pid: pid,
+            userCreds: userCreds,
           });
         }
 
@@ -201,7 +215,7 @@ const Notes = props => {
     if (updateCurrNoteId) {
       await axios.delete(
         `${props.baseURL}/api/notes/${previousNote.data[0].id}`,
-      );
+        { userCreds: userCreds} );
       await axios.post(
         `${props.baseURL}/api/notes/updatePid/${paths[paths.length - 1]}/${
           paths.length > 1 ? pid : 0
@@ -216,7 +230,7 @@ const Notes = props => {
         `${props.baseURL}/api/notes/update/${props.match.params.id}/${
           paths.length > 1 ? pid : 0
         }`,
-        {messageData: passedUpdateData},
+        {messageData: passedUpdateData, userCreds: userCreds, routeUsername: firstPathSegment()},
       );
     }
 
@@ -259,7 +273,7 @@ const Notes = props => {
 
       const updateNote = async passedUpdateData => {
         try {
-          if (Authenticated) {
+          if (isLoggedIn) {
             if (!!value) {
               updateNoteAndVerification(passedUpdateData);
             }
@@ -310,7 +324,7 @@ const Notes = props => {
   };
 
   const handlePrivate = () => {
-    if (Authenticated) {
+    if (isLoggedIn) {
       if (isPrivateNote) {
         setIsPrivateNote(0);
         setPrivateText('Private Mode Is Off');
@@ -353,7 +367,7 @@ const Notes = props => {
   };
 
   var hidden = {
-    display: !Authenticated ? 'none' : 'inline-block',
+    display: !isLoggedIn ? 'none' : 'inline-block',
   };
 
   const moveNote = async () => {
@@ -418,10 +432,10 @@ const Notes = props => {
             ]
           : 'Homepage'}
       </Link>
-      <div className={`header ${(isPrivateNote && Authenticated) && 'pure-button-primary'}`}>
+      <div className={`header ${(isPrivateNote && isLoggedIn) && 'pure-button-primary'}`}>
         <h1>{toTitleCase(props.match.params.id)}</h1>
         <br />
-        {(!isPrivateNote || Authenticated) && (
+        {(!isPrivateNote || isLoggedIn) && (
           <ul className="subnotes-list">
             {childNotes.map((e, i) => {
               return (
@@ -439,14 +453,14 @@ const Notes = props => {
       <br />
 
       <div className="noteContent">
-        <div className={`leftSide ${!Authenticated ? 'makeCenter' : ''}`}>
-          {(!isPrivateNote || Authenticated) && (
+        <div className={`leftSide ${!isLoggedIn ? 'makeCenter' : ''}`}>
+          {(!isPrivateNote || isLoggedIn) && (
             <div dangerouslySetInnerHTML={{__html: unescape(value.replace(/\n/g, '<br />'))}} />
           )}
-          <p>Date Modified: {(isPrivateNote && Authenticated) ? dateModified : 0}</p>
-          <p>Date Created: {(isPrivateNote && Authenticated) ? dateCreated : 0}</p>
+          <p>Date Modified: {(isPrivateNote && isLoggedIn) ? dateModified : 0}</p>
+          <p>Date Created: {(isPrivateNote && isLoggedIn) ? dateCreated : 0}</p>
         </div>
-        {Authenticated && (
+        {isLoggedIn && (
           <div className="rightSide">
             <div className="topRow">
               <p className="verificationMessage">{verificationMessage} </p>

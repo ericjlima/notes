@@ -1,10 +1,12 @@
+//TODO: I guess delete this file and the mysql table.. but wait a while until stable with new release
+
 var express = require('express');
 var router = express.Router();
 var cors = require('cors');
 //var sha256  = require('sha256');
 var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
-var mysql = require('mysql');
+var mysql = require('mysql2');
 var config = require('../config/secret.json');
 
 var options = {

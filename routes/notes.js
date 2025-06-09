@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 //var cors = require('cors');
 var app = express();
-var mysql = require('mysql');
+var mysql = require('mysql2');
 var sha256 = require('sha256');
 var config = require('../config/secret.json');
 
@@ -23,34 +23,34 @@ con.connect(function (err) {
 
 //var sql_users = `
 //CREATE TABLE users (
-    //id INT AUTO_INCREMENT PRIMARY KEY,
-    //username VARCHAR(255) UNIQUE NOT NULL,
-    //email VARCHAR(255) UNIQUE NOT NULL,
-    //password_hash VARCHAR(255) NOT NULL,
-    //created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+//id INT AUTO_INCREMENT PRIMARY KEY,
+//username VARCHAR(255) UNIQUE NOT NULL,
+//email VARCHAR(255) UNIQUE NOT NULL,
+//password_hash VARCHAR(255) NOT NULL,
+//created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 //);
 //`;
 
 //con.query(sql_users, function (err, result) {
-    //if (err) throw err;
-    //console.log("Users Table created");
+//if (err) throw err;
+//console.log("Users Table created");
 
-    //// Create the Notes table after the Users table
-    //var sql_notes = `
-    //CREATE TABLE notes (
-        //id INT AUTO_INCREMENT PRIMARY KEY,
-        //name VARCHAR(255),
-        //message LONGTEXT,
-        //date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        //date_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        //private BOOLEAN DEFAULT FALSE,
-        //pid INT,
-        //namepid VARCHAR(255) UNIQUE NOT NULL,
-        //pin BOOLEAN DEFAULT FALSE,
-        //user_id INT,
-        //FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    //);
-    //`;
+//// Create the Notes table after the Users table
+//var sql_notes = `
+//CREATE TABLE notes (
+//id INT AUTO_INCREMENT PRIMARY KEY,
+//name VARCHAR(255),
+//message LONGTEXT,
+//date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+//date_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+//private BOOLEAN DEFAULT FALSE,
+//pid INT,
+//namepid VARCHAR(255) UNIQUE NOT NULL,
+//pin BOOLEAN DEFAULT FALSE,
+//user_id INT,
+//FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+//);
+//`;
 //});
 
 //var sql = "CREATE TABLE sessions (session_id INT AUTO_INCREMENT PRIMARY KEY, expires TIMESTAMP, data VARCHAR(255))";
@@ -198,11 +198,15 @@ router.get('/children/:notesId', function (req, res, next) {
 });
 
 router.post('/:notesId', function (req, res, next) {
+      //TODO: Figure out what this route is even doing since update seems to be making a new note
+    const {username} = req.body.userCreds;
   con.query(
     `INSERT IGNORE INTO notes (name, message, pid, namepid) VALUES ('${req.params.notesId.toLowerCase()}', '${
       req.body.messageData
-    }', '${req.body.pid}', '${req.params.notesId} ${req.body.pid}')`,
+    }', '${req.body.pid}', '${req.params.notesId} ${req.body.pid} ')`,
     function (err, result, fields) {
+      //const {username} = req.body.userCreds;
+      //console.log('username', username);
       if (err) throw err;
       res.send(result);
       // console.log(result);
@@ -213,17 +217,53 @@ router.post('/:notesId', function (req, res, next) {
 });
 
 router.post('/update/:notesId/:pid', function (req, res, next) {
-  con.query(
-    `UPDATE notes SET message='${req.body.messageData}' WHERE namepid='${req.params.notesId} ${req.params.pid}';`,
-    function (err, result, fields) {
-      //console.log('msgdata', req.body.messageData);
-      //console.log('namepid', req.params.notesId + ' ' + req.params.pid);
-      if (err) throw err;
-      res.send(result);
-    },
-  );
-});
+  const { messageData, routeUsername } = req.body;
+  const { username: sessionUsername } = req.body.userCreds;
+  const { notesId, pid } = req.params;
 
+  const namepid = `${notesId} ${pid}`;
+
+  console.log('route and session username', routeUsername, sessionUsername);
+
+  // Step 1: Enforce route access control
+  if (routeUsername !== '@' + sessionUsername) {
+    return res.status(403).json({ message: 'You are not authorized to access this route.' });
+  }
+
+  // Step 2: Try to update the note
+  const updateQuery = `
+    UPDATE notes
+    SET message = ?
+    WHERE namepid = ? AND username = ?;`;
+
+  con.query(updateQuery, [messageData, namepid, sessionUsername], function (updateError, updateResults) {
+    if (updateError) {
+      console.log('Update error:', updateError);
+      return next(updateError);
+    }
+
+    if (updateResults.affectedRows > 0) {
+      // Note updated
+      console.log('Note updated');
+      return res.status(200).json({ message: 'Note updated successfully.' });
+    }
+
+    // Step 3: If not updated, try to insert (only for authorized user)
+    const insertQuery = `
+      INSERT INTO notes (namepid, username, message)
+      VALUES (?, ?, ?);`;
+
+    con.query(insertQuery, [namepid, sessionUsername, messageData], function (insertError) {
+      if (insertError) {
+        console.log('Insert error:', insertError);
+        return next(insertError);
+      }
+
+      console.log('New note created');
+      return res.status(201).json({ message: 'Note created successfully.' });
+    });
+  });
+});
 router.post('/updatePid/:notesId/:newPid/:id', function (req, res, next) {
   con.query(
     `UPDATE notes SET name='${req.params.notesId}', message='${req.body.messageData}', pid='${req.params.newPid}', namepid='${req.params.notesId} ${req.params.newPid}' WHERE id='${req.params.id}';`,
@@ -248,19 +288,19 @@ router.post('/private/:notesId', function (req, res, next) {
 });
 
 router.delete('/:id', function (req, res, next) {
+  //TODO: test this function especially after adding user defined notes and make sure only proper users can delete
   //console.log("deleted");
   //console.log(req.params.notesId);
-  con.query(`DELETE FROM notes WHERE id='${req.params.id}'`, function (
-    err,
-    result,
-    fields,
-  ) {
-    if (err) throw err;
-    res.send(result);
-    // 	console.log(req.params.notesID);
-    // let sql = `DELETE FROM notes WHERE name='${req.params.notesId}'`;
-    //  let query = con.query(sql);
-  });
+  con.query(
+    `DELETE FROM notes WHERE id='${req.params.id}'`,
+    function (err, result, fields) {
+      if (err) throw err;
+      res.send(result);
+      // 	console.log(req.params.notesID);
+      // let sql = `DELETE FROM notes WHERE name='${req.params.notesId}'`;
+      //  let query = con.query(sql);
+    },
+  );
 });
 
 router.post('/setpin/:namepid', function (req, res, next) {
