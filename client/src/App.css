@@ -42,10 +42,29 @@
   max-width: 680px;
   display: inline-block;
 }
-.rightSide {
-  width: 100%;
+.noteContentContainer {
+  background-image:
+    url('/images/paper/justtopbook.png'),
+    url('/images/paper/repeatablebook.png');
+  background-position:
+    left top,
+    left top; /* Adjust the position of the second image if needed */
+    min-height: 1440px;
+  background-repeat:
+    no-repeat, repeat; /* The first image will not repeat, the second one will */
+  background-size:
+    auto, auto; /* You can adjust the size of the images if needed */
+}
+.noteWriteContent h1 {
+  margin: 1.2em auto;
+  font-size: 3em;
+  font-weight: 300;
+  color: black;
 }
 
+.noteReadContent {
+  margin: 10px 0 0 0;
+}
 .makeCenter {
   margin: 0 auto;
 }
@@ -65,7 +84,7 @@
 
 .createNote textarea {
   width: 100%;
-  min-width: 510px;
+  min-width: 710px;
   height: 800px;
 }
 
@@ -90,6 +109,10 @@
   background: red;
 }
 
+.pure-button.logout-button {
+  margin-bottom: 10px;
+}
+
 .subnotes-list {
   padding: 0;
 }
@@ -104,7 +127,7 @@
   text-decoration: none;
   color: black;
 }
-.backToParent span{
+.backToParent span {
   font-size: 34px;
   line-height: 13px;
   vertical-align: top;
@@ -114,23 +137,29 @@
   background: rgba(31, 141, 214, 0.5);
 }
 
-/**********allnotes*************/
-.allnotes {
+/**********allUsers*************/
+.allUsers {
   list-style: none;
 }
-.allnotes li a {
+.allUsers li a {
   color: black;
 }
-.allnotes li:nth-of-type(2n) a {
+.allUsers li:nth-of-type(2n) a {
   background: #e0e0e0;
 }
-.allnotes li a:hover {
+.allUsers li a:hover {
   background-color: #333;
   color: white;
 }
 
 @media (min-width: 48em) {
-  .noteContent {
+  .noteWriteContent {
+    display: flex;
+    flex-direction: column;
+    margin-left: 80px;
+    /*justify-content: center;*/
+  }
+  .noteReadContent {
     display: flex;
     justify-content: center;
   }
@@ -145,6 +174,205 @@
 }
 
 /************Quick Login ****************/
-.pure-form fieldset.quickLog{
+.pure-form fieldset.quickLog {
   margin-left: 10px;
+}
+
+/************Tab bar*********************/
+
+.tab-bar {
+  margin: 1.4rem 0 0 0;
+  display: flex;
+  align-items: flex-end;
+  overflow-x: auto; /* Enable horizontal scrolling */
+  white-space: nowrap; /* Prevent wrapping of tabs */
+}
+
+.tab {
+  background: #f2f2f2;
+  /*border: 2px solid #ccc;*/
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+  padding: 8px 16px;
+  margin-right: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition:
+    background 0.3s,
+    color 0.3s;
+}
+
+.subnotes-tabs {
+  display: flex;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  /*overflow-y: hidden;*/
+}
+
+/*.subnotes-tabs .tab {*/
+/*margin-bottom: -2px; [> pull tabs up so they sit flush with border <]*/
+/*}*/
+
+.tab a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.tab:hover {
+  background: #e0e0e0;
+}
+
+.manual-tab input[type='text'],
+.manual-tab input[type='search'] {
+  border: none;
+  /*background: transparent;*/
+  font-size: 1em;
+  outline: none;
+  width: 150px; /* You can adjust this width */
+  display: inline-block;
+}
+
+/***********SignUp Page**********/
+/* App.css */
+
+.signup-container {
+  max-width: 400px;
+  margin: 40px auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-family: sans-serif;
+  text-align: center;
+}
+
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.signup-input {
+  padding: 10px;
+  font-size: 16px;
+}
+
+.signup-button {
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/************User Profile Page****************/
+/* App.css */
+
+.user-profile-container {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.user-profile-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-profile-group {
+  margin-bottom: 15px;
+}
+
+.user-profile-input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.user-profile-button {
+  padding: 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+/* ----------- SearchNotes Section ----------- */
+.search-notes-container {
+  padding: 1rem;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.search-input {
+  width: 100%;
+  font-family: 'Courier New', monospace;
+  padding: 10px;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  background: #fdfdfd;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+}
+
+.checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 0.5rem;
+  font-size: 14px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.checkbox-text {
+  font-size: 14px;
+}
+
+.loading-text {
+  color: #777;
+  margin-top: 1rem;
+  font-size: 14px;
+}
+
+.notes-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 1rem;
+}
+
+.note-item {
+  background: transparent;
+  border: none;
+  border-bottom: 1px dashed #ccc;
+  padding: 12px 0;
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  white-space: pre-wrap;
+}
+.note-item strong {
+  font-weight: bold;
+  font-family: 'Georgia', serif;
+}
+.note-message {
+  margin-top: 4px;
+  font-size: 14px;
+  color: #333;
+}
+
+.no-results {
+  color: #777;
+  font-size: 14px;
 }

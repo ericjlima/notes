@@ -6,9 +6,9 @@ Changelog:
 
 Steps to take:
 
-1.) Have mysql installed and create an empty DB. I called my database "mydb".
+1.) Have mysql installed and create an empty DB. I called my database "ericnote".
 
-2.) Look at routes/notes and replace the credentials with your own. My user is ericx2x. Make your own mysql user that created your 'mydb' database.
+2.) Look at routes/notes and replace the credentials with your own. My user is ericx2x. Make your own mysql user that created your 'ericnote' database.
 
 3.) Uncomment the lines in routes/notes if you wish to easily create the DB structure. Feel free to recomment them afterwards. These are all easy to understand sql statements to help setup your DB.
 
