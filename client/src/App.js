@@ -16,6 +16,9 @@ import UserSettings from './components/UserSettings';
 import { truncateString } from './utils/generalHelper';
 //import QuickLogin from './components/quickLogin';
 //import UserProfile from './components/userProfile';
+
+import FocusTimer from './components/focusTimer';
+
 import axios from 'axios';
 import './App.css';
 
@@ -35,7 +38,7 @@ const App = () => {
     setUserCreds,
   };
 
-  const baseURL = ''; // Adjust base URL if needed
+  const baseURL = 'https://api.ericnote.us'; //https://api.ericnote.us  //or empty quote
 
   useEffect(() => {
     getPinNotes();
@@ -219,6 +222,16 @@ const App = () => {
                     path={'/allUsers'}
                     render={routeProps => (
                       <AllUsers
+                        {...routeProps}
+                        baseURL={baseURL}
+                        toTitleCase={toTitleCase()}
+                      />
+                    )}
+                  />
+                  <Route
+                    path={'/focustimer'}
+                    render={routeProps => (
+                      <FocusTimer
                         {...routeProps}
                         baseURL={baseURL}
                         toTitleCase={toTitleCase()}
