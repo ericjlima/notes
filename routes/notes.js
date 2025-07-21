@@ -209,7 +209,8 @@ router.post('/:notesId', function (req, res, next) {
   const namepid = `${notesId.toLowerCase()} ${pid}`; // ✅ Retain space at the end if required for compatibility
 
   // Step 1: Enforce route access control
-  if (routeUsername !== '@' + sessionUsername) {
+  // TODO: remove this temporarily to get all notes working? prob not wise
+  if (routeUsername !== '@' + sessionUsername || sessionUsername !== 'eric' ) {
     return res.status(403).json({ message: 'You are not authorized to access this route.' });
   }
 
@@ -240,7 +241,7 @@ router.post('/update/:notesId/:pid', function (req, res, next) {
   const namepid = `${notesId.toLowerCase()} ${pid}`;
 
   // Step 1: Enforce route access control
-  if (routeUsername !== '@' + sessionUsername) {
+  if (routeUsername !== '@' + sessionUsername || sessionUsername !== 'eric') {
     return res.status(403).json({ message: 'You are not authorized to access this route.' });
   }
 
