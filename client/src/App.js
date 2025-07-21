@@ -9,10 +9,16 @@ import {
 
 import {retrievePaths} from './utils/notePipelineHelper';
 import Notes from './components/notes';
-//import Login from './components/login';
-import AllNotes from './components/allNotes';
+import Login from './components/login';
+import SignupPage from './components/signupPage';
+import AllUsers from './components/allUsers';
+import UserSettings from './components/UserSettings';
+import { truncateString } from './utils/generalHelper';
+//import QuickLogin from './components/quickLogin';
+//import UserProfile from './components/userProfile';
+
 import FocusTimer from './components/focusTimer';
-import QuickLogin from './components/quickLogin';
+
 import axios from 'axios';
 import './App.css';
 
@@ -21,16 +27,49 @@ axios.defaults.withCredentials = true;
 export const AuthenticatedContext = React.createContext();
 
 const App = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userCreds, setUserCreds] = useState('');
   const [activeMenu, setActiveMenu] = useState('');
   const [pinNotes, setPinNotes] = useState([]);
-  const [Authenticated, setAuthenticated] = useState(false);
-  const AuthenticatedContextValue = {Authenticated, setAuthenticated};
+  const AuthenticatedContextValue = {
+    isLoggedIn,
+    setIsLoggedIn,
+    userCreds,
+    setUserCreds,
+  };
 
   const baseURL = 'https://api.ericnote.us'; //https://api.ericnote.us  //or empty quote
 
   useEffect(() => {
     getPinNotes();
   }, []);
+
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const response = await axios.get(`${baseURL}/api/login/me`);
+        if (response.data && response.data.user) {
+          setIsLoggedIn(true);
+          setUserCreds(response.data.user);
+        } else {
+          setIsLoggedIn(false);
+        }
+      } catch (error) {
+        console.error('Error checking session:', error);
+        setIsLoggedIn(false);
+      }
+    };
+
+    checkSession();
+  }, []);
+  const handleLogout = async () => {
+    try {
+      await axios.post(`${baseURL}/api/logout`);
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
+    setIsLoggedIn(false);
+  };
 
   const getPinNotes = async () => {
     const pinNotesCallback = await axios.get(`${baseURL}/api/notes/pinNotes/`);
@@ -94,7 +133,8 @@ const App = () => {
                   href="#menu"
                   id="menuLink"
                   onClick={() => handleClick()}
-                  className={`menu-link`}>
+                  className={`menu-link`}
+                >
                   <span></span>
                 </a>
                 <div id="menu">
@@ -102,19 +142,45 @@ const App = () => {
                     <NavLink
                       activeClassName="pure-menu-selected"
                       className="pure-menu-heading"
-                      to="/">
+                      to="/"
+                    >
                       Eric's Notes
                     </NavLink>
+                    {!isLoggedIn && (
+                      <div>
+                        <li className="pure-menu-item" key="login">
+                          <a className="pure-menu-link" href={`/login`}>
+                            Login
+                          </a>
+                        </li>
+                        <li className="pure-menu-item" key="signup">
+                          <a className="pure-menu-link" href={`/signup`}>
+                            Sign Up
+                          </a>
+                        </li>
+                      </div>
+                    )}
+
+                    {isLoggedIn && (
+                      <div>
+                        <button
+                          onClick={handleLogout}
+                          className="pure-button pure-button-primary logout-button"
+                        >
+                          Logout of {truncateString(userCreds.username, 5)}
+                        </button>
+                        <li className="pure-menu-item" key="0">
+                          <a className="pure-menu-link" href={`/UserSettings`}>
+                            User Settings
+                          </a>
+                        </li>
+                      </div>
+                    )}
+
                     <ul className="pure-menu-list">
-                      <QuickLogin baseURL={baseURL} setAuthenticated={setAuthenticated} />
-                      {/*<li className="pure-menu-item" key="0">
-                      <a className="pure-menu-link" href={`/login`}>
-                        Login
-                      </a>
-                    </li>*/}
                       <li className="pure-menu-item" key="1">
-                        <a className="pure-menu-link" href={`/allNotes`}>
-                          All Notes
+                        <a className="pure-menu-link" href={`/allUsers`}>
+                          All Users
                         </a>
                       </li>
                       {pinNotes.map((note, index) => {
@@ -130,14 +196,32 @@ const App = () => {
                   </div>
                 </div>
                 <Switch>
-                  {/* <Route
-                    path={'/login'}
-                    render={routeProps => <Login {...routeProps} baseURL={this.state.baseURL} />}
-                  />*/}
                   <Route
-                    path={'/allnotes'}
+                    path={'/login'}
                     render={routeProps => (
-                      <AllNotes
+                      <Login {...routeProps} baseURL={baseURL} />
+                    )}
+                  />
+                  <Route
+                    path={'/signup'}
+                    render={routeProps => (
+                      <SignupPage {...routeProps} baseURL={baseURL} />
+                    )}
+                  />
+                  <Route
+                    path={'/UserSettings'}
+                    render={routeProps => (
+                      <UserSettings
+                        {...routeProps}
+                        baseURL={baseURL}
+                        toTitleCase={toTitleCase()}
+                      />
+                    )}
+                  />
+                  <Route
+                    path={'/allUsers'}
+                    render={routeProps => (
+                      <AllUsers
                         {...routeProps}
                         baseURL={baseURL}
                         toTitleCase={toTitleCase()}
