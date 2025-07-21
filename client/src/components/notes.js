@@ -633,9 +633,9 @@ const Notes = props => {
         {showSection === 'read' && (
           <div className="noteWriteContent">
             <div
-              className={`leftSide ${!(isLoggedIn && userOnOwnPath()) ? 'makeCenter' : ''}`}
+              className={`leftSide ${!(isLoggedIn) ? 'makeCenter' : ''}`}// && userOnOwnPath()
             >
-              {(!isPrivateNote || (isLoggedIn && userOnOwnPath())) && (
+              {(!isPrivateNote || (isLoggedIn)) && (// && userOnOwnPath()
                 <div
                   dangerouslySetInnerHTML={{
                     __html: unescape(value.replace(/\n/g, '<br />')),
@@ -643,10 +643,10 @@ const Notes = props => {
                 />
               )}
               {(!isPrivateNote ||
-                (isPrivateNote && isLoggedIn && userOnOwnPath())) &&
+                (isPrivateNote && isLoggedIn )) &&// && userOnOwnPath()
                 dateModified && <p>Date Modified: {dateModified}</p>}
               {(!isPrivateNote ||
-                (isPrivateNote && isLoggedIn && userOnOwnPath())) &&
+                (isPrivateNote && isLoggedIn )) &&// && userOnOwnPath()
                 dateCreated && <p>Date Created: {dateCreated}</p>}
             </div>
           </div>
