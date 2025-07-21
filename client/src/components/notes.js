@@ -627,45 +627,6 @@ const Notes = props => {
           </div>
         )}
 
-<<<<<<< HEAD
-      <div className="noteContent">
-        <div className={`leftSide ${!Authenticated ? 'makeCenter' : ''}`}>
-          {(!isPrivateNote || Authenticated) && (
-            <div dangerouslySetInnerHTML={{__html: unescape(value.replace(/\n/g, '<br />'))}} />
-          )}
-          <p>Date Modified: {(!isPrivateNote || Authenticated) ? dateModified : 0}</p>
-          <p>Date Created: {(!isPrivateNote || Authenticated) ? dateCreated : 0}</p>
-        </div>
-        {Authenticated && (
-          <div className="rightSide">
-            <div className="topRow">
-              <p className="verificationMessage">{verificationMessage} </p>
-              <br />
-              <button
-                style={hidden}
-                className={`pure-button pure-button-primary private-button ${
-                  !!isPrivateNote && 'toggleRed-button'
-                }`}
-                onClick={handlePrivate}>
-                {privateText}
-              </button>
-              {!!dateCreated && (
-                <button
-                  className="pure-button pure-button-primary bar-button"
-                  onClick={moveNote}>
-                  Move / Rename
-                </button>
-              )}
-              {!!dateModified && (
-                <button
-                  className={`pure-button pure-button-primary bar-button ${
-                    !!pinnedNote && 'toggleRed-button'
-                  }`}
-                  onClick={setPinNote}>
-                  {!!pinnedNote ? 'UnPin' : 'Pin'}
-                </button>
-              )}
-            </div>
         {showSection === 'read' && (
           <div className="noteWriteContent">
             <div
