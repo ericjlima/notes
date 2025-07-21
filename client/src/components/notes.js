@@ -441,7 +441,7 @@ const Notes = props => {
       <div className="noteContent">
         <div className={`leftSide ${!Authenticated ? 'makeCenter' : ''}`}>
           {(!isPrivateNote || Authenticated) && (
-            <div dangerouslySetInnerHTML={{__html: unescape(value)}} />
+            <div dangerouslySetInnerHTML={{__html: unescape(value.replace(/\n/g, '<br />'))}} />
           )}
           <p>Date Modified: {(!isPrivateNote || Authenticated) ? dateModified : 0}</p>
           <p>Date Created: {(!isPrivateNote || Authenticated) ? dateCreated : 0}</p>
