@@ -545,12 +545,14 @@ const Notes = props => {
       </div>
 
       <div className="noteContentContainer">
-      {showSection === 'search' && <SearchNotes baseURL={props.baseURL} />}
+        {showSection === 'search' && <SearchNotes baseURL={props.baseURL} />}
         {showSection === 'write' && (
           <div className="noteWriteContent">
             {/*TODO: put this in a better div*/}
             <h1>{toTitleCase(props.match.params.id)}</h1>
-            {isLoggedIn && userOnOwnPath() && (
+            //TODO: what do I do about my old notes? Subnotes sounds
+            //confusing... /*&& userOnOwnPath() &&*/
+            {isLoggedIn(
               <div>
                 <div className="topRow">
                   <p className="verificationMessage">{verificationMessage} </p>
@@ -622,7 +624,7 @@ const Notes = props => {
                     </p>
                   </fieldset>
                 </div>
-              </div>
+              </div>,
             )}
           </div>
         )}
