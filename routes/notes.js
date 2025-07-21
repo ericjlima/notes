@@ -155,9 +155,12 @@ router.get('/:notesId', function (req, res, next) {
 });
 
 router.get('/namepid/:notesName/:pid', function (req, res, next) {
+  const namepid = `${req.params.notesName.toLowerCase()} ${req.params.pid}`;
+
+
   con.query(
     `SELECT id, name, message, date_created, date_modified, private, pid, namepid FROM notes 
-            WHERE namepid='${req.params.notesName} ${req.params.pid}';`,
+            WHERE namepid='${namepid}';`,
     function (err, result, fields) {
       //console.log('req.params.notesName', req.params.notesName);
       //console.log('req.body.pid', req.params.pid);
@@ -198,21 +201,34 @@ router.get('/children/:notesId', function (req, res, next) {
 });
 
 router.post('/:notesId', function (req, res, next) {
-      //TODO: Figure out what this route is even doing since update seems to be making a new note
-    const {username} = req.body.userCreds;
+  const { messageData, pid, routeUsername } = req.body;
+  const { username: sessionUsername } = req.body.userCreds;
+  const { notesId } = req.params;
+
+  const name = notesId.toLowerCase();
+  const namepid = `${notesId.toLowerCase()} ${pid}`; // ✅ Retain space at the end if required for compatibility
+
+  // Step 1: Enforce route access control
+  if (routeUsername !== '@' + sessionUsername) {
+    return res.status(403).json({ message: 'You are not authorized to access this route.' });
+  }
+
+  // Step 2: Insert the new note (mimicking original SQL)
+  const insertQuery = `
+    INSERT IGNORE INTO notes (name, message, pid, namepid, username)
+    VALUES (?, ?, ?, ?, ?)`;
+
   con.query(
-    `INSERT IGNORE INTO notes (name, message, pid, namepid) VALUES ('${req.params.notesId.toLowerCase()}', '${
-      req.body.messageData
-    }', '${req.body.pid}', '${req.params.notesId} ${req.body.pid} ')`,
-    function (err, result, fields) {
-      //const {username} = req.body.userCreds;
-      //console.log('username', username);
-      if (err) throw err;
-      res.send(result);
-      // console.log(result);
-      // let sql = `INSERT IGNORE INTO notes (name, message) VALUES ('${req.params.notesId}', '')`;
-      // let query = con.query(sql);
-    },
+    insertQuery,
+    [name, messageData, pid, namepid, sessionUsername],
+    function (insertError) {
+      if (insertError) {
+        console.log('Insert error:', insertError);
+        return next(insertError);
+      }
+
+      return res.status(201).json({ message: 'Note created successfully.' });
+    }
   );
 });
 
@@ -221,9 +237,7 @@ router.post('/update/:notesId/:pid', function (req, res, next) {
   const { username: sessionUsername } = req.body.userCreds;
   const { notesId, pid } = req.params;
 
-  const namepid = `${notesId} ${pid}`;
-
-  console.log('route and session username', routeUsername, sessionUsername);
+  const namepid = `${notesId.toLowerCase()} ${pid}`;
 
   // Step 1: Enforce route access control
   if (routeUsername !== '@' + sessionUsername) {
@@ -248,20 +262,6 @@ router.post('/update/:notesId/:pid', function (req, res, next) {
       return res.status(200).json({ message: 'Note updated successfully.' });
     }
 
-    // Step 3: If not updated, try to insert (only for authorized user)
-    const insertQuery = `
-      INSERT INTO notes (namepid, username, message)
-      VALUES (?, ?, ?);`;
-
-    con.query(insertQuery, [namepid, sessionUsername, messageData], function (insertError) {
-      if (insertError) {
-        console.log('Insert error:', insertError);
-        return next(insertError);
-      }
-
-      console.log('New note created');
-      return res.status(201).json({ message: 'Note created successfully.' });
-    });
   });
 });
 router.post('/updatePid/:notesId/:newPid/:id', function (req, res, next) {

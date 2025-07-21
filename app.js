@@ -9,6 +9,7 @@ var signupRouter = require('./routes/signup');
 var loginRouter = require('./routes/login');
 var logoutRouter = require('./routes/logout');
 var sessionsRouter = require('./routes/sessions');
+var searchRouter = require('./routes/search');
 var passwordRouter = require('./routes/password');
 var bodyParser = require('body-parser');
 
@@ -39,6 +40,7 @@ app.use('/api/notes', notesRouter);
 app.use('/api/login', loginRouter);
 app.use('/api/logout', logoutRouter);
 app.use('/api/sessions', sessionsRouter);
+app.use('/api/search', searchRouter);
 app.use('/api/signup', signupRouter);
 app.use('/api/password', passwordRouter);
 

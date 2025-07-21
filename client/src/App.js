@@ -11,7 +11,9 @@ import {retrievePaths} from './utils/notePipelineHelper';
 import Notes from './components/notes';
 import Login from './components/login';
 import SignupPage from './components/signupPage';
-import AllNotes from './components/allNotes';
+import AllUsers from './components/allUsers';
+import UserSettings from './components/UserSettings';
+import { truncateString } from './utils/generalHelper';
 //import QuickLogin from './components/quickLogin';
 //import UserProfile from './components/userProfile';
 import axios from 'axios';
@@ -43,7 +45,6 @@ const App = () => {
     const checkSession = async () => {
       try {
         const response = await axios.get(`${baseURL}/api/login/me`);
-        console.log('response', response);
         if (response.data && response.data.user) {
           setIsLoggedIn(true);
           setUserCreds(response.data.user);
@@ -158,19 +159,25 @@ const App = () => {
                     )}
 
                     {isLoggedIn && (
-                      <button onClick={handleLogout}>Logout</button>
+                      <div>
+                        <button
+                          onClick={handleLogout}
+                          className="pure-button pure-button-primary logout-button"
+                        >
+                          Logout of {truncateString(userCreds.username, 5)}
+                        </button>
+                        <li className="pure-menu-item" key="0">
+                          <a className="pure-menu-link" href={`/UserSettings`}>
+                            User Settings
+                          </a>
+                        </li>
+                      </div>
                     )}
 
                     <ul className="pure-menu-list">
-                      {/*<QuickLogin baseURL={baseURL} setAuthenticated={setAuthenticated} />*/}
-                      <li className="pure-menu-item" key="0">
-                        <a className="pure-menu-link" href={`/login`}>
-                          Login
-                        </a>
-                      </li>
                       <li className="pure-menu-item" key="1">
-                        <a className="pure-menu-link" href={`/allNotes`}>
-                          All Notes
+                        <a className="pure-menu-link" href={`/allUsers`}>
+                          All Users
                         </a>
                       </li>
                       {pinNotes.map((note, index) => {
@@ -199,9 +206,19 @@ const App = () => {
                     )}
                   />
                   <Route
-                    path={'/allnotes'}
+                    path={'/UserSettings'}
                     render={routeProps => (
-                      <AllNotes
+                      <UserSettings
+                        {...routeProps}
+                        baseURL={baseURL}
+                        toTitleCase={toTitleCase()}
+                      />
+                    )}
+                  />
+                  <Route
+                    path={'/allUsers'}
+                    render={routeProps => (
+                      <AllUsers
                         {...routeProps}
                         baseURL={baseURL}
                         toTitleCase={toTitleCase()}

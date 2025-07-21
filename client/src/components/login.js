@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import axios from 'axios';
+import { AuthenticatedContext } from '../App';
 
-const LoginPage = props => {
+const LoginPage = (props) => {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
   });
+  const { isLoggedIn } = useContext(AuthenticatedContext);
 
   const [message, setMessage] = useState('');
 
   const handleChange = (e) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
@@ -25,16 +27,12 @@ const LoginPage = props => {
     }
 
     try {
-      const res = await axios.post(
-        `${props.baseURL}/api/login`,
-        formData,
-        {
-          withCredentials: true,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const res = await axios.post(`${props.baseURL}/api/login`, formData, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
       if (res.status === 200) {
         setMessage('Login successful!');
@@ -53,26 +51,34 @@ const LoginPage = props => {
 
   return (
     <div style={styles.container}>
-      <h2>Log In</h2>
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <input
-          type="text"
-          name="username"
-          placeholder="Username"
-          value={formData.username}
-          onChange={handleChange}
-          style={styles.input}
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={handleChange}
-          style={styles.input}
-        />
-        <button type="submit" style={styles.button}>Log In</button>
-      </form>
+      {isLoggedIn && isLoggedIn ? (
+        <h2>You are logged in!</h2>
+      ) : (
+        <div>
+          <h2>Log In</h2>
+          <form onSubmit={handleSubmit} style={styles.form}>
+            <input
+              type="text"
+              name="username"
+              placeholder="Username"
+              value={formData.username}
+              onChange={handleChange}
+              style={styles.input}
+            />
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+              style={styles.input}
+            />
+            <button type="submit" style={styles.button}>
+              Log In
+            </button>
+          </form>
+        </div>
+      )}
       {message && <p>{message}</p>}
     </div>
   );

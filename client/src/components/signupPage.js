@@ -30,7 +30,7 @@ const SignupPage = props => {
         `${props.baseURL}/api/signup`,
         formData,
         {
-          withCredentials: true, // allow cookies if needed
+          withCredentials: true,
           headers: {
             'Content-Type': 'application/json',
           },
@@ -52,16 +52,16 @@ const SignupPage = props => {
   };
 
   return (
-    <div style={styles.container}>
+    <div className="signup-container">
       <h2>Sign Up</h2>
-      <form onSubmit={handleSubmit} style={styles.form}>
+      <form onSubmit={handleSubmit} className="signup-form">
         <input
           type="text"
           name="username"
           placeholder="Username"
           value={formData.username}
           onChange={handleChange}
-          style={styles.input}
+          className="signup-input"
         />
         <input
           type="email"
@@ -69,7 +69,7 @@ const SignupPage = props => {
           placeholder="Email"
           value={formData.email}
           onChange={handleChange}
-          style={styles.input}
+          className="signup-input"
         />
         <input
           type="password"
@@ -77,43 +77,13 @@ const SignupPage = props => {
           placeholder="Password"
           value={formData.password}
           onChange={handleChange}
-          style={styles.input}
+          className="signup-input"
         />
-        <button type="submit" style={styles.button}>Sign Up</button>
+        <button type="submit" className="signup-button">Sign Up</button>
       </form>
       {message && <p>{message}</p>}
     </div>
   );
-};
-
-const styles = {
-  container: {
-    maxWidth: '400px',
-    margin: '40px auto',
-    padding: '20px',
-    border: '1px solid #ccc',
-    borderRadius: '10px',
-    fontFamily: 'sans-serif',
-    textAlign: 'center',
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '12px',
-  },
-  input: {
-    padding: '10px',
-    fontSize: '16px',
-  },
-  button: {
-    padding: '10px',
-    backgroundColor: '#007bff',
-    color: 'white',
-    fontWeight: 'bold',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-  },
 };
 
 export default SignupPage;

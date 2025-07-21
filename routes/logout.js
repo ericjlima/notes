@@ -9,7 +9,6 @@ const con = mysql.createConnection(config);
 con.connect();
 
 router.post('/', (req, res) => {
-  console.log('logout');
   const sessionToken = req.cookies.session_token;
 
   if (!sessionToken) return res.status(400).json({ error: 'No session token provided' });
