@@ -550,9 +550,9 @@ const Notes = props => {
           <div className="noteWriteContent">
             {/*TODO: put this in a better div*/}
             <h1>{toTitleCase(props.match.params.id)}</h1>
-          /*TODO: think about subnotes on production.. this temp fix gets things renabled for yourself
+          {/*TODO: think about subnotes on production.. this temp fix gets things renabled for yourself
           && userOnOwnPath()
-          */
+          */}
             {isLoggedIn && (
               <div>
                 <div className="topRow">
