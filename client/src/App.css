@@ -55,15 +55,18 @@
   background-size:
     auto, auto; /* You can adjust the size of the images if needed */
 }
+.noteWriteContent{
+  padding: 40px 0 0 0;
+}
 .noteWriteContent h1 {
-  margin: 1.2em auto;
+  margin: 0 auto;
   font-size: 3em;
   font-weight: 300;
   color: black;
 }
 
 .noteReadContent {
-  margin: 10px 0 0 0;
+  padding: 40px 0 0 0;
 }
 .makeCenter {
   margin: 0 auto;

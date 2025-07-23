@@ -633,7 +633,7 @@ const Notes = props => {
         {showSection === 'read' && (
           <div className="noteWriteContent">
             <div
-              className={`leftSide ${!(isLoggedIn) ? 'makeCenter' : ''}`}// && userOnOwnPath()
+              className={`leftSide ${!(isLoggedIn) ? '' : ''}`}// makeCenter css class in after the ? // && userOnOwnPath()
             >
               {(!isPrivateNote || (isLoggedIn)) && (// && userOnOwnPath()
                 <div

@@ -38,7 +38,7 @@ const App = () => {
     setUserCreds,
   };
 
-  const baseURL = 'https://api.ericnote.us'; //https://api.ericnote.us  //or empty quote
+  const baseURL = ''; //https://api.ericnote.us  //or empty quote
 
   useEffect(() => {
     getPinNotes();
