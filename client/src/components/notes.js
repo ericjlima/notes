@@ -341,6 +341,7 @@ const Notes = props => {
   const handleSubmit = e => {
     let passedUpdateData = value;
     if (passedUpdateData) {
+      //TODO: Better understand why you have this logic and instead get rid of it and do the unescapes in the database logic since this causes a bug that chatgpt solved.
       passedUpdateData = encodeURIComponent(passedUpdateData)
         .replace(/;/g, '&amp;')
         .replace(/</g, '&lt;')
