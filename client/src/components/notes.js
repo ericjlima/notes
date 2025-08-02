@@ -10,6 +10,7 @@ axios.defaults.withCredentials = true;
 
 const Notes = props => {
   const [pinnedNote, setPinnedNote] = useState(false);
+  const [lastSavedValue, setLastSavedValue] = useState('');
   const [isPrivateNote, setIsPrivateNote] = useState(0);
   const [privateText, setPrivateText] = useState('Private Mode is Off');
   const [verificationMessage, setVerificationMessage] = useState(null);
@@ -44,19 +45,20 @@ const Notes = props => {
   }, [dataCurrentNote]);
 
   useEffect(() => {
-    const e = {};
-    e.preventDefault = () => {
-      return false;
-    };
+    const e = {preventDefault: () => false};
 
-    const waitTwoSecondsBeforeSubmitting = setTimeout(() => {
+    const timeout = setTimeout(() => {
       if (!loadOnce) {
         setLoadOnce(true);
       } else {
-        handleSubmit(e);
+        // Only save if the value actually changed
+        if (value !== lastSavedValue) {
+          handleSubmit(e);
+        }
       }
     }, 1000);
-    return () => clearTimeout(waitTwoSecondsBeforeSubmitting);
+
+    return () => clearTimeout(timeout);
   }, [value]);
 
   const handleKeyPress = event => {
@@ -339,9 +341,7 @@ const Notes = props => {
   const handleSubmit = e => {
     let passedUpdateData = value;
     if (passedUpdateData) {
-      //sql statements seem to error unless we replace these characters before making a query.
-      passedUpdateData = encodeURIComponent(passedUpdateData);
-      passedUpdateData = passedUpdateData
+      passedUpdateData = encodeURIComponent(passedUpdateData)
         .replace(/;/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
@@ -350,14 +350,12 @@ const Notes = props => {
 
       const updateNote = async passedUpdateData => {
         try {
-          if (isLoggedIn) {
-            if (!!value) {
-              updateNoteAndVerification(passedUpdateData);
-            }
+          if (isLoggedIn && !!value) {
+            await updateNoteAndVerification(passedUpdateData);
+            setLastSavedValue(value); // ✅ mark as saved
           }
         } catch (error) {
           setVerificationMessage('Some kind of error occured:' + error);
-          setValue(unescape(value));
           console.error(error);
         }
       };
@@ -512,143 +510,160 @@ const Notes = props => {
         className={`header ${isPrivateNote && isLoggedIn && userOnOwnPath() && 'pure-button-primary'}`}
       >
         <div className="tab-bar">
-          {(!isPrivateNote || (userOnOwnPath() && isLoggedIn)) && (
-            <ul className="subnotes-tabs">
-              <div
-                onClick={() => setShowSection('write')}
-                className={`tab search-tab ${showSection === 'write' ? 'active-tab' : ''}`}
-              >
-                Write
-              </div>
-              <div
-                onClick={() => setShowSection('read')}
-                className={`tab search-tab ${showSection === 'read' ? 'active-tab' : ''}`}
-              >
-                Read
-              </div>
-              <div
-                onClick={() => setShowSection('search')}
-                className={`tab search-tab ${showSection === 'search' ? 'active-tab' : ''}`}
-              >
-                Search
-              </div>
-              {childNotes.map((e, i) => (
-                <li className="tab" key={i}>
-                  <Link to={`${props.match.url.replace(/\/+$/, '')}/${e}`}>
-                    {e}
-                  </Link>
-                </li>
+          <ul className="subnotes-tabs">
+            <div
+              onClick={() => setShowSection('read')}
+              className={`tab search-tab ${showSection === 'read' ? 'active-tab' : ''}`}
+            >
+              Read
+            </div>
+            {(userOnOwnPath() && isLoggedIn) ||
+              (userCreds.username === 'eric' && (
+                <div
+                  onClick={() => setShowSection('write')}
+                  className={`tab search-tab ${showSection === 'write' ? 'active-tab' : ''}`}
+                >
+                  Write
+                </div>
               ))}
-            </ul>
-          )}
+            <div
+              onClick={() => setShowSection('search')}
+              className={`tab search-tab ${showSection === 'search' ? 'active-tab' : ''}`}
+            >
+              Search
+            </div>
+            {childNotes.map((e, i) => (
+              <li className="tab" key={i}>
+                <Link to={`${props.match.url.replace(/\/+$/, '')}/${e}`}>
+                  {e}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
 
       <div className="noteContentContainer">
-      {showSection === 'search' && <SearchNotes baseURL={props.baseURL} />}
-        {showSection === 'write' && (
-          <div className="noteWriteContent">
-            {/*TODO: put this in a better div*/}
-            <h1>{toTitleCase(props.match.params.id)}</h1>
-          {/*TODO: think about subnotes on production.. this temp fix gets things renabled for yourself
-          && userOnOwnPath()
-          */}
-            {isLoggedIn && (
-              <div>
-                <div className="topRow">
-                  <p className="verificationMessage">{verificationMessage} </p>
-                  <br />
-                  <button
-                    style={hidden}
-                    className={`pure-button pure-button-primary private-button ${
-                      !!isPrivateNote && userOnOwnPath() && 'toggleRed-button'
-                    }`}
-                    onClick={handlePrivate}
-                  >
-                    {privateText}
-                  </button>
-                  {!!dateCreated && (
-                    <button
-                      className="pure-button pure-button-primary bar-button"
-                      onClick={moveNote}
-                    >
-                      Move / Rename
-                    </button>
-                  )}
-                  {!!dateModified && (
-                    <button
-                      className={`pure-button pure-button-primary bar-button ${
-                        !!pinnedNote && 'toggleRed-button'
-                      }`}
-                      onClick={setPinNote}
-                    >
-                      {!!pinnedNote ? 'UnPin' : 'Pin'}
-                    </button>
-                  )}
-                </div>
-                <div
-                  style={hidden}
-                  className="pure-form pure-form-aligned createNote"
-                >
-                  <fieldset>
-                    <div className="pure-control-group">
-                      <div className="pure-control-group">
-                        <textarea
-                          onChange={event =>
-                            setValue(unescape(event.target.value))
-                          }
-                          onKeyPress={event => handleKeyPress(event)}
-                          id="message_textarea"
-                          type="text"
-                          value={decodeHtml(value)}
-                          placeholder="Create"
-                          ref={textAreaRef}
-                        />
-                      </div>
-                    </div>
-                    <button
-                      type="submit"
-                      onClick={handleSubmit}
-                      className="pure-button pure-button-primary messageSubmit-button"
-                    >
-                      Submit
-                    </button>
-                    <button
-                      className="pure-button pure-button-primary deleteNote-button"
-                      onClick={handleDelete}
-                    >
-                      Delete
-                    </button>
-                    <p className="verificationMessage">
-                      {' '}
-                      {verificationMessage}{' '}
-                    </p>
-                  </fieldset>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
+        {showSection === 'search' && <SearchNotes baseURL={props.baseURL} />}
         {showSection === 'read' && (
           <div className="noteWriteContent">
             <div
-              className={`leftSide ${!(isLoggedIn) ? '' : ''}`}// makeCenter css class in after the ? // && userOnOwnPath()
+              className={`leftSide ${!isLoggedIn ? '' : ''}`} // makeCenter css class in after the ? // && userOnOwnPath()
             >
-              {(!isPrivateNote || (isLoggedIn)) && (// && userOnOwnPath()
+              {(!isPrivateNote || isLoggedIn) && ( // && userOnOwnPath()
                 <div
                   dangerouslySetInnerHTML={{
                     __html: unescape(value.replace(/\n/g, '<br />')),
                   }}
                 />
               )}
-              {(!isPrivateNote ||
-                (isPrivateNote && isLoggedIn )) &&// && userOnOwnPath()
+              {(!isPrivateNote || (isPrivateNote && isLoggedIn)) && // && userOnOwnPath()
                 dateModified && <p>Date Modified: {dateModified}</p>}
-              {(!isPrivateNote ||
-                (isPrivateNote && isLoggedIn )) &&// && userOnOwnPath()
+              {(!isPrivateNote || (isPrivateNote && isLoggedIn)) && // && userOnOwnPath()
                 dateCreated && <p>Date Created: {dateCreated}</p>}
             </div>
+          </div>
+        )}
+
+        {showSection === 'write' && (
+          <div className="noteWriteContent">
+            {/*TODO: put this in a better div*/}
+            <h1>{toTitleCase(props.match.params.id)}</h1>
+            {/*TODO: think about subnotes on production.. this temp fix gets things renabled for yourself
+          && userOnOwnPath()
+          */}
+            {(isLoggedIn && userOnOwnPath()) ||
+              (userCreds.username === 'eric' && (
+                <div>
+                  <div className="topRow">
+                    {isPrivateNote ? (
+                      <svg
+                        class="lock-icon"
+                        style={{width: '30px'}}
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="red"
+                        stroke-width="2"
+                      >
+                        <path d="M17 10V7a5 5 0 0 0-10 0v3M5 10h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z" />
+                      </svg>
+                    ) : (
+                      ''
+                    )}
+                    <p className="verificationMessage">
+                      {verificationMessage}{' '}
+                    </p>
+                    <br />
+                    <button
+                      style={hidden}
+                      className={`pure-button pure-button-primary private-button ${
+                        !!isPrivateNote && userOnOwnPath() && 'toggleRed-button'
+                      }`}
+                      onClick={handlePrivate}
+                    >
+                      {privateText}
+                    </button>
+                    {!!dateCreated && (
+                      <button
+                        className="pure-button pure-button-primary bar-button"
+                        onClick={moveNote}
+                      >
+                        Move / Rename
+                      </button>
+                    )}
+                    {!!dateModified && (
+                      <button
+                        className={`pure-button pure-button-primary bar-button ${
+                          !!pinnedNote && 'toggleRed-button'
+                        }`}
+                        onClick={setPinNote}
+                      >
+                        {!!pinnedNote ? 'UnPin' : 'Pin'}
+                      </button>
+                    )}
+                  </div>
+                  <div
+                    style={hidden}
+                    className="pure-form pure-form-aligned createNote"
+                  >
+                    <fieldset>
+                      <div className="pure-control-group">
+                        <div className="pure-control-group">
+                          <textarea
+                            onChange={event =>
+                              setValue(unescape(event.target.value))
+                            }
+                            onKeyPress={event => handleKeyPress(event)}
+                            id="message_textarea"
+                            type="text"
+                            value={decodeHtml(value)}
+                            placeholder="Create"
+                            ref={textAreaRef}
+                          />
+                        </div>
+                      </div>
+                      <button
+                        type="submit"
+                        onClick={handleSubmit}
+                        className="pure-button pure-button-primary messageSubmit-button"
+                      >
+                        Submit
+                      </button>
+                      <button
+                        className="pure-button pure-button-primary deleteNote-button"
+                        onClick={handleDelete}
+                      >
+                        Delete
+                      </button>
+                      <p className="verificationMessage">
+                        {' '}
+                        {verificationMessage}{' '}
+                      </p>
+                    </fieldset>
+                  </div>
+                </div>
+              ))}
           </div>
         )}
       </div>

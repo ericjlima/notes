@@ -8,7 +8,7 @@ body {
   /*background: url('/images/paper/completebook.png') repeat;*/
   /*background: url('/images/paper/longdeskcompletebook.png') repeat;*/
   /*background: url('/images/paper/oldschoolbook.png') repeat;*/
-  background: url('/images/background/seamlessClouds.png') repeat;
+  background: url('/images/background/repeatedClouds2.jpg') repeat;
   background-position: -200px -300px;
   @media (min-width: 48em) {
     background-position: 0 0;
