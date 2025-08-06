@@ -5,6 +5,7 @@ import {checkIfNoteExists} from '../utils/notePipelineHelper';
 import {firstPathSegment} from '../utils/urlHelper';
 import {AuthenticatedContext} from '../App';
 import SearchNotes from './SearchNotes';
+import {debounce} from '../utils/generalHelper';
 
 axios.defaults.withCredentials = true;
 
@@ -44,22 +45,40 @@ const Notes = props => {
     }
   }, [dataCurrentNote]);
 
-  useEffect(() => {
-    const e = {preventDefault: () => false};
-
-    const timeout = setTimeout(() => {
-      if (!loadOnce) {
-        setLoadOnce(true);
-      } else {
-        // Only save if the value actually changed
-        if (value !== lastSavedValue) {
-          handleSubmit(e);
-        }
+  const debouncedSave = useRef(
+    debounce(() => {
+      if (value !== lastSavedValue) {
+        handleSubmit({preventDefault: () => false});
       }
-    }, 1000);
+    }, 1000),
+  ).current;
 
-    return () => clearTimeout(timeout);
+  useEffect(() => {
+    if (loadOnce) {
+      debouncedSave();
+    } else {
+      setLoadOnce(true);
+    }
   }, [value]);
+
+  useEffect(() => {
+    const handleBlur = () => {
+      if (value !== lastSavedValue) {
+        handleSubmit({preventDefault: () => false});
+      }
+    };
+
+    const textarea = textAreaRef.current;
+    if (textarea) {
+      textarea.addEventListener('blur', handleBlur);
+    }
+
+    return () => {
+      if (textarea) {
+        textarea.removeEventListener('blur', handleBlur);
+      }
+    };
+  }, [value, lastSavedValue]);
 
   const handleKeyPress = event => {
     if (event.key === 'Enter' && event.shiftKey) {
@@ -140,7 +159,7 @@ const Notes = props => {
     setDateCreated(strippedDateCreated);
 
     //Main note value data
-    setValue(unescape(noteData.message));
+    setValue(decodeURIComponent(noteData.message));
     setDataCurrentNote({data: [noteData]});
 
     //Privacy State
@@ -328,7 +347,7 @@ const Notes = props => {
     await applyNoteDataToState(updatedNote);
 
     setVerificationMessage('Message was saved.');
-    setValue(unescape(value));
+    setValue(value);
     setTimeout(() => {
       setVerificationMessage('');
     }, 2000);
@@ -512,21 +531,21 @@ const Notes = props => {
       >
         <div className="tab-bar">
           <ul className="subnotes-tabs">
-            <div
+            {/*<div
               onClick={() => setShowSection('read')}
               className={`tab search-tab ${showSection === 'read' ? 'active-tab' : ''}`}
             >
               Read
-            </div>
-            {(userOnOwnPath() && isLoggedIn) ||
-              (userCreds.username === 'eric' && (
-                <div
-                  onClick={() => setShowSection('write')}
-                  className={`tab search-tab ${showSection === 'write' ? 'active-tab' : ''}`}
-                >
-                  Write
-                </div>
-              ))}
+            </div>*/}
+            {((userOnOwnPath() && isLoggedIn) ||
+              (userCreds && userCreds.username === 'eric')) && (
+              <div
+                onClick={() => setShowSection('write')}
+                className={`tab search-tab ${showSection === 'write' ? 'active-tab' : ''}`}
+              >
+                Note
+              </div>
+            )}
             <div
               onClick={() => setShowSection('search')}
               className={`tab search-tab ${showSection === 'search' ? 'active-tab' : ''}`}
@@ -548,123 +567,124 @@ const Notes = props => {
         {showSection === 'search' && <SearchNotes baseURL={props.baseURL} />}
         {showSection === 'read' && (
           <div className="noteWriteContent">
-            <div
-              className={`leftSide ${!isLoggedIn ? '' : ''}`} // makeCenter css class in after the ? // && userOnOwnPath()
-            >
-              {(!isPrivateNote || isLoggedIn) && ( // && userOnOwnPath()
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: unescape(value.replace(/\n/g, '<br />')),
-                  }}
-                />
-              )}
-              {(!isPrivateNote || (isPrivateNote && isLoggedIn)) && // && userOnOwnPath()
-                dateModified && <p>Date Modified: {dateModified}</p>}
-              {(!isPrivateNote || (isPrivateNote && isLoggedIn)) && // && userOnOwnPath()
-                dateCreated && <p>Date Created: {dateCreated}</p>}
-            </div>
+            <h1>{toTitleCase(props.match.params.id)}</h1>
           </div>
         )}
 
         {showSection === 'write' && (
           <div className="noteWriteContent">
-            {/*TODO: put this in a better div*/}
+            {/* TODO: put this in a better div*/}
             <h1>{toTitleCase(props.match.params.id)}</h1>
-            {/*TODO: think about subnotes on production.. this temp fix gets things renabled for yourself
+            {/* TODO: think about subnotes on production.. this temp fix gets things renabled for yourself
           && userOnOwnPath()
           */}
-            {(isLoggedIn && userOnOwnPath()) ||
-              (userCreds.username === 'eric' && (
-                <div>
-                  <div className="topRow">
-                    {isPrivateNote ? (
-                      <svg
-                        class="lock-icon"
-                        style={{width: '30px'}}
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="red"
-                        stroke-width="2"
-                      >
-                        <path d="M17 10V7a5 5 0 0 0-10 0v3M5 10h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z" />
-                      </svg>
-                    ) : (
-                      ''
-                    )}
+            {((userOnOwnPath() && isLoggedIn) ||
+              (userCreds && userCreds.username === 'eric')) && (
+              <div>
+                <div className="topRow">
+                  {isPrivateNote ? (
+                    <svg
+                      class="lock-icon"
+                      style={{width: '30px'}}
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="red"
+                      stroke-width="2"
+                    >
+                      <path d="M17 10V7a5 5 0 0 0-10 0v3M5 10h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z" />
+                    </svg>
+                  ) : (
+                    ''
+                  )}
+                  <p className="verificationMessage">{verificationMessage} </p>
+                  <br />
+                  <button
+                    style={hidden}
+                    className={`pure-button pure-button-primary private-button ${
+                      !!isPrivateNote && userOnOwnPath() && 'toggleRed-button'
+                    }`}
+                    onClick={handlePrivate}
+                  >
+                    {privateText}
+                  </button>
+                  {!!dateCreated && (
+                    <button
+                      className="pure-button pure-button-primary bar-button"
+                      onClick={moveNote}
+                    >
+                      Move / Rename
+                    </button>
+                  )}
+                  {!!dateModified && (
+                    <button
+                      className={`pure-button pure-button-primary bar-button ${
+                        !!pinnedNote && 'toggleRed-button'
+                      }`}
+                      onClick={setPinNote}
+                    >
+                      {!!pinnedNote ? 'UnPin' : 'Pin'}
+                    </button>
+                  )}
+                </div>
+                <div
+                  style={hidden}
+                  className="pure-form pure-form-aligned createNote"
+                >
+                  <fieldset>
+                    <div className="pure-control-group">
+                      <div className="pure-control-group">
+                        <textarea
+                          onChange={e => setValue(e.target.value)} // Raw input
+                          onKeyPress={event => handleKeyPress(event)}
+                          id="message_textarea"
+                          type="text"
+                          value={value}
+                          placeholder="Create"
+                          ref={textAreaRef}
+                        />
+                      </div>
+                    </div>
+                    <button
+                      type="submit"
+                      onClick={handleSubmit}
+                      className="pure-button pure-button-primary messageSubmit-button"
+                    >
+                      Submit
+                    </button>
+                    <button
+                      className="pure-button pure-button-primary deleteNote-button"
+                      onClick={handleDelete}
+                    >
+                      Delete
+                    </button>
                     <p className="verificationMessage">
+                      {' '}
                       {verificationMessage}{' '}
                     </p>
-                    <br />
-                    <button
-                      style={hidden}
-                      className={`pure-button pure-button-primary private-button ${
-                        !!isPrivateNote && userOnOwnPath() && 'toggleRed-button'
-                      }`}
-                      onClick={handlePrivate}
-                    >
-                      {privateText}
-                    </button>
-                    {!!dateCreated && (
-                      <button
-                        className="pure-button pure-button-primary bar-button"
-                        onClick={moveNote}
-                      >
-                        Move / Rename
-                      </button>
-                    )}
-                    {!!dateModified && (
-                      <button
-                        className={`pure-button pure-button-primary bar-button ${
-                          !!pinnedNote && 'toggleRed-button'
-                        }`}
-                        onClick={setPinNote}
-                      >
-                        {!!pinnedNote ? 'UnPin' : 'Pin'}
-                      </button>
-                    )}
-                  </div>
-                  <div
-                    style={hidden}
-                    className="pure-form pure-form-aligned createNote"
-                  >
-                    <fieldset>
-                      <div className="pure-control-group">
-                        <div className="pure-control-group">
-                          <textarea
-                            onChange={event =>
-                              setValue(unescape(event.target.value))
-                            }
-                            onKeyPress={event => handleKeyPress(event)}
-                            id="message_textarea"
-                            type="text"
-                            value={decodeHtml(value)}
-                            placeholder="Create"
-                            ref={textAreaRef}
-                          />
-                        </div>
-                      </div>
-                      <button
-                        type="submit"
-                        onClick={handleSubmit}
-                        className="pure-button pure-button-primary messageSubmit-button"
-                      >
-                        Submit
-                      </button>
-                      <button
-                        className="pure-button pure-button-primary deleteNote-button"
-                        onClick={handleDelete}
-                      >
-                        Delete
-                      </button>
-                      <p className="verificationMessage">
-                        {' '}
-                        {verificationMessage}{' '}
-                      </p>
-                    </fieldset>
-                  </div>
+                  </fieldset>
                 </div>
-              ))}
+                <br />
+                <div
+                  className={`leftSide ${!isLoggedIn ? '' : ''}`} // makeCenter css class in after the ? // && userOnOwnPath()
+                >
+                  {(!isPrivateNote || isLoggedIn) && ( // && userOnOwnPath()
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: decodeURIComponent(value).replace(
+                          /\n/g,
+                          '<br />',
+                        ),
+                      }}
+                    />
+                  )}
+                  {(!isPrivateNote || (isPrivateNote && isLoggedIn)) && // && userOnOwnPath()
+                    dateModified && <p>Date Modified: {dateModified}</p>}
+                  {(!isPrivateNote || (isPrivateNote && isLoggedIn)) && // && userOnOwnPath()
+                    dateCreated && <p>Date Created: {dateCreated}</p>}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

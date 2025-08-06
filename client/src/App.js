@@ -129,14 +129,13 @@ const App = () => {
           <div className="content">
             <Router>
               <div>
-                <a
-                  href="#menu"
-                  id="menuLink"
+                <div
+                  id="menuasdLink"
                   onClick={() => handleClick()}
                   className={`menu-link`}
                 >
                   <span></span>
-                </a>
+                </div>
                 <div id="menu">
                   <div className="pure-menu">
                     <NavLink
