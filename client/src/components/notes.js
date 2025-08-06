@@ -664,27 +664,24 @@ const Notes = props => {
                     </p>
                   </fieldset>
                 </div>
-                <br />
-                <div
-                  className={`leftSide ${!isLoggedIn ? '' : ''}`} // makeCenter css class in after the ? // && userOnOwnPath()
-                >
-                  {(!isPrivateNote || isLoggedIn) && ( // && userOnOwnPath()
-                    <div
-                      dangerouslySetInnerHTML={{
-                        __html: decodeURIComponent(value).replace(
-                          /\n/g,
-                          '<br />',
-                        ),
-                      }}
-                    />
-                  )}
-                  {(!isPrivateNote || (isPrivateNote && isLoggedIn)) && // && userOnOwnPath()
-                    dateModified && <p>Date Modified: {dateModified}</p>}
-                  {(!isPrivateNote || (isPrivateNote && isLoggedIn)) && // && userOnOwnPath()
-                    dateCreated && <p>Date Created: {dateCreated}</p>}
-                </div>
               </div>
             )}
+            <br />
+            <div
+              className={`leftSide ${!isLoggedIn ? '' : ''}`} // makeCenter css class in after the ? // && userOnOwnPath()
+            >
+              {(!isPrivateNote || isLoggedIn) && ( // && userOnOwnPath()
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: decodeURIComponent(value).replace(/\n/g, '<br />'),
+                  }}
+                />
+              )}
+              {(!isPrivateNote || (isPrivateNote && isLoggedIn)) && // && userOnOwnPath()
+                dateModified && <p>Date Modified: {dateModified}</p>}
+              {(!isPrivateNote || (isPrivateNote && isLoggedIn)) && // && userOnOwnPath()
+                dateCreated && <p>Date Created: {dateCreated}</p>}
+            </div>
           </div>
         )}
       </div>
