@@ -167,6 +167,7 @@
     justify-content: center;
   }
   .leftSide {
+    margin-top: 20px;
     min-width: 250px;
   }
   .rightSide {
