@@ -14,7 +14,7 @@ var con = mysql.createConnection({
   charset: 'utf8mb4',
 });
 
-connection.query("SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci");
+con.query("SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci");
 
 //router.use(cors({origin: "http://www.ericnote.us", credentials: true}));
 //router.use(cors({origin: ["http://ericnote.us", "http://www.ericnote.us"], credentials: true}));
