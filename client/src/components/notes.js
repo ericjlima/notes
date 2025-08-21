@@ -159,7 +159,7 @@ const Notes = props => {
     setDateCreated(strippedDateCreated);
 
     //Main note value data
-    setValue(decodeURIComponent(noteData.message));
+    setValue(noteData.message);
     setDataCurrentNote({data: [noteData]});
 
     //Privacy State
@@ -258,12 +258,6 @@ const Notes = props => {
   //console.error(error);
   //}
   //};
-
-  const decodeHtml = html => {
-    var txt = document.createElement('textarea');
-    txt.innerHTML = html;
-    return txt.value;
-  };
 
   const collectIdAndOrPostEachBranch = async (
     passedUpdateData,
@@ -667,7 +661,7 @@ const Notes = props => {
               {(!isPrivateNote || isLoggedIn) && ( // && userOnOwnPath()
                 <div
                   dangerouslySetInnerHTML={{
-                    __html: decodeURIComponent(value).replace(/\n/g, '<br />'),
+                    __html: value.replace(/\n/g, '<br />'),
                   }}
                 />
               )}

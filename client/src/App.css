@@ -44,8 +44,8 @@
 }
 .noteContentContainer {
   background-image:
-    url('/images/paper/justtopbook.png'),
-    url('/images/paper/repeatablebook.png');
+    url('/images/paper/paper-top.png'),
+    url('/images/paper/paper-mid-repeatable.png');
   background-position:
     left top,
     left top; /* Adjust the position of the second image if needed */
