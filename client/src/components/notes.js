@@ -5,7 +5,7 @@ import {checkIfNoteExists} from '../utils/notePipelineHelper';
 import {firstPathSegment} from '../utils/urlHelper';
 import {AuthenticatedContext} from '../App';
 import SearchNotes from './SearchNotes';
-import {debounce} from '../utils/generalHelper';
+import {debounce, toTitleCase} from '../utils/generalHelper';
 
 axios.defaults.withCredentials = true;
 
@@ -22,6 +22,7 @@ const Notes = props => {
   const [loadOnce, setLoadOnce] = useState(false);
   const [value, setValue] = useState('');
   const [dataCurrentNote, setDataCurrentNote] = useState({});
+  const title = toTitleCase(props.match.params.id);
 
   const MAX_TABS = 2;
 
@@ -37,6 +38,11 @@ const Notes = props => {
     setChildNotes([]); //This line resolves a bug where the childnotes dont render. Not sure why. Guess you have to do this and it's a weird oddity of React.
     getNoteData();
   }, []);
+
+  useEffect(() => {
+    //document.title = `MyApp - ${toTitleCase(props.match.params.id)}`;
+    document.title = `${document.title} - ${title}`;
+  }, [props.match.params.id]);
 
   useEffect(async () => {
     if (dataCurrentNote.data) {
@@ -441,12 +447,6 @@ const Notes = props => {
     }
   };
 
-  const toTitleCase = str => {
-    return str.replace(/\w\S*/g, function (txt) {
-      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-    });
-  };
-
   var hidden = {
     display: !isLoggedIn ? 'none' : 'inline-block',
   };
@@ -555,7 +555,7 @@ const Notes = props => {
         {showSection === 'search' && <SearchNotes baseURL={props.baseURL} />}
         {showSection === 'read' && (
           <div className="noteWriteContent">
-            <h1>{toTitleCase(props.match.params.id)}</h1>
+            <h1>{title}</h1>
           </div>
         )}
 
