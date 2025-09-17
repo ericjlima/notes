@@ -24,8 +24,6 @@ const Notes = props => {
   const [dataCurrentNote, setDataCurrentNote] = useState({});
   const title = toTitleCase(props.match.params.id);
 
-  const MAX_TABS = 2;
-
   const textAreaRef = useRef(null);
 
   const {isLoggedIn, userCreds} = useContext(AuthenticatedContext);
