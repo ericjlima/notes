@@ -35,7 +35,7 @@ const LoginPage = (props) => {
       });
 
       if (res.status === 200) {
-        setMessage('Login successful!');
+        setMessage('Login successful! Go to a new page and start writing!');
         // You can add a redirect or token storage here
       } else {
         setMessage(res.data.error || 'Login failed.');

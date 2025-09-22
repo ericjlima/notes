@@ -17,7 +17,6 @@ import { truncateString } from './utils/generalHelper';
 //import QuickLogin from './components/quickLogin';
 //import UserProfile from './components/userProfile';
 
-import FocusTimer from './components/focusTimer';
 
 import axios from 'axios';
 import './App.css';
@@ -62,6 +61,7 @@ const App = () => {
 
     checkSession();
   }, []);
+
   const handleLogout = async () => {
     try {
       await axios.post(`${baseURL}/api/logout`);
@@ -175,7 +175,6 @@ const App = () => {
                         </li>
                       </div>
                     )}
-
                     <ul className="pure-menu-list">
                       <li className="pure-menu-item" key="1">
                         <a className="pure-menu-link" href={`/allUsers`}>
@@ -212,6 +211,7 @@ const App = () => {
                     render={routeProps => (
                       <UserSettings
                         {...routeProps}
+                        userCreds={userCreds}
                         baseURL={baseURL}
                         toTitleCase={toTitleCase()}
                       />
@@ -221,16 +221,6 @@ const App = () => {
                     path={'/allUsers'}
                     render={routeProps => (
                       <AllUsers
-                        {...routeProps}
-                        baseURL={baseURL}
-                        toTitleCase={toTitleCase()}
-                      />
-                    )}
-                  />
-                  <Route
-                    path={'/focustimer'}
-                    render={routeProps => (
-                      <FocusTimer
                         {...routeProps}
                         baseURL={baseURL}
                         toTitleCase={toTitleCase()}

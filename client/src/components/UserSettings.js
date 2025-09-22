@@ -5,11 +5,17 @@ import {AuthenticatedContext} from '../App';
 const UserSettings = props => {
   const [notes, setNotes] = useState([]);
   const [username, setUsername] = useState('');
-  const [displayName, setDisplayName] = useState('');
-  const [password, setPassword] = useState('');
+  const [userId, setUserId] = useState(0);
+  const [email, setEmail] = useState('');
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [emailNotifications, setEmailNotifications] = useState(false);
   const [theme, setTheme] = useState('light');
   const {Authenticated} = useContext(AuthenticatedContext);
+
+  console.log('props', props);
+  console.log('creds', props.userCreds);
 
   useEffect(() => {
     if (Authenticated) {
@@ -27,13 +33,56 @@ const UserSettings = props => {
     }
   }, [Authenticated]);
 
-  const handleSubmit = e => {
+  useEffect(() => {
+    if (props.userCreds && props.userCreds.username) {
+      setUsername(props.userCreds.username);
+    }
+    if (props.userCreds && props.userCreds.id) {
+      setUserId(props.userCreds.id);
+    }
+    if (props.userCreds && props.userCreds.email) {
+      setEmail(props.userCreds.email);
+    }
+  }, [props.userCreds]);
+
+  const handleSubmit = async e => {
     e.preventDefault();
-    // Handle form submission logic here
+
+    // Validate new password and confirmation
+    if (newPassword !== confirmPassword) {
+      alert('New passwords do not match.');
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `${props.baseURL}/api/password`,
+        {
+          oldPassword,
+          newPassword,
+          userId,
+        },
+      );
+
+      console.log('response', response);
+
+      if (response.status === 200) {
+        alert('Password changed successfully!');
+        // Optionally reset the password fields
+        setOldPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+      } else {
+        alert('Error changing password: ' + response.data.message);
+      }
+    } catch (error) {
+      console.error('Error changing password:', error);
+      alert('An error occurred while changing the password.');
+    }
+
     console.log({
       username,
-      displayName,
-      password,
+      email,
       emailNotifications,
       theme,
     });
@@ -56,22 +105,44 @@ const UserSettings = props => {
         </div>
         <div>
           <label>
-            Display Name:
+            Email:
             <input
               type="text"
-              value={displayName}
-              onChange={e => setDisplayName(e.target.value)}
+              value={email}
+              onChange={e => setEmail(e.target.value)}
               required
             />
           </label>
         </div>
         <div>
           <label>
-            Password:
+            Old Password:
             <input
               type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
+              value={oldPassword}
+              onChange={e => setOldPassword(e.target.value)}
+              required
+            />
+          </label>
+        </div>
+        <div>
+          <label>
+            New Password:
+            <input
+              type="password"
+              value={newPassword}
+              onChange={e => setNewPassword(e.target.value)}
+              required
+            />
+          </label>
+        </div>
+        <div>
+          <label>
+            Confirm New Password:
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={e => setConfirmPassword(e.target.value)}
               required
             />
           </label>
