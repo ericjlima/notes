@@ -3,7 +3,6 @@ import axios from 'axios';
 import {AuthenticatedContext, SettingsContext} from '../App';
 
 const UserSettings = props => {
-  const [notes, setNotes] = useState([]);
   const [username, setUsername] = useState('');
   const [userId, setUserId] = useState(0);
   const [email, setEmail] = useState('');
@@ -13,16 +12,6 @@ const UserSettings = props => {
 
   const {theme, setTheme} = useContext(SettingsContext);
   const {Authenticated} = useContext(AuthenticatedContext);
-
-  useEffect(() => {
-    if (Authenticated) {
-      fetch(`${props.baseURL}/api/notes/publicNotes`)
-        .then(res => res.json())
-        .then(resnotes => {
-          setNotes(resnotes);
-        });
-    }
-  }, [Authenticated]);
 
   useEffect(() => {
     if (props.userCreds && props.userCreds.username) {

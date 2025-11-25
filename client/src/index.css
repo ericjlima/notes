@@ -1314,4 +1314,6 @@ html[data-theme='dark'] #menu .pure-menu-heading,
 html[data-theme='fantasy'] #menu .pure-menu-heading {
   color: #fff;
   background: none;
+  text-align: center;
+  padding-left: 0.6em 0 0.6em 1.3em;
 }

@@ -150,15 +150,6 @@ const App = () => {
       <SettingsContext.Provider value={SettingsContextValue}>
         <div id="layout" className={`${activeMenu}`}>
           <div id="main">
-            {userCreds && (
-              <button
-                onClick={handleLogout}
-                className="pure-button pure-button-primary logout-button-top-right"
-              >
-                Logout of{' '}
-                {truncateString(userCreds.username, 5)}
-              </button>
-            )}
             <div className="content">
               <Router>
                 <div>

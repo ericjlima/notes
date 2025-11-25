@@ -119,7 +119,7 @@ html[data-theme='dark'] body {
 }
 
 .pure-button-primary.logout-button {
-  margin: 10px 0 0 1em;
+  margin: 10px 0 0 .5em;
 }
 
 .pure-button-primary.toggleRed-button {
