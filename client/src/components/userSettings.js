@@ -1,6 +1,6 @@
 import React, {useEffect, useState, useContext} from 'react';
 import axios from 'axios';
-import {AuthenticatedContext} from '../App';
+import {AuthenticatedContext, SettingsContext} from '../App';
 
 const UserSettings = props => {
   const [notes, setNotes] = useState([]);
@@ -10,21 +10,12 @@ const UserSettings = props => {
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [emailNotifications, setEmailNotifications] = useState(false);
-  const [theme, setTheme] = useState('light');
-  const {Authenticated} = useContext(AuthenticatedContext);
 
-  console.log('props', props);
-  console.log('creds', props.userCreds);
+  const {theme, setTheme} = useContext(SettingsContext);
+  const {Authenticated} = useContext(AuthenticatedContext);
 
   useEffect(() => {
     if (Authenticated) {
-      fetch(`${props.baseURL}/api/notes`)
-        .then(res => res.json())
-        .then(resnotes => {
-          setNotes(resnotes);
-        });
-    } else {
       fetch(`${props.baseURL}/api/notes/publicNotes`)
         .then(res => res.json())
         .then(resnotes => {
@@ -43,7 +34,31 @@ const UserSettings = props => {
     if (props.userCreds && props.userCreds.email) {
       setEmail(props.userCreds.email);
     }
+    if (props.userCreds && props.userCreds.theme) {
+      setEmail(props.userCreds.theme);
+    }
   }, [props.userCreds]);
+
+  const onSaveTheme = async newTheme => {
+    setTheme(newTheme);
+  };
+
+  // if you have an input handler:
+  const handleThemeSelect = async (e, userId) => {
+    console.log('userCreds', props.userCreds);
+    const newTheme = e.target.value;
+    onSaveTheme(newTheme);
+    try {
+      const response = await axios.post(`${props.baseURL}/api/theme`, {
+        userId,
+        theme: newTheme, // Pass new theme to the API
+      });
+
+      console.log(response.data); // Log the response
+    } catch (error) {
+      console.error('Error updating theme:', error.message);
+    }
+  };
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -55,16 +70,11 @@ const UserSettings = props => {
     }
 
     try {
-      const response = await axios.post(
-        `${props.baseURL}/api/password`,
-        {
-          oldPassword,
-          newPassword,
-          userId,
-        },
-      );
-
-      console.log('response', response);
+      const response = await axios.post(`${props.baseURL}/api/password`, {
+        oldPassword,
+        newPassword,
+        userId,
+      });
 
       if (response.status === 200) {
         alert('Password changed successfully!');
@@ -80,10 +90,12 @@ const UserSettings = props => {
       alert('An error occurred while changing the password.');
     }
 
+    try {
+    } catch (error) {}
+
     console.log({
       username,
       email,
-      emailNotifications,
       theme,
     });
   };
@@ -147,26 +159,18 @@ const UserSettings = props => {
             />
           </label>
         </div>
-        <div>
-          <label>
-            Email Notifications:
-            <input
-              type="checkbox"
-              checked={emailNotifications}
-              onChange={e => setEmailNotifications(e.target.checked)}
-            />
-          </label>
-        </div>
+        <button type="submit">Save Settings</button>
         <div>
           <label>
             Theme:
-            <select value={theme} onChange={e => setTheme(e.target.value)}>
+            <select value={theme} onChange={e => handleThemeSelect(e, userId)}>
               <option value="light">Light</option>
-              <option value="dark">Dark</option>
+              /*<option value="dark">Dark</option>*/
+              <option value="fantasy">Fantasy</option>
             </select>
           </label>
+          {theme}
         </div>
-        <button type="submit">Save Settings</button>
       </form>
     </div>
   );

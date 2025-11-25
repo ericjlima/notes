@@ -42,20 +42,31 @@
   max-width: 680px;
   display: inline-block;
 }
-.noteContentContainer {
+
+
+html[data-theme='fantasy'] body {
   background-image:
-    url('/images/paper/paper-top.png'),
-    url('/images/paper/paper-mid-repeatable.png');
+  url('/images/paper/paper-top.png'),
+  url('/images/paper/paper-mid-repeatable.png');
   background-position:
     left top,
     left top; /* Adjust the position of the second image if needed */
-    min-height: 1440px;
+  min-height: 1440px;
   background-repeat:
     no-repeat, repeat; /* The first image will not repeat, the second one will */
   background-size:
     auto, auto; /* You can adjust the size of the images if needed */
 }
-.noteWriteContent{
+html[data-theme='light'] body {
+}
+html[data-theme='dark'] body {
+  background-color: #000;
+}
+.noteContentContainer {
+  background-color: #fff;
+}
+
+.noteWriteContent {
   padding: 40px 0 0 0;
 }
 .noteWriteContent h1 {
@@ -98,6 +109,13 @@
 .pure-button-primary.bar-button,
 .pure-button-primary.deleteNote-button {
   margin: 0 0 0 1em;
+}
+
+.logout-button-top-right {
+  position: absolute;
+  top: 10px; /* Adjust as needed */
+  right: 10px; /* Adjust as needed */
+  z-index: 10; /* Ensure it appears on top of other elements */
 }
 
 .pure-button-primary.logout-button {

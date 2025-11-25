@@ -1,24 +1,24 @@
-import React, { useState, useContext } from 'react';
+import React, {useState, useContext} from 'react';
 import axios from 'axios';
-import { AuthenticatedContext } from '../App';
+import {AuthenticatedContext} from '../App';
 
-const LoginPage = (props) => {
+const LoginPage = props => {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
   });
-  const { isLoggedIn } = useContext(AuthenticatedContext);
+  const {setIsLoggedIn, isLoggedIn, setUserCreds} = useContext(AuthenticatedContext);
 
   const [message, setMessage] = useState('');
 
-  const handleChange = (e) => {
-    setFormData((prev) => ({
+  const handleChange = e => {
+    setFormData(prev => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
 
     if (!formData.username || !formData.password) {
@@ -37,6 +37,13 @@ const LoginPage = (props) => {
       if (res.status === 200) {
         setMessage('Login successful! Go to a new page and start writing!');
         // You can add a redirect or token storage here
+        // Update the context state to reflect the logged-in user
+        setIsLoggedIn(true);
+        setUserCreds(res.data.user); // Update user credentials from response (if necessary)
+
+        // Optionally, you can redirect the user to another page after login
+        // For example, redirect to the homepage or dashboard
+        props.history.push('/'); // Use this if you're using react-router
       } else {
         setMessage(res.data.error || 'Login failed.');
       }

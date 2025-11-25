@@ -11,6 +11,7 @@ var logoutRouter = require('./routes/logout');
 var sessionsRouter = require('./routes/sessions');
 var searchRouter = require('./routes/search');
 var passwordRouter = require('./routes/password');
+var themeRouter = require('./routes/theme');
 var bodyParser = require('body-parser');
 
 var cors = require('cors');
@@ -43,6 +44,7 @@ app.use('/api/sessions', sessionsRouter);
 app.use('/api/search', searchRouter);
 app.use('/api/signup', signupRouter);
 app.use('/api/password', passwordRouter);
+app.use('/api/theme', themeRouter);
 
 
 // catch 404 and forward to error handler

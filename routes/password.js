@@ -1,83 +1,75 @@
-//TODO: I guess delete this file and the mysql table.. but wait a while until stable with new release
-
 var express = require('express');
 var router = express.Router();
-var cors = require('cors');
-//var sha256  = require('sha256');
-var session = require('express-session');
-var MySQLStore = require('express-mysql-session')(session);
 var mysql = require('mysql2');
+var bcrypt = require('bcrypt');
 var config = require('../config/secret.json');
 
-var options = {
-    host: config.host,
-    user: config.user,
-    password: config.password,
-    database: config.database,
-    schema: {
-        tableName: 'sessions',
-        columnNames: {
-            session_id: 'session_id',
-            expires: 'expires',
-            data: 'data'
-        }
-    }
-};
-
-var sessionStore = new MySQLStore(options);
-
+// Set up MySQL connection
 var con = mysql.createConnection({
-  host: "localhost",
-  user: "ericx2x",
+  host: config.host,
+  user: config.user,
   password: config.password,
-  database: config.database
+  database: config.database,
 });
 
-router.use(session({
-  secret: 'iloveel89',
-  store: sessionStore,
-  resave: false,
-  saveUninitialized: true,
-  cookie: { maxAge: 1000 * 60 * 60 * 24 }  //1000 * 60 * 60 * 24 * 7  //7days 10000 //10 seconds   1000000 //16~ minutes
-})); //7200000;
-
-router.use(cors({origin: ["https://ericnote.us","https://www.ericnote.us"], credentials: true}));
-
-router.use(function(req, res, next) {
-   next();
+con.connect(function (err) {
+  if (err) {
+    console.error('MySQL connection error:', err);
+    throw err;
+  }
+  console.log('Connected to MySQL');
 });
 
-con.connect(function(err) {
-  if (err) throw err;
-});
+// Change password route
+router.post('/', async (req, res) => {
+  console.log('changepassword route', req.body);
+  const { oldPassword, newPassword, userId } = req.body;
 
-router.post('/', function(req, res, next) {
-  con.query("SELECT * FROM password", function (err, result, fields) {
-    if (err) throw err;
+  console.log('userId', userId);
 
-      const password_data = result.find(c => c.name === req.params.password);
+  if (!oldPassword || !newPassword) {
+    return res.status(400).json({ error: 'Both old and new passwords are required.' });
+  }
 
-      if (req.body.password === password_data.password){
-        req.session.logged=true;
-        res.send("logged");
-      } else {
-        res.send("error")
+  try {
+    // Fetch the user's current password hash from the database
+    const userQuery = 'SELECT password_hash FROM users WHERE id = ?';
+    con.query(userQuery, [userId], async (err, results) => {
+      if (err) {
+        console.error('Error fetching user:', err);
+        return res.status(500).json({ error: 'Server error.' });
       }
-  });
-});
 
-router.post('/logout', function(req, res, next) {
-        req.session.logged=false;
-        res.send("logged out");
-});
+      if (results.length === 0) {
+        return res.status(404).json({ error: 'User not found.' });
+      }
 
-router.get('/', function(req, res, next) {
-	con.query("SELECT * FROM password", function (err, result, fields) {
-		if (err) throw err;
+      const user = results[0];
 
-    let obj = {password: result[0].password, logged: req.session.logged};
-   		res.json( obj );
+      // Check if the old password matches the stored hash
+      const isMatch = await bcrypt.compare(oldPassword, user.password_hash);
+      if (!isMatch) {
+        return res.status(400).json({ error: 'Old password is incorrect.' });
+      }
+
+      // Hash the new password
+      const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+      // Update the user's password in the database
+      const updateQuery = 'UPDATE users SET password_hash = ? WHERE id = ?';
+      con.query(updateQuery, [hashedNewPassword, userId], (err, updateResult) => {
+        if (err) {
+          console.error('Error updating password:', err);
+          return res.status(500).json({ error: 'Server error.' });
+        }
+
+        return res.json({ message: 'Password changed successfully.' });
+      });
     });
+  } catch (err) {
+    console.error('Bcrypt error:', err);
+    return res.status(500).json({ error: 'Server error.' });
+  }
 });
 
 module.exports = router;
