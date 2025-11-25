@@ -182,7 +182,8 @@ const App = () => {
                           </li>
                         </div>
                       )}
-
+    {console.log('isLoggedIn', isLoggedIn)}
+    {console.log('userCreds', userCreds)}
                       {isLoggedIn && (
                         <div>
                           <button

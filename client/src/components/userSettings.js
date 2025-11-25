@@ -1,6 +1,6 @@
 import React, {useEffect, useState, useContext} from 'react';
 import axios from 'axios';
-import {AuthenticatedContext, SettingsContext} from '../App';
+import {SettingsContext} from '../App';
 
 const UserSettings = props => {
   const [username, setUsername] = useState('');
@@ -11,7 +11,6 @@ const UserSettings = props => {
   const [confirmPassword, setConfirmPassword] = useState('');
 
   const {theme, setTheme} = useContext(SettingsContext);
-  const {Authenticated} = useContext(AuthenticatedContext);
 
   useEffect(() => {
     if (props.userCreds && props.userCreds.username) {
@@ -154,7 +153,7 @@ const UserSettings = props => {
             Theme:
             <select value={theme} onChange={e => handleThemeSelect(e, userId)}>
               <option value="light">Light</option>
-              /*<option value="dark">Dark</option>*/
+              <option value="dark">Dark</option>
               <option value="fantasy">Fantasy</option>
             </select>
           </label>
