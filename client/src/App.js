@@ -73,11 +73,12 @@ const App = () => {
             setTheme(themeResponse.data.theme); // Set the theme if available
           }
         } else {
-          setIsLoggedIn(false);
+          //TODO: figure out why these logout on live prod site
+          //setIsLoggedIn(false);
         }
       } catch (error) {
         console.error('Error checking session:', error);
-        setIsLoggedIn(false);
+        //setIsLoggedIn(false);
       }
     };
 
