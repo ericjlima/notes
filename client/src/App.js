@@ -12,6 +12,7 @@ import Notes from './components/notes';
 import Login from './components/login';
 import SignupPage from './components/signupPage';
 import AllUsers from './components/allUsers';
+import WebSocketComponent from './components/webSocket';
 import UserSettings from './components/userSettings';
 import {truncateString} from './utils/generalHelper';
 //import QuickLogin from './components/quickLogin';
@@ -228,6 +229,12 @@ const App = () => {
                       path={'/login'}
                       render={routeProps => (
                         <Login {...routeProps} baseURL={baseURL} />
+                      )}
+                    />
+                    <Route
+                      path={'/websocket'}
+                      render={routeProps => (
+                        <WebSocketComponent {...routeProps} baseURL={baseURL} />
                       )}
                     />
                     <Route
