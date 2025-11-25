@@ -45,7 +45,6 @@ const App = () => {
   const baseURL =
     window.location.hostname === 'localhost' ? '' : 'https://api.ericnote.us';
 
-
   //TODO: figure out how to get all the proper states to update when loggin in or loggin out
 
   useEffect(() => {
@@ -190,10 +189,7 @@ const App = () => {
                             onClick={handleLogout}
                             className="pure-button pure-button-primary logout-button"
                           >
-                            Logout of{' '}
-                            {userCreds
-                              ? truncateString(userCreds.username, 5)
-                              : 'User'}
+                            Logout of {truncateString(userCreds.username, 5)}
                           </button>
                           <li className="pure-menu-item" key="0">
                             <a
