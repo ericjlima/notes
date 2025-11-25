@@ -63,7 +63,7 @@ html[data-theme='dark'] body {
   background-color: #000;
 }
 .noteContentContainer {
-  background-color: #fff;
+  /*background-color: #fff;*/
 }
 
 .noteWriteContent {

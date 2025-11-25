@@ -78,6 +78,7 @@ const App = () => {
         }
       } catch (error) {
         console.error('Error checking session:', error);
+          //TODO: figure out why these logout on live prod site
         //setIsLoggedIn(false);
       }
     };
@@ -183,8 +184,6 @@ const App = () => {
                           </li>
                         </div>
                       )}
-    {console.log('isLoggedIn', isLoggedIn)}
-    {console.log('userCreds', userCreds)}
                       {isLoggedIn && (
                         <div>
                           <button
