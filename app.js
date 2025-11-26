@@ -2,8 +2,8 @@ var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var logger = require('morgan');
-var http = require('http'); // Add this line
-var socketIo = require('socket.io'); // Add this line
+var http = require('http');
+var socketIo = require('socket.io');
 
 var indexRouter = require('./routes/index');
 var notesRouter = require('./routes/notes');
@@ -40,7 +40,7 @@ app.use(
 const server = http.createServer(app); // Create server
 const io = socketIo(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: ['http://localhost:3000','https://ericnote.us', 'https://www.ericnote.us'],
     methods: ["GET", "POST"]
   }
 }); // Initialize Socket.IO with the server
