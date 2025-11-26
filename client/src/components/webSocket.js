@@ -1,57 +1,53 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
+import io from 'socket.io-client';
+
+const socket = io.connect('http://localhost:3001');
 
 const WebSocketComponent = () => {
+  const [room, setRoom] = useState('');
+
   const [message, setMessage] = useState('');
+  const [messageReceived, setMessageReceived] = useState('');
   const [messages, setMessages] = useState([]);
   const socketRef = useRef(null);
 
   useEffect(() => {
-    // Create WebSocket connection
-    socketRef.current = new WebSocket('wss://echo.websocket.org');
+    socket.on('receive_message', data => {
+      setMessageReceived(data.message);
+    });
+  }, [socket]);
 
-    // Connection opened
-    socketRef.current.onopen = () => {
-      console.log('WebSocket connected');
-    };
-
-    // Listen for messages
-    socketRef.current.onmessage = (event) => {
-      setMessages(prevMessages => [...prevMessages, event.data]);
-    };
-
-    // Connection closed
-    socketRef.current.onclose = () => {
-      console.log('WebSocket disconnected');
-    };
-
-    // Cleanup on unmount
-    return () => {
-      socketRef.current.close();
-    };
-  }, []);
+  const joinRoom = () => {
+    if (room !== "") {
+      socket.emit("join_room", room);
+    }
+  }
 
   const handleSendMessage = () => {
-    if (message) {
-      socketRef.current.send(message);
-      setMessage('');
-    }
+    socket.emit('send_message', {message, room});
   };
 
   return (
     <div>
-      <h2>WebSocket Example</h2>
+      <h2>Messageboard</h2>
+      <input
+        placeholder="Room Number..."
+        onChange={e => setRoom(e.target.value)}
+      />
+      <button onClick={joinRoom}>Join Room</button>
       <input
         type="text"
-        placeholder="Type a message..."
+        placeholder="Enter message..."
         value={message}
-        onChange={(e) => setMessage(e.target.value)}
+        onChange={e => setMessage(e.target.value)}
       />
-      <button onClick={handleSendMessage}>Send</button>
-      
-      <h3>Received Messages:</h3>
+      <button onClick={handleSendMessage}>Submit Message</button>
+
+      <h3>Messages:</h3>
+      {messageReceived}
       <ul>
-        {messages.map((msg, index) => (
-          <li key={index}>{msg}</li>
+        {messages.map((messageObj, index) => (
+          <li key={index}>{messageObj.message}</li>
         ))}
       </ul>
     </div>
@@ -59,3 +55,4 @@ const WebSocketComponent = () => {
 };
 
 export default WebSocketComponent;
+
