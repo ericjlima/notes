@@ -115,5 +115,3 @@ if (!module.parent) {
 }
 
 module.exports = app;
-
-//module.exports = { app, server };  // Export both app and server

@@ -1,30 +1,38 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import io from 'socket.io-client';
 
-const socket = io.connect('http://localhost:3001');
+const connectURL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:3001' 
+  : 'https://api.ericnote.us';
+
+const socket = io.connect(connectURL);
 
 const WebSocketComponent = () => {
   const [room, setRoom] = useState('');
-
   const [message, setMessage] = useState('');
-  const [messageReceived, setMessageReceived] = useState('');
   const [messages, setMessages] = useState([]);
-  const socketRef = useRef(null);
 
   useEffect(() => {
     socket.on('receive_message', data => {
-      setMessageReceived(data.message);
+      // Add the new message to the existing messages
+      setMessages(prevMessages => [...prevMessages, data]);
     });
-  }, [socket]);
+
+    // Cleanup on component unmount
+    return () => {
+      socket.off('receive_message');
+    };
+  }, []);
 
   const joinRoom = () => {
-    if (room !== "") {
-      socket.emit("join_room", room);
+    if (room !== '') {
+      socket.emit('join_room', room);
     }
-  }
+  };
 
   const handleSendMessage = () => {
     socket.emit('send_message', {message, room});
+    setMessage(''); // Clear the input after sending
   };
 
   return (
@@ -44,7 +52,6 @@ const WebSocketComponent = () => {
       <button onClick={handleSendMessage}>Submit Message</button>
 
       <h3>Messages:</h3>
-      {messageReceived}
       <ul>
         {messages.map((messageObj, index) => (
           <li key={index}>{messageObj.message}</li>
@@ -55,4 +62,3 @@ const WebSocketComponent = () => {
 };
 
 export default WebSocketComponent;
-
