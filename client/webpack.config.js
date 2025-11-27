@@ -1,39 +1,45 @@
 let path = require('path');
 let HtmlWebpackPlugin = require('html-webpack-plugin');
 
-
 module.exports = {
   entry: './src/index.js',
   output: {
-    path: __dirname + '/build',
+    path: path.resolve(__dirname, 'build'), // Use path.resolve for better readability
     publicPath: '/',
     filename: 'bundle.js'
   },
   module: {
-    loaders: [{
+    rules: [ // Change "loaders" to "rules"
+      {
         test: /\.js$/,
         loader: 'babel-loader',
-        query: {
-          presets: ['es2015', 'react']
-        },
-        exclude: /node_modules/
+        exclude: /node_modules/,
+        options: {
+          presets: ['@babel/preset-env', '@babel/preset-react'] // Use updated presets
+        }
       },
       {
-        test:/\.(s*)css$/,
-        use: [{
-          loader: 'style-loader'
-        }, {
-          loader: 'css-loader',
-          options: {
-            // modules: true,
-            // localIdentName: '[name]'
-            // localIdentName: '[path][name]__[local]--[hash:base64:5]'
+        test: /\.(s*)css$/,
+        use: [
+          'style-loader',
+          'css-loader', // Ensures styles are processed
+          'sass-loader' // For SASS support
+        ]
+      },
+      {
+        test: /\.(png|jpg|gif|svg)$/, // Add this loader for images
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: '[path][name].[ext]', // Maintain original path and name
+              outputPath: 'images/', // Where to output images in the build
+              publicPath: 'images/' // Public path for resolving image URLs
+            }
           }
-        }, {
-          loader: 'sass-loader'
-        }
-      ]
-    }]
+        ]
+      }
+    ]
   },
   plugins: [
     new HtmlWebpackPlugin({
@@ -43,3 +49,4 @@ module.exports = {
     })
   ]
 };
+
