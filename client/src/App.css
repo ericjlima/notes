@@ -46,7 +46,7 @@
 
 html[data-theme='fantasy'] body {
   background-image:
-  url('/images/paper/paper-top.png'),
+  /*url('/images/paper/paper-top.png'),*/
   url('/images/paper/paper-mid-repeatable.png');
   background-position:
     left top,

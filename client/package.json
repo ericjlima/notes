@@ -10,7 +10,7 @@
     "react-dom": "^17.0.2",
     "react-router": "^4.2.0",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "1.1.4",
+    "react-scripts": "5.0.1",
     "sha256": "^0.2.0",
     "socket.io-client": "^4.8.1"
   },
@@ -26,5 +26,17 @@
     "babel-jest": "^24.8.0",
     "jest": "^24.8.0",
     "nyc": "^11.7.2"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }
