@@ -1263,7 +1263,7 @@ a.pure-button-selected {
 
 /* Styles for fantasy, light and dark theme */
 html[data-theme='fantasy'] body {
-  background: url('/images/background/repeatedClouds2.jpg') repeat;
+  /*background: url('/images/background/repeatedClouds2.jpg') repeat;*/
   background-color: #222; /* Example of a dark background color */
 }
 
@@ -1285,7 +1285,7 @@ html[data-theme='light'] body {
 }
 
 html[data-theme='fantasy'] #menu {
-  background-image: url('/images/bookmark/bookmark-repeated-vertical-skiny.png');
+  /*background-image: url('/images/bookmark/bookmark-repeated-vertical-skiny.png');*/
   background-size: cover;
   background-repeat: repeat;
   padding-top: 1em;
