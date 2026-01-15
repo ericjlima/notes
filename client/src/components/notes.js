@@ -23,6 +23,15 @@ const Notes = props => {
   const [value, setValue] = useState('');
   const [dataCurrentNote, setDataCurrentNote] = useState({});
   const title = toTitleCase(props.match.params.id);
+  const SaveState = {
+    IDLE: 'idle',
+    DIRTY: 'dirty',
+    SAVING: 'saving',
+    SAVED: 'saved',
+    ERROR: 'error',
+  };
+
+  const [saveState, setSaveState] = useState(SaveState.IDLE);
 
   const textAreaRef = useRef(null);
 
@@ -49,40 +58,36 @@ const Notes = props => {
     }
   }, [dataCurrentNote]);
 
-  const debouncedSave = useRef(
-    debounce(() => {
-      if (value !== lastSavedValue) {
-        handleSubmit({preventDefault: () => false});
-      }
-    }, 1000),
-  ).current;
 
-  useEffect(() => {
-    if (loadOnce) {
-      debouncedSave();
-    } else {
-      setLoadOnce(true);
+
+  const saveVersionRef = useRef(0);
+const latestValueRef = useRef('');
+
+useEffect(() => {
+  latestValueRef.current = value;
+}, [value]);
+
+useEffect(() => {
+  if (saveState !== SaveState.DIRTY) return;
+
+  const timeout = setTimeout(async () => {
+    const version = ++saveVersionRef.current;
+    setSaveState(SaveState.SAVING);
+
+    try {
+      await updateNoteAndVerification(latestValueRef.current);
+
+      if (version === saveVersionRef.current) {
+        setLastSavedValue(latestValueRef.current);
+        setSaveState(SaveState.SAVED);
+      }
+    } catch (e) {
+      setSaveState(SaveState.ERROR);
     }
-  }, [value]);
+  }, 1000);
 
-  useEffect(() => {
-    const handleBlur = () => {
-      if (value !== lastSavedValue) {
-        handleSubmit({preventDefault: () => false});
-      }
-    };
-
-    const textarea = textAreaRef.current;
-    if (textarea) {
-      textarea.addEventListener('blur', handleBlur);
-    }
-
-    return () => {
-      if (textarea) {
-        textarea.removeEventListener('blur', handleBlur);
-      }
-    };
-  }, [value, lastSavedValue]);
+  return () => clearTimeout(timeout);
+}, [saveState, value]);
 
   const handleKeyPress = event => {
     if (event.key === 'Enter' && event.shiftKey) {
@@ -621,7 +626,16 @@ const Notes = props => {
                     <div className="pure-control-group">
                       <div className="pure-control-group">
                         <textarea
-                          onChange={e => setValue(e.target.value)} // Raw input
+                          onChange={e => {
+                            const next = e.target.value;
+                            setValue(next);
+                            setSaveState(SaveState.DIRTY);
+                          }}
+                           onBlur={() => {
+                            if (saveState === SaveState.DIRTY) {
+                              setSaveState(SaveState.DIRTY);
+                            }
+                          }}
                           onKeyPress={event => handleKeyPress(event)}
                           id="message_textarea"
                           type="text"
@@ -644,10 +658,12 @@ const Notes = props => {
                     >
                       Delete
                     </button>
+
                     <p className="verificationMessage">
-                      {' '}
-                      {verificationMessage}{' '}
-                    </p>
+  {saveState === SaveState.SAVING && 'Saving…'}
+  {saveState === SaveState.SAVED && 'Saved'}
+  {saveState === SaveState.ERROR && 'Error saving'}
+</p>
                   </fieldset>
                 </div>
               </div>
