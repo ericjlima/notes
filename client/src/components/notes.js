@@ -25,7 +25,6 @@ const Notes = props => {
   const title = toTitleCase(props.match.params.id);
   const SaveState = {
     IDLE: 'idle',
-    DIRTY: 'dirty',
     SAVING: 'saving',
     SAVED: 'saved',
     ERROR: 'error',
@@ -33,7 +32,6 @@ const Notes = props => {
 
   const [saveState, setSaveState] = useState(SaveState.IDLE);
 
-  const textAreaRef = useRef(null);
 
   const {isLoggedIn, userCreds} = useContext(AuthenticatedContext);
 
@@ -58,36 +56,21 @@ const Notes = props => {
     }
   }, [dataCurrentNote]);
 
-
-
-  const saveVersionRef = useRef(0);
-const latestValueRef = useRef('');
-
-useEffect(() => {
-  latestValueRef.current = value;
-}, [value]);
-
-useEffect(() => {
-  if (saveState !== SaveState.DIRTY) return;
-
-  const timeout = setTimeout(async () => {
-    const version = ++saveVersionRef.current;
-    setSaveState(SaveState.SAVING);
+  const saveNote = async () => {
+    //if (!isLoggedIn || !value) return;
 
     try {
-      await updateNoteAndVerification(latestValueRef.current);
+      setSaveState(SaveState.SAVING);
 
-      if (version === saveVersionRef.current) {
-        setLastSavedValue(latestValueRef.current);
-        setSaveState(SaveState.SAVED);
-      }
-    } catch (e) {
+      await updateNoteAndVerification(value);
+
+      setSaveState(SaveState.SAVED);
+
+    } catch (error) {
+      console.error(error);
       setSaveState(SaveState.ERROR);
     }
-  }, 1000);
-
-  return () => clearTimeout(timeout);
-}, [saveState, value]);
+  };
 
   const handleKeyPress = event => {
     if (event.key === 'Enter' && event.shiftKey) {
@@ -347,10 +330,10 @@ useEffect(() => {
   const updateNoteAndVerification = async passedUpdateData => {
     await collectIdAndOrPostEachBranch(passedUpdateData, true);
     const updatedNote = await fetchNoteData();
+
     await applyNoteDataToState(updatedNote);
 
     setVerificationMessage('Message was saved.');
-    setValue(value);
     setTimeout(() => {
       setVerificationMessage('');
     }, 2000);
@@ -360,26 +343,9 @@ useEffect(() => {
     return firstPathSegment() === '@' + userCreds.username;
   };
 
-  const handleSubmit = e => {
-    let passedUpdateData = value;
-    if (passedUpdateData) {
-      //TODO: Better understand why you have this logic and instead get rid of it and do the unescapes in the database logic since this causes a bug that chatgpt solved.
-
-      const updateNote = async passedUpdateData => {
-        try {
-          if (isLoggedIn && !!value) {
-            await updateNoteAndVerification(passedUpdateData);
-            setLastSavedValue(value); // ✅ mark as saved
-          }
-        } catch (error) {
-          setVerificationMessage('Some kind of error occured:' + error);
-          console.error(error);
-        }
-      };
-
-      updateNote(passedUpdateData);
-    }
+  const handleSubmit = async e => {
     e.preventDefault();
+    await saveNote();
   };
 
   const handleDelete = () => {
@@ -626,22 +592,13 @@ useEffect(() => {
                     <div className="pure-control-group">
                       <div className="pure-control-group">
                         <textarea
-                          onChange={e => {
-                            const next = e.target.value;
-                            setValue(next);
-                            setSaveState(SaveState.DIRTY);
-                          }}
-                           onBlur={() => {
-                            if (saveState === SaveState.DIRTY) {
-                              setSaveState(SaveState.DIRTY);
-                            }
-                          }}
+                          onChange={e => setValue(e.target.value)}
+                          onBlur={saveNote}
                           onKeyPress={event => handleKeyPress(event)}
                           id="message_textarea"
                           type="text"
                           value={value}
                           placeholder="Create"
-                          ref={textAreaRef}
                         />
                       </div>
                     </div>
@@ -658,12 +615,10 @@ useEffect(() => {
                     >
                       Delete
                     </button>
-
                     <p className="verificationMessage">
-  {saveState === SaveState.SAVING && 'Saving…'}
-  {saveState === SaveState.SAVED && 'Saved'}
-  {saveState === SaveState.ERROR && 'Error saving'}
-</p>
+                      {' '}
+                      {verificationMessage}{' '}
+                    </p>
                   </fieldset>
                 </div>
               </div>

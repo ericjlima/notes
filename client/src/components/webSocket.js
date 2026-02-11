@@ -3,7 +3,7 @@ import io from 'socket.io-client';
 
 const connectURL = window.location.hostname === 'localhost' 
   ? 'http://localhost:3001' 
-  : 'https://ericnote.us';
+  : 'https://api.ericnote.us';
 
 const socket = io.connect(connectURL);
 
